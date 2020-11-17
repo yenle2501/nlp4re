@@ -1,0 +1,6 @@
+runtime: java
+env: flex
+
+handlers:
+  - url: /.* 
+    scripts: this field is required, but ignored
