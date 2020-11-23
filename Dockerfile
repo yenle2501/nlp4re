@@ -7,11 +7,6 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-# run NPM
-npm i axios
-npm i axios
-npm install react-scripts --save
-
 # Build a release artifact.
 RUN mvn clean package -DskipTests
 
