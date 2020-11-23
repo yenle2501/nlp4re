@@ -7,8 +7,13 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
+# run NPM
+npm i axios
+npm i axios
+npm install react-scripts --save
+
 # Build a release artifact.
-RUN mvn package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Use AdoptOpenJDK for base image.
 FROM adoptopenjdk/openjdk11:alpine-slim
