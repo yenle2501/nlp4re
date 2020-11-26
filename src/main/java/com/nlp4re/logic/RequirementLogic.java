@@ -3,44 +3,38 @@ package com.nlp4re.logic;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.tokenize.SimpleTokenizer;
-import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.InvalidFormatException;
-import opennlp.tools.util.Span;
+import opennlp.tools.sentdetect.SentenceDetector;
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
 
 public class RequirementLogic {
 
-	private static void findSystemName(String text) {
-		SimpleTokenizer tokenizer = SimpleTokenizer.INSTANCE;
-		String[] tokens = tokenizer.tokenize(text);
-		// Loading the Tokenizer model
-		InputStream inputStream;
-			
-		TokenNameFinderModel model = null;
-		try {
-			inputStream = new FileInputStream("C:\\Bildung\\Master\\MasterArbeit\\nlp4re\\src\\main\\resources\\models\\en-ner-person.bin");
-			model = new TokenNameFinderModel(inputStream);
-		} catch (InvalidFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public RequirementLogic() {
+
+	}
+
+	public String[] getSentences(String requirement) throws IOException {
+		// sentence detector
+		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-sent.bin");
+		SentenceModel model = new SentenceModel(inputStream);
+
+		SentenceDetector detector = new SentenceDetectorME(model);
+		String[] sentences = detector.sentDetect(requirement);
+
+		return sentences;
+	}
+
+	public void doParse(String[] sentences) throws IOException {
+		MazoAndJaramilloLogic mazoAndJaramilloLogic = new MazoAndJaramilloLogic();
+
+		for (String sentence : sentences) {
+			System.out.println("SENTENCE: " + sentence);
+
+			mazoAndJaramilloLogic.first(sentence);
+
+			boolean hasModalVerb = mazoAndJaramilloLogic.parseModalVp();
+			boolean hasSystemName = mazoAndJaramilloLogic.parseSystemName();
 		}
-
-		NameFinderME nameFinder = new NameFinderME(model);
-		Span nameSpans[] = nameFinder.find(tokens);
-		// do something with the names
-		System.out.println("Found entity: " + Arrays.toString(Span.spansToStrings(nameSpans, tokens)));
 	}
-
-	public static void main(String[] args) {
-		String text = "John is 26 years old. His best friend's name is Leonard. He has a sister named Penny.";
-//				"the surveillance and tracking module shall provide the system administrator with the ability to monitor system configuration changes posted to the database";
-
-		findSystemName(text);
-	}
-
 }

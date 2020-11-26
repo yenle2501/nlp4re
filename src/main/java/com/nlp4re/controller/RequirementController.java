@@ -1,5 +1,7 @@
 package com.nlp4re.controller;
 
+import java.io.IOException;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,12 @@ public class RequirementController {
 
 	@RequestMapping(path = "/current", method = RequestMethod.PUT)
 	public void saveCurrentAccount(@Valid @RequestBody Requirement requirement) {
-		 service.save(requirement);
+		 try {
+			service.save(requirement);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 //	maybe is not necessary
