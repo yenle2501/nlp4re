@@ -22,6 +22,8 @@ import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
+import opennlp.tools.tokenize.TokenizerME;
+import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.tokenize.WhitespaceTokenizer;
 import opennlp.tools.util.Span;
 
@@ -34,18 +36,17 @@ public class SentenceAnalyzer {
 	 * TODO: add logging and comments for class, methods
 	 * 
 	 */
+	public String[] getTokens(String sentence) throws IOException {
 
-	private static int system_name_start = 0;
-
-	public String[] getTokens(String sentence) {
-
-		WhitespaceTokenizer whitespaceTokenizer = WhitespaceTokenizer.INSTANCE;
-		String tokens[] = whitespaceTokenizer.tokenize(sentence);
+		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-token.bin");
+		TokenizerModel tokenModel = new TokenizerModel(inputStream);
+		TokenizerME tokenizer = new TokenizerME(tokenModel);
+		String tokens[] = tokenizer.tokenize(sentence);
 //		System.out.println("TOKENS: " + Arrays.toString(tokens));
 		return tokens;
 	}
 
-	public String[] getTags(String[] tokens) throws IOException {
+	public String[] getPOSTags(String[] tokens) throws IOException {
 
 		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-pos-maxent.bin");
 		POSModel model = new POSModel(inputStream);
@@ -55,26 +56,26 @@ public class SentenceAnalyzer {
 		return tags;
 	}
 
-	public List<Parse> getNounChunks(String sentence) throws IOException {
-
-		List<Parse> nounChunks = new LinkedList<Parse>();
+	public Parse[] getParses(String sentence) throws IOException {
 
 		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-parser-chunking.bin");
 		ParserModel model = new ParserModel(inputStream);
 		Parser parser = ParserFactory.create(model);
 
-		Parse topParses[] = ParserTool.parseLine(sentence, parser, 1);
+		Parse[] parses = ParserTool.parseLine(sentence, parser, 1);
 
-		for (Parse p : topParses) {
-			System.out.print("PARSE: ");
-			p.showCodeTree();
-			getNounPhrases(p, nounChunks);
-		}
-
-		return nounChunks;
+		return parses;
 	}
 
-	private void getNounPhrases(Parse p, List<Parse> nounPhrases) {
+	public String[] getChunks(String[] tokens, String[] tags) throws IOException {
+		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-chunker.bin");
+		ChunkerModel model = new ChunkerModel(inputStream);
+		ChunkerME chunker = new ChunkerME(model);
+		String[] chunks = chunker.chunk(tokens, tags);
+		return chunks;
+	}
+
+	public void getNounPhrases(Parse p, List<Parse> nounPhrases) {
 		if (p.getType().equals("NP")) {
 			nounPhrases.add(p);
 		}
@@ -83,73 +84,34 @@ public class SentenceAnalyzer {
 		}
 	}
 
-	public String[] getChunks(String[] tokens, String[] tags) throws IOException {
-		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-chunker.bin");
-		ChunkerModel model = new ChunkerModel(inputStream);
-		ChunkerME chunker = new ChunkerME(model);
-		String tag[] = chunker.chunk(tokens, tags);
-
-//		System.out.println("chunk: " + Arrays.toString(tag));
-		return tag;
-	}
-
-//	public  Span[] getLocation(String[] tokens) throws IOException {
-//		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-ner-location.bin");
-//		TokenNameFinderModel location = new TokenNameFinderModel(inputStream);
-//		NameFinderME nameFinder = new NameFinderME(location);
-//
-//		Span[] nameSpans = nameFinder.find(tokens);
-//
-//		for (Span span : nameSpans) {
-////			System.out.println("SPAN: " + span.toString());
-//		}
-//		return nameSpans;
-//	}
-
-	public String getConditions(String[] tokens) {
-
-		String[] conditions = Arrays.copyOfRange(tokens, 0, system_name_start);
-
-		return Arrays.toString(conditions);
-	}
-
-	public String getSystemName(List<Parse> nounChunks, String[] tokens, String[] tags) throws IOException {
-
-		int modal_vp_index = Arrays.asList(tags).indexOf("MD");
-
-		for (Parse parse : nounChunks) {
-//			System.out.println("NOUN CHUNKS: " + parse.getCoveredText() );
-			String coveredText = parse.getCoveredText();
-			String[] coveredTextTokens = getTokens(coveredText);
-
-			int end_index = 0;
-			for (int i = 0; i < tokens.length; i++) {
-				if (tokens[i].equals(coveredTextTokens[0])) {
-					for (int j = 1; j < coveredTextTokens.length; j++) {
-						if (tokens[i + j].equals(coveredTextTokens[j])) {
-							system_name_start = i;
-							end_index = i + j;
-						} else {
-							break;
-						}
-					}
-
-				}
-			}
-
-			if (end_index == modal_vp_index - 1) {
-				return coveredText;
-			}
+	public String[] getConditions(String[] tokens) {
+		int token_index = Arrays.asList(tokens).indexOf(",");
+		if (token_index == -1) {
+			return null;
 		}
-		return null;
+		String[] conditions = Arrays.copyOfRange(tokens, 0, Arrays.asList(tokens).indexOf(","));
+		return conditions;
+	}
+
+	public String[] getSystemName(String[] tokens, String[] tags) {
+
+		int index_of_comma = Arrays.asList(tokens).indexOf(",");
+		int index_of_modal = Arrays.asList(tags).indexOf("MD");
+		String[] systemName = new String[] {};
+
+		if (index_of_comma != -1) {
+			systemName = Arrays.copyOfRange(tokens, index_of_comma + 1, index_of_modal);
+		} else {
+			systemName = Arrays.copyOfRange(tokens, 0, index_of_modal);
+		}
+		return systemName;
 	}
 
 	public List<String> getModalVp(String[] tags, String[] tokens) {
-//		Map<Integer, String> modals = new HashMap<Integer, String>();
+		System.out.println("TOKENS: " + Arrays.toString(tags));
 		List<String> modals = new LinkedList<String>();
 		for (int i = 0; i < tags.length; i++) {
 			if (tags[i].equals("MD") || tags[i] == "MD") {
-//				modals.put(i, tokens[i]);
 				modals.add(tokens[i]);
 			}
 		}

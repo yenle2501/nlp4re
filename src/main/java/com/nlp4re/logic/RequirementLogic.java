@@ -29,12 +29,18 @@ public class RequirementLogic {
 		MazoAndJaramilloLogic mazoAndJaramilloLogic = new MazoAndJaramilloLogic();
 
 		for (String sentence : sentences) {
+			System.out.println();
 			System.out.println("SENTENCE: " + sentence);
 
 			mazoAndJaramilloLogic.first(sentence);
 
 			boolean hasModalVerb = mazoAndJaramilloLogic.parseModalVp();
 			boolean hasSystemName = mazoAndJaramilloLogic.parseSystemName();
+			boolean hasCondition = mazoAndJaramilloLogic.parseCondition();			
+			/** if all rights, then return true
+			 * if any 
+			 * if all false, check that it is not re
+			 * */
 		}
 	}
 }
