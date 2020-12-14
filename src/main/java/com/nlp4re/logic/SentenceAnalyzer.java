@@ -3,28 +3,26 @@ package com.nlp4re.logic;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.util.StringUtils;
+
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
 import opennlp.tools.cmdline.parser.ParserTool;
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.Parser;
 import opennlp.tools.parser.ParserFactory;
 import opennlp.tools.parser.ParserModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.sentdetect.SentenceDetectorME;
-import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.tokenize.WhitespaceTokenizer;
 import opennlp.tools.util.Span;
 
 /**
@@ -33,8 +31,10 @@ import opennlp.tools.util.Span;
 public class SentenceAnalyzer {
 
 	/**
-	 * TODO: add logging and comments for class, methods
+	 * Get Tokens from given sentence
 	 * 
+	 * @param sentence Sentence for conversion to tokens
+	 * @return list of tokens from sentence
 	 */
 	public String[] getTokens(String sentence) throws IOException {
 
@@ -42,20 +42,34 @@ public class SentenceAnalyzer {
 		TokenizerModel tokenModel = new TokenizerModel(inputStream);
 		TokenizerME tokenizer = new TokenizerME(tokenModel);
 		String tokens[] = tokenizer.tokenize(sentence);
-//		System.out.println("TOKENS: " + Arrays.toString(tokens));
+		// System.out.println("TOKENS: " + Arrays.toString(tokens));
 		return tokens;
 	}
 
+	/**
+	 * Get Part of Speech Tags from list of tokens
+	 * 
+	 * @param tokens List of Tokens
+	 * @return list of POSTags
+	 * 
+	 */
 	public String[] getPOSTags(String[] tokens) throws IOException {
 
 		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-pos-maxent.bin");
 		POSModel model = new POSModel(inputStream);
 		POSTaggerME tagger = new POSTaggerME(model);
 		String[] tags = tagger.tag(tokens);
-//		System.out.println("tags: " + Arrays.toString(tags));
+		// System.out.println("tags: " + Arrays.toString(tags));
 		return tags;
 	}
 
+	/**
+	 * Get Parse from given sentence
+	 * 
+	 * @param sentence Sentence for conversion to parse
+	 * @return list of Parses from sentence
+	 * 
+	 */
 	public Parse[] getParses(String sentence) throws IOException {
 
 		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-parser-chunking.bin");
@@ -67,6 +81,14 @@ public class SentenceAnalyzer {
 		return parses;
 	}
 
+	/**
+	 * Get chunks from given tags and tokens
+	 * 
+	 * @param tokens:
+	 * @param tags:
+	 * @return list of chunks
+	 * 
+	 */
 	public String[] getChunks(String[] tokens, String[] tags) throws IOException {
 		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-chunker.bin");
 		ChunkerModel model = new ChunkerModel(inputStream);
@@ -75,6 +97,13 @@ public class SentenceAnalyzer {
 		return chunks;
 	}
 
+	/**
+	 * Get Tokens from given sentence
+	 * 
+	 * @param sentence Sentence for conversion to tokens
+	 * @return list of tokens from sentence
+	 * 
+	 */
 	public void getNounPhrases(Parse p, List<Parse> nounPhrases) {
 		if (p.getType().equals("NP")) {
 			nounPhrases.add(p);
@@ -84,29 +113,58 @@ public class SentenceAnalyzer {
 		}
 	}
 
-	public String[] getConditions(String[] tokens) {
+	/**
+	 * Get Tokens from given sentence
+	 * 
+	 * @param sentence Sentence for conversion to tokens
+	 * @return list of tokens from sentence
+	 * 
+	 */
+	public String[] getConditions(String[] tokens, String[] tags) {
 		int token_index = Arrays.asList(tokens).indexOf(",");
-		if (token_index == -1) {
+		int index_of_modal = Arrays.asList(tags).indexOf("MD");
+
+		if (token_index == -1 || token_index > index_of_modal) {
 			return null;
 		}
 		String[] conditions = Arrays.copyOfRange(tokens, 0, Arrays.asList(tokens).indexOf(","));
 		return conditions;
 	}
 
+	/**
+	 * Get Tokens from given sentence
+	 * 
+	 * @param sentence Sentence for conversion to tokens
+	 * @return list of tokens from sentence
+	 * 
+	 */
 	public String[] getSystemName(String[] tokens, String[] tags) {
 
 		int index_of_comma = Arrays.asList(tokens).indexOf(",");
 		int index_of_modal = Arrays.asList(tags).indexOf("MD");
 		String[] systemName = new String[] {};
 
-		if (index_of_comma != -1) {
-			systemName = Arrays.copyOfRange(tokens, index_of_comma + 1, index_of_modal);
+		if (index_of_comma != -1 && index_of_comma < index_of_modal) {
+			// cause if..., then
+			if (tokens[index_of_comma + 1].equals("then")) {
+				systemName = Arrays.copyOfRange(tokens, index_of_comma + 2, index_of_modal);
+			} else {
+				systemName = Arrays.copyOfRange(tokens, index_of_comma + 1, index_of_modal);
+			}
 		} else {
 			systemName = Arrays.copyOfRange(tokens, 0, index_of_modal);
 		}
 		return systemName;
 	}
 
+	/**
+	 * Get modal verb from given tokens and tags
+	 * 
+	 * @param tokens:
+	 * @param tags:
+	 * @return list of tokens from sentence
+	 * 
+	 */
 	public List<String> getModalVp(String[] tags, String[] tokens) {
 		System.out.println("TOKENS: " + Arrays.toString(tags));
 		List<String> modals = new LinkedList<String>();
@@ -118,8 +176,56 @@ public class SentenceAnalyzer {
 		return modals;
 	}
 
-	public String getAnchor(String[] tokens) {
-		return "";
+	/**
+	 * Get anchor from given tokens and tags
+	 * 
+	 * @param tokens:
+	 * @param tags:
+	 * @return anchor from tokens and tags
+	 * 
+	 */
+	public int getAnchorStartIndex(String[] tags, String[] tokens) {
+		int start_index_anchor = 0;
+		int index_of_comma = Arrays.asList(tokens).indexOf(",");
+		int index_of_modal = Arrays.asList(tags).indexOf("MD");
+
+		if (index_of_comma < index_of_modal && index_of_comma != -1 && !tokens[index_of_comma + 1].equals("then")) {
+			start_index_anchor = index_of_comma + 1;
+		} else if (index_of_comma < index_of_modal && index_of_comma != -1
+				&& tokens[index_of_comma + 1].equals("then")) {
+			start_index_anchor = index_of_comma + 2;
+		}
+
+		// String[] anchor = Arrays.copyOfRange(tokens, start_index_anchor,
+		// index_of_modal + 2);
+		return start_index_anchor;
 	}
 
+	/**
+	 * Get anchor from given tokens and tags
+	 * 
+	 * @param tokens:
+	 * @param tags:
+	 * @return anchor from tokens and tags
+	 * 
+	 */
+	public int getTokenIndex(String[] tags, String[] tokens, String tagname, String tokenname,
+			String[] condition_tokens, boolean isPre) {
+
+		int index = -1;
+		for (int i = 0; i < tags.length; i++) {
+			if (tags[i].equalsIgnoreCase(tagname) && tokens[i].equalsIgnoreCase(tokenname)) {
+				String[] b = isPre ? Arrays.copyOfRange(tokens, i - condition_tokens.length, i)
+						: Arrays.copyOfRange(tokens, i, i + condition_tokens.length);
+				
+				String a = StringUtils.arrayToDelimitedString(b, " ");
+				String condition_string = StringUtils.arrayToDelimitedString(condition_tokens, " ");
+				if (a.equalsIgnoreCase(condition_string)) {
+					index = i;
+					break;
+				}
+			}
+		}
+		return index;
+	}
 }

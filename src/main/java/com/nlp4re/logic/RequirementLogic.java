@@ -3,6 +3,8 @@ package com.nlp4re.logic;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import opennlp.tools.sentdetect.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
@@ -28,19 +30,33 @@ public class RequirementLogic {
 	public void doParse(String[] sentences) throws IOException {
 		MazoAndJaramilloLogic mazoAndJaramilloLogic = new MazoAndJaramilloLogic();
 
+		List<String> requirement_list = new LinkedList<String>();
+		List<String> conformance_list = new LinkedList<String>();
+
 		for (String sentence : sentences) {
 			System.out.println();
 			System.out.println("SENTENCE: " + sentence);
 
 			mazoAndJaramilloLogic.first(sentence);
 
-			boolean hasModalVerb = mazoAndJaramilloLogic.parseModalVp();
-			boolean hasSystemName = mazoAndJaramilloLogic.parseSystemName();
-			boolean hasCondition = mazoAndJaramilloLogic.parseCondition();			
-			/** if all rights, then return true
-			 * if any 
-			 * if all false, check that it is not re
-			 * */
+			mazoAndJaramilloLogic.parseModalVp();
+			mazoAndJaramilloLogic.parseSystemName();
+			mazoAndJaramilloLogic.parseAnchor();
+			mazoAndJaramilloLogic.isValidSentence();
+			mazoAndJaramilloLogic.parseCondition();
+			mazoAndJaramilloLogic.parseObject();
+			mazoAndJaramilloLogic.parseDetails();
+			mazoAndJaramilloLogic.parseConditionalDetails();
+			boolean isConformance = mazoAndJaramilloLogic.parseTemplateConformance();
+
+			requirement_list.add(sentence);
+			if (isConformance) {
+				System.out.println(">>>>>>>>>>SENTENCE CONFORMED <<<<<<<<<<<< ");
+				conformance_list.add(sentence);
+			}
+			/**
+			 * if all rights, then return true if any if all false, check that it is not re
+			 */
 		}
 	}
 }
