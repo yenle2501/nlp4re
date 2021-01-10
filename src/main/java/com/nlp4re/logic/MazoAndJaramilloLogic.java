@@ -29,17 +29,20 @@ public class MazoAndJaramilloLogic {
 
 	public boolean isValidSentence;
 	public boolean isConformantSegment;
+	public boolean isValidObject;
+	private boolean isValidCondition;
+	private boolean isValidDetails;
 
 	private boolean hasModalVerb;
 	private boolean hasSystemName;
 	private boolean hasCondition;
 	private boolean hasAnchor;
-	private boolean hasObject;
+	private boolean hasDetails;
 
 	private int anchor_start_index;
 	private int anchor_end_index;
 	private int modal_index;
-	private boolean isValidCondition;
+	private int object_end_index;
 
 	private SentenceAnalyzer sentenceAnalyzer = null;
 	private PatternMatcher matcher = null;
@@ -82,7 +85,7 @@ public class MazoAndJaramilloLogic {
 
 		Span[] spans = matcher.matches(regexs, contions_str);
 
-		System.out.println("CONDITION : " + contions_str);
+//		System.out.println("CONDITION : " + contions_str);
 
 		if (spans == null || spans.length != 1) {
 			isValidCondition = false;
@@ -154,7 +157,7 @@ public class MazoAndJaramilloLogic {
 				if (spans[0].getType().equals("the") || spans[0].getType().equals("all_some")) {
 					// that contains only noun
 					if (!Arrays.asList(tags_systemName).contains("VB")) {
-						System.out.println("SYSTEM NAME : " + systemName);
+//						System.out.println("SYSTEM NAME : " + systemName);
 						return true;
 					} else {
 						return false;
@@ -163,7 +166,7 @@ public class MazoAndJaramilloLogic {
 				} else if (spans[0].getType().equals("those")) {
 					// must contains verb because of restrictions
 					if (Arrays.asList(tags_systemName).contains("VB")) {
-						System.out.println("SYSTEM NAME : " + systemName);
+//						System.out.println("SYSTEM NAME : " + systemName);
 						return true;
 					} else {
 						return false;
@@ -171,8 +174,7 @@ public class MazoAndJaramilloLogic {
 				}
 
 			} else {
-				/**
-				 * TODO: Log, do not contain any proposed name
+				 /** TODO: Log, do not contain any proposed name
 				 */
 				return false;
 			}
@@ -196,7 +198,7 @@ public class MazoAndJaramilloLogic {
 
 		String modal_vp = modals.get(0);
 		if (Arrays.asList(MODALS).contains(modal_vp.toUpperCase())) {
-			System.out.println("MODAL VERB: " + modal_vp);
+//			System.out.println("MODAL VERB: " + modal_vp);
 			this.modal_vp = modal_vp;
 			this.hasModalVerb = true;
 			this.modal_index = Arrays.asList(tags).indexOf("MD");
@@ -214,6 +216,7 @@ public class MazoAndJaramilloLogic {
 	 */
 	public boolean parseAnchor() throws IOException {
 		assert this.hasModalVerb;
+
 		this.anchor_start_index = sentenceAnalyzer.getAnchorStartIndex(tags, tokens);
 		String[] anchor_tokens = Arrays.copyOfRange(tokens, anchor_start_index, tokens.length);
 		String[] anchor_tags = sentenceAnalyzer.getPOSTags(anchor_tokens);
@@ -228,10 +231,13 @@ public class MazoAndJaramilloLogic {
 
 			if (spans == null || spans.length == 0) {
 				// System has a normal verb
+				/**
+				 * iwie nict richtig, vllt verb hat 2 woerter or in passiv phrase e.x : should be created
+				 */
 				anchor_end_index = modal_index + 2;
 
-				System.out.println("ANCHOR:" + StringUtils
-						.arrayToDelimitedString(Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
+//				System.out.println("ANCHOR:" + StringUtils
+//						.arrayToDelimitedString(Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
 				hasAnchor = true;
 				return true;
 			} else if (spans.length == 1) {
@@ -255,16 +261,22 @@ public class MazoAndJaramilloLogic {
 						}
 					}
 					// check verb after "with the ability to"
+					/**
+					 * TODO muss check chunk
+					 */
 					if (anchor_tags[index_of_with + 4].equals("VB")) {
 						anchor_end_index = modal_index + (index_of_with - index_of_modal) + 5;
-						System.out.println("ANCHOR PROVIDE:" + StringUtils.arrayToDelimitedString(
-								Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
+//						System.out.println("ANCHOR PROVIDE:" + StringUtils.arrayToDelimitedString(
+//								Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
 						hasAnchor = true;
 						return true;
 					} else {
 						return false;
 					}
 				} else if (spans[0].getType().equals("be_able_to")) {
+					/**
+					 * TODO muss check chunk
+					 */
 					if (tags[modal_index + 4].equals("VB")) {
 
 						// if (tokens[modal_index + 4].equals("FROM") || tokens[modal_index + 4].equals("TOWARDS")) {
@@ -272,8 +284,8 @@ public class MazoAndJaramilloLogic {
 						// }
 						// // String[] anchor = Arrays.copyOfRange(tokens,);
 						anchor_end_index = modal_index + 5;
-						System.out.println("ANCHOR:" + StringUtils.arrayToDelimitedString(
-								Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
+//						System.out.println("ANCHOR:" + StringUtils.arrayToDelimitedString(
+//								Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
 						hasAnchor = true;
 						return true;
 					} else {
@@ -304,49 +316,100 @@ public class MazoAndJaramilloLogic {
 
 	}
 
+	public boolean parseObject() throws IOException {
+		assert hasAnchor == true;
+
+		String[] possible_object_tokens = Arrays.copyOfRange(tokens, anchor_end_index, tokens.length);
+		String possible_object_string = StringUtils.arrayToDelimitedString(possible_object_tokens, " ");
+
+		String object_string = sentenceAnalyzer.getObjects(possible_object_string);
+
+		if (object_string.equals("") || object_string == null) {
+			isValidObject = true;
+		}
+
+		String[] object_tokens = sentenceAnalyzer.getTokens(object_string);
+
+//		System.out.println("OBJECT:" + object_string);
+
+		Map<String, String> regexs = new HashMap<String, String>();
+		regexs.put("single_obj", "^A |^AN |^THE |^ONE |^EACH +");
+		regexs.put("between", "^BETWEEN * AND +");
+		regexs.put("all_the", "^ALL THE +");
+
+		/***
+		 * TODO muss noch angepasst werden, IWIE nicht richtig
+		 */
+		Span[] spans = matcher.matches(regexs, object_string);
+
+		// maybe do not contains all of them
+		if (spans == null || spans.length == 0) {
+
+			object_end_index = anchor_end_index + object_tokens.length;
+			isValidObject = true;
+		}
+		// one of the cases
+		else if (spans.length == 1) {
+			object_end_index = anchor_end_index + object_tokens.length - 1;
+			isValidObject = true;
+
+			return true;
+		}
+
+		isValidObject = false;
+		return false;
+	}
+
+	/**
+	 * this method checks for the validation of segment that should check whether the sentence has anchor, modal verb
+	 * and valid condition ( or without condition)
+	 */
 	public boolean parseConformantSegment() {
-		if (hasModalVerb && hasAnchor && hasObject) {
+		if (hasModalVerb && hasAnchor && isValidCondition) {
+			isConformantSegment = true;
 			return true;
 		}
 		return false;
 	}
 
-	public boolean parseObject() throws IOException {
-		assert hasAnchor == true;
+	/**
+	 *
+	 */
+	public boolean parseDetails() {
+		assert isConformantSegment;
 
-		String[] object_tokens = Arrays.copyOfRange(tokens, anchor_end_index, tokens.length);
-		String[] object_tags = Arrays.copyOfRange(tags, anchor_end_index, tags.length);
-		String object_string = StringUtils.arrayToDelimitedString(object_tokens, " ");
-		System.out.println("OBJECT:" + object_string);
+		if ((object_end_index + 1) == tokens.length) {
+			hasDetails = false;
+			isValidDetails = true;
+			return true;
+		}
+
+		String[] details = Arrays.copyOfRange(tokens, object_end_index + 1, tokens.length);
+
+//		System.out.println("DETAILS: " + Arrays.toString(details));
 
 		Map<String, String> regexs = new HashMap<String, String>();
-		regexs.put("a_an_each", "^A|AN|EACH.*");
-		regexs.put("between", "^BETWEEN.*AND.* ");
-		regexs.put("all_the", "^ALL THE.* ");
-
-		Span[] spans = matcher.matches(regexs, object_string);
-		// maybe do not contains all of them
-		if (spans == null || spans.length == 0) {
-
+		regexs.put("condition", "IF AND ONLY IF+");
+		Span[] spans = matcher.matches(regexs, StringUtils.arrayToDelimitedString(details, " "));
+		
+		// detail contains no condition
+		if(spans.length == 0) {
+			
 		}
-		// one of the cases
 		else if (spans.length == 1) {
-			sentenceAnalyzer.getChunks(object_tokens, object_tags);
+			if(spans[0].getType().equals("condition")) {
+//				System.out.println("DETAILS: " + Arrays.toString(details));
+				hasDetails = true;
+				isValidDetails = true;
+				return true;
+			}
 		}
-
 		return false;
 	}
 
-	public boolean parseDetails() {
-		return false;
-	}
-
-	public boolean parseConditionalDetails() {
-		return false;
-	}
-
-	/** parse the complete sentence
-	 * */
+	/**
+	 * parse the complete sentence
+	 */
 	public boolean parseTemplateConformance() {
 		if (!hasModalVerb || !hasAnchor || !isValidCondition || !isConformantSegment) {
 			return false;

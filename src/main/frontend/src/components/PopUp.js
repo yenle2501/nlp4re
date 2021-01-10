@@ -1,25 +1,24 @@
 import React from 'react';
+// styling
 import './PopUp/PopUp.css';
 
-export default class PopUp extends React.Component {
+const PopUp = props => {
+    // function that takes boolean as param to conditionally display popup
+    const { setPopUp } = props 
 
-	constructor(props) {
-	    super(props);
-	  }
-
-	
-	// function
-	  render() {
-		  return (
-				  <div className="wrap">
-		          	<div>
-		          <button className="closeBtn">
-		            Hide
-		            </button>
-		          </div>
-		        </div>
-			);
-	  }
-	  
+    return (
+        <div className="PopUp">
+            {/* x close window */}
+            <button className="popup-x" onClick={()=> setPopUp(false)} >X</button>
+            <div className="pu-content-container">
+                <h1>compliant requirements</h1>
+            </div>
+            {/* button controls */}
+            <div className="pu-button-container">
+                <button onClick={()=> setPopUp(false)}> close</button>
+            </div>
+        </div>
+    );
 }
 
+export default PopUp;

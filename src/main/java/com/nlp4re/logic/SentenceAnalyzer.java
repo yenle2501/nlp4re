@@ -104,22 +104,6 @@ public class SentenceAnalyzer {
 	 * @return list of tokens from sentence
 	 * 
 	 */
-	public void getNounPhrases(Parse p, List<Parse> nounPhrases) {
-		if (p.getType().equals("NP")) {
-			nounPhrases.add(p);
-		}
-		for (Parse child : p.getChildren()) {
-			getNounPhrases(child, nounPhrases);
-		}
-	}
-
-	/**
-	 * Get Tokens from given sentence
-	 * 
-	 * @param sentence Sentence for conversion to tokens
-	 * @return list of tokens from sentence
-	 * 
-	 */
 	public String[] getConditions(String[] tokens, String[] tags) {
 		int token_index = Arrays.asList(tokens).indexOf(",");
 		int index_of_modal = Arrays.asList(tags).indexOf("MD");
@@ -166,7 +150,7 @@ public class SentenceAnalyzer {
 	 * 
 	 */
 	public List<String> getModalVp(String[] tags, String[] tokens) {
-		System.out.println("TOKENS: " + Arrays.toString(tags));
+//		System.out.println("TOKENS: " + Arrays.toString(tags));
 		List<String> modals = new LinkedList<String>();
 		for (int i = 0; i < tags.length; i++) {
 			if (tags[i].equals("MD") || tags[i] == "MD") {
@@ -174,6 +158,60 @@ public class SentenceAnalyzer {
 			}
 		}
 		return modals;
+	}
+
+	public String getObjects(String sentence) throws IOException {
+
+		Parse[] a = getParses(sentence);
+		LinkedList<Parse> list_objects = new LinkedList<Parse>();
+		Arrays.asList(a).forEach(parse -> {
+			getNounChunk(parse, list_objects);
+		});
+
+		LinkedList<Parse> list_objects_cpy = new LinkedList<Parse>();
+		list_objects_cpy.addAll(list_objects);
+
+		list_objects_cpy.stream().sequential().forEach(parse -> {
+			for (Parse object : list_objects) {
+				if (Arrays.asList(object.getChildren()).contains(parse)) {
+					list_objects.remove(object);
+					break;
+				}
+			}
+		});
+
+		String object = list_objects.get(0).getCoveredText();
+		String[] object_tokens = getTokens(object);
+		String[] possible_object_tokens = getTokens(sentence);
+
+		// because Possessive pronoun  such as his/her.. or between are not nouns
+		if (!object_tokens[0].equalsIgnoreCase(possible_object_tokens[0])) {
+			int index = Arrays.asList(possible_object_tokens).indexOf(object_tokens[0]);
+
+			String[] missed_tokens = Arrays.copyOfRange(possible_object_tokens, 0, index);
+//			System.out.println("missed tokens:" + Arrays.toString(missed_tokens));
+			object = StringUtils.arrayToDelimitedString(missed_tokens, " ") + " " + object;
+		}
+
+		return object;
+	}
+
+	/**
+	 * Get Tokens from given sentence
+	 * 
+	 * @param sentence Sentence for conversion to tokens
+	 * @return list of tokens from sentence
+	 * 
+	 */
+	public void getNounChunk(Parse parse, List<Parse> list_objects) {
+
+		if (parse.getType().equals("NP")) {
+			list_objects.add(parse);
+
+		}
+		for (Parse child : parse.getChildren()) {
+			getNounChunk(child, list_objects);
+		}
 	}
 
 	/**
@@ -217,7 +255,7 @@ public class SentenceAnalyzer {
 			if (tags[i].equalsIgnoreCase(tagname) && tokens[i].equalsIgnoreCase(tokenname)) {
 				String[] b = isPre ? Arrays.copyOfRange(tokens, i - condition_tokens.length, i)
 						: Arrays.copyOfRange(tokens, i, i + condition_tokens.length);
-				
+
 				String a = StringUtils.arrayToDelimitedString(b, " ");
 				String condition_string = StringUtils.arrayToDelimitedString(condition_tokens, " ");
 				if (a.equalsIgnoreCase(condition_string)) {

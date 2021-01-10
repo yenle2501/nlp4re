@@ -1,37 +1,29 @@
-import React from 'react';
-import './TextForm/TextForm.css';
+import React, {useState} from 'react';
 import axios from 'axios';
-import PopUp from './PopUp.js';
+import './TextForm/TextForm.css';
+import PopUp from './PopUp';
 
-export default class TextForm extends React.Component {
-
-	
-	constructor(props) {
-	    super(props);
-	    this.state = {description : '',
-	    			  showPopUp : false};
-	    this.handleChange =  this.handleChange.bind(this);
-	    this.checkText =  this.checkText.bind(this);
-	  }
-
-	
-	//function
-	handleChange(event){
-		this.setState({
-			description: event.target.value
-		    });
-	}
-	
-	checkText(event){
-		event.preventDefault();
-		const desc = {description : this.state.description}
-		
-		console.log('desc:' + this.state.description)
-		
+const TextForm = () => {
+    // controls if popup displays
+    const [popUp, setPopUp] = useState(false)
+    const [description,setDescription] = useState('')
+    
+    // adds class to darken background color
+//    const duringPopUp = popUp ? " during-popup" : ""
+    
+    let handleChange =(event) =>setDescription(event.target.value);
+    
+    let checkText=() =>{
+    	setPopUp(true)
+		console.log('desc:' + description)
+		// in json format {descrition: content}
+		const desc = {description: description}
 		// send data to backend
-		axios.put("http://localhost:8080/description/test", desc)
+	
+		axios.put("http://localhost:8080/description/check", desc)
             .then(response => {
                 if(response.data != null) {
+                	
                 	console.log(response.status)
                 } else {
                 	console.log(response.status)
@@ -39,21 +31,22 @@ export default class TextForm extends React.Component {
             });
 		
 		 console.log("after send request");
-		 this.setState({
-			 showPopUp : true
-		 });
-		 
-	}
-			  
-	  render() {
-		  return (
-		  <form onSubmit={this.checkText}>
-	      		<label> Requirement description </label>
-	      		<textarea id="text" name="typeText" alue={this.state.description}  	onChange={this.handleChange}  placeholder=" Write requirements.."/>
-	      		<button type="submit"> Check </button>
-	      </form>
-	      );
-	  }
-	  
+    }
+    
+    
+    return (
+        <div className={"TextForm"}>
+            <div className="head"> 
+                <h1>Requirements Description</h1> 
+            </div>
+	        <div className={"check"}>            
+		         <label>  Description </label>
+				 <textarea value={description}  onChange={handleChange} placeholder=" Write requirements.."/>
+	             <button onClick={checkText} >Check</button>
+	        </div>
+            {popUp && <PopUp setPopUp={setPopUp}/>}
+        </div>
+    );
 }
 
+export default TextForm;
