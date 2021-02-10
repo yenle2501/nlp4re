@@ -19,6 +19,8 @@ public class MazoAndJaramilloLogic {
 	private static final String[] MODALS = { "SHOULD", "SHALL", "COULD", "WILL", "MUST" };
 	private static final String[] SYSTEM_NAMES = { "ALL", "SOME", "THOSE", "THE" };
 
+	public String error_logs;
+
 	public String modal_vp;
 	public String system_name;
 	public String process_vp;
@@ -53,6 +55,7 @@ public class MazoAndJaramilloLogic {
 	public MazoAndJaramilloLogic() {
 		sentenceAnalyzer = new SentenceAnalyzer();
 		matcher = new PatternMatcher();
+		error_logs = "";
 
 		hasModalVerb = false;
 		hasSystemName = false;
@@ -85,7 +88,7 @@ public class MazoAndJaramilloLogic {
 
 		Span[] spans = matcher.matches(regexs, contions_str);
 
-//		System.out.println("CONDITION : " + contions_str);
+		// System.out.println("CONDITION : " + contions_str);
 
 		if (spans == null || spans.length != 1) {
 			isValidCondition = false;
@@ -124,6 +127,11 @@ public class MazoAndJaramilloLogic {
 	 */
 	public boolean parseSystemName() throws IOException {
 
+		if (this.hasModalVerb == false) {
+			System.out.println("do not have modal verb");
+			return false;
+		}
+
 		String[] tokens_systemName = sentenceAnalyzer.getSystemName(tokens, tags);
 
 		if (tokens_systemName == null || tokens_systemName.length == 0) {
@@ -157,28 +165,33 @@ public class MazoAndJaramilloLogic {
 				if (spans[0].getType().equals("the") || spans[0].getType().equals("all_some")) {
 					// that contains only noun
 					if (!Arrays.asList(tags_systemName).contains("VB")) {
-//						System.out.println("SYSTEM NAME : " + systemName);
+						// System.out.println("SYSTEM NAME : " + systemName);
 						return true;
 					} else {
+						error_logs += "No verb after system name. \n";
 						return false;
 					}
 
 				} else if (spans[0].getType().equals("those")) {
 					// must contains verb because of restrictions
 					if (Arrays.asList(tags_systemName).contains("VB")) {
-//						System.out.println("SYSTEM NAME : " + systemName);
+						// System.out.println("SYSTEM NAME : " + systemName);
 						return true;
 					} else {
+						error_logs += "No verb after system name.\n";
 						return false;
 					}
 				}
 
 			} else {
-				 /** TODO: Log, do not contain any proposed name
+				/**
+				 * TODO: Log, do not contain any proposed name
 				 */
+				error_logs += " The system name should beginn with ALL| SOME SYSTEMS OF THE| THOSE SYSTEMS OF THE| THE. \n";
 				return false;
 			}
 		}
+		error_logs += " The sentence does not have any system name. \n";
 		return false;
 
 	}
@@ -193,18 +206,20 @@ public class MazoAndJaramilloLogic {
 		List<String> modals = sentenceAnalyzer.getModalVp(tags, tokens);
 
 		if (modals.size() < 1) {
+			error_logs += " The sentence does not have any modal verb. The modal verbs should be SHOULD, SHALL, COULD, WILL, MUST.\n";
 			return false;
 		}
 
 		String modal_vp = modals.get(0);
 		if (Arrays.asList(MODALS).contains(modal_vp.toUpperCase())) {
-//			System.out.println("MODAL VERB: " + modal_vp);
+			// System.out.println("MODAL VERB: " + modal_vp);
 			this.modal_vp = modal_vp;
 			this.hasModalVerb = true;
 			this.modal_index = Arrays.asList(tags).indexOf("MD");
 			return true;
 		}
 
+		error_logs = "The sentence does not contains the valid modal verbs. The modal verbs should be SHOULD, SHALL, COULD, WILL, MUST.\n";
 		return false;
 	}
 
@@ -215,7 +230,6 @@ public class MazoAndJaramilloLogic {
 	 * @throws IOException
 	 */
 	public boolean parseAnchor() throws IOException {
-		assert this.hasModalVerb;
 
 		this.anchor_start_index = sentenceAnalyzer.getAnchorStartIndex(tags, tokens);
 		String[] anchor_tokens = Arrays.copyOfRange(tokens, anchor_start_index, tokens.length);
@@ -235,9 +249,6 @@ public class MazoAndJaramilloLogic {
 				 * iwie nict richtig, vllt verb hat 2 woerter or in passiv phrase e.x : should be created
 				 */
 				anchor_end_index = modal_index + 2;
-
-//				System.out.println("ANCHOR:" + StringUtils
-//						.arrayToDelimitedString(Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
 				hasAnchor = true;
 				return true;
 			} else if (spans.length == 1) {
@@ -256,6 +267,7 @@ public class MazoAndJaramilloLogic {
 
 					for (int i = 0; i < who_chunk.length; i++) {
 						if (!who_chunk[i].contains("-NP")) {
+							error_logs += "After PROVIDE an Object should be shown. For example USER| <Name>\n";
 							hasAnchor = false;
 							return false;
 						}
@@ -266,11 +278,12 @@ public class MazoAndJaramilloLogic {
 					 */
 					if (anchor_tags[index_of_with + 4].equals("VB")) {
 						anchor_end_index = modal_index + (index_of_with - index_of_modal) + 5;
-//						System.out.println("ANCHOR PROVIDE:" + StringUtils.arrayToDelimitedString(
-//								Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
+						// System.out.println("ANCHOR PROVIDE:" + StringUtils.arrayToDelimitedString(
+						// Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
 						hasAnchor = true;
 						return true;
 					} else {
+						error_logs += "A Verb must be shown after WITH THE ABILITY.\n";
 						return false;
 					}
 				} else if (spans[0].getType().equals("be_able_to")) {
@@ -278,26 +291,21 @@ public class MazoAndJaramilloLogic {
 					 * TODO muss check chunk
 					 */
 					if (tags[modal_index + 4].equals("VB")) {
-
-						// if (tokens[modal_index + 4].equals("FROM") || tokens[modal_index + 4].equals("TOWARDS")) {
-						//
-						// }
-						// // String[] anchor = Arrays.copyOfRange(tokens,);
 						anchor_end_index = modal_index + 5;
-//						System.out.println("ANCHOR:" + StringUtils.arrayToDelimitedString(
-//								Arrays.copyOfRange(tokens, anchor_start_index, anchor_end_index), " "));
 						hasAnchor = true;
 						return true;
 					} else {
 						// the sentence is not valid, no verb after to
-
+						error_logs += "A Verb must be shown after TO BE ABLE TO.\n";
 						hasAnchor = false;
 						return false;
 					}
 				}
 			} else {
 				// more than one pattern
+				error_logs += "The sentence has more than one Pattern.\n";
 				hasAnchor = false;
+				error_logs += "";
 				return false;
 			}
 		}
@@ -317,7 +325,7 @@ public class MazoAndJaramilloLogic {
 	}
 
 	public boolean parseObject() throws IOException {
-		assert hasAnchor == true;
+		if(!hasAnchor) return false;
 
 		String[] possible_object_tokens = Arrays.copyOfRange(tokens, anchor_end_index, tokens.length);
 		String possible_object_string = StringUtils.arrayToDelimitedString(possible_object_tokens, " ");
@@ -330,7 +338,7 @@ public class MazoAndJaramilloLogic {
 
 		String[] object_tokens = sentenceAnalyzer.getTokens(object_string);
 
-//		System.out.println("OBJECT:" + object_string);
+		// System.out.println("OBJECT:" + object_string);
 
 		Map<String, String> regexs = new HashMap<String, String>();
 		regexs.put("single_obj", "^A |^AN |^THE |^ONE |^EACH +");
@@ -355,7 +363,7 @@ public class MazoAndJaramilloLogic {
 
 			return true;
 		}
-
+		error_logs += object_string + " must be startet with A| AN| THE|ONE| EACH| ALL THE| BETWEEN <A> AND <B>.\n";
 		isValidObject = false;
 		return false;
 	}
@@ -386,19 +394,18 @@ public class MazoAndJaramilloLogic {
 
 		String[] details = Arrays.copyOfRange(tokens, object_end_index + 1, tokens.length);
 
-//		System.out.println("DETAILS: " + Arrays.toString(details));
+		// System.out.println("DETAILS: " + Arrays.toString(details));
 
 		Map<String, String> regexs = new HashMap<String, String>();
 		regexs.put("condition", "IF AND ONLY IF+");
 		Span[] spans = matcher.matches(regexs, StringUtils.arrayToDelimitedString(details, " "));
-		
+
 		// detail contains no condition
-		if(spans.length == 0) {
-			
-		}
-		else if (spans.length == 1) {
-			if(spans[0].getType().equals("condition")) {
-//				System.out.println("DETAILS: " + Arrays.toString(details));
+		if (spans.length == 0) {
+
+		} else if (spans.length == 1) {
+			if (spans[0].getType().equals("condition")) {
+				// System.out.println("DETAILS: " + Arrays.toString(details));
 				hasDetails = true;
 				isValidDetails = true;
 				return true;

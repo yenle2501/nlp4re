@@ -1,27 +1,23 @@
 
 .PopUp{
-    position: fixed;
-
-    left: 25%;
+	position: fixed;
     top: 30%;
-
-    width: 50%;
-    
-    border: 1px solid #011627;
+    left: 30%;
+    width: 38%;
+    border: 1px solid ;
     border-radius: 1em;
-    box-shadow: -2px 5px 5px #E71D36;
-
     background-color: #FDFFFC;
-    
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    
+    justify-content: center;
+    align-items: center ;
     color: #011627;
+    flex-wrap: wrap;
+    cursor: -webkit-grab;
+  	cursor: grab;
 }
 
-.popup-x{
+.popup-close{
     width: 3em;
     height: 2em;
     border: none;
@@ -32,17 +28,14 @@
     justify-self: flex-start;
 }
 
-.pu-button-container{
-    margin-bottom: 0.5em;
-}
-
-.pu-img{
-    width: 20%;
-}
 
 .pu-content-container{
-    width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+  	justify-content: center;
+  	align-items: left;
+  	flex-direction: column;
+}
+
+label{
+	 padding: 5px 12px 12px 5px;
 }

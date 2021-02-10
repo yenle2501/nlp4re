@@ -1,31 +1,122 @@
-import React, {useState} from 'react';
+import React, {Component} from 'react';
 import axios from 'axios';
 import './TextForm/TextForm.css';
 import PopUp from './PopUp';
+import {Accordion,Button, Card, Modal, Form} from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const TextForm = () => {
-    // controls if popup displays
-    const [popUp, setPopUp] = useState(false)
-    const [description,setDescription] = useState('')
-    
-    // adds class to darken background color
-//    const duringPopUp = popUp ? " during-popup" : ""
-    
-    let handleChange =(event) =>setDescription(event.target.value);
-    
-    let checkText=() =>{
-    	setPopUp(true)
-		console.log('desc:' + description)
-		// in json format {descrition: content}
-		const desc = {description: description}
-		// send data to backend
+export default class TextForm  extends Component {
 	
+	// constructor
+	constructor(props) {
+	    super(props);
+	    
+	    this.state = {
+				popUp: false,
+				description: '',
+				result: '',
+				alert: false
+		}
+	    
+	    this.handleOnChange =  this.handleOnChange.bind(this);
+	    this.setResult = this.setResult.bind(this);
+	    this.setDescription = this.setDescription.bind(this);
+	    this.setPopUp = this.setPopUp.bind(this);
+	    this.checkText =  this.checkText.bind(this);
+	  }
+	
+	// functions
+	setResult =(value) => {
+		 this.setState({
+			 result: value
+		    });
+	 }
+	
+	
+	setDescription =(value) => {
+		 this.setState({
+			 description: value
+		    });
+	 }
+	 
+	 setPopUp =(value) => {
+		 this.setState({
+				popUp: value
+		    });
+	 }
+	   
+     handleOnChange =(event) => {
+    	 this.setState({
+ 				description: event.target.value
+ 		    });
+    }
+     
+    showAlert = (value) => {
+    	 this.setState({
+			 alert: value
+		    });
+    }
+         
+    checkText=() =>{
+    	// check input
+    	if(this.state.description === null || this.state.description === "") {
+    		console.log("alert");
+    		this.showAlert(true);
+    		return;
+    	}
+    	
+		// in json format {descrition: content}
+		const desc = {description: this.state.description}
+		// send data to backend and receive response
+			
 		axios.put("http://localhost:8080/description/check", desc)
             .then(response => {
                 if(response.data != null) {
-                	
+        	    	var resullt = response.data[0];
+        	    	var conform_list = response.data[1];
+        	    	var logs_list = response.data[2];
+        	    	
+        	    	var tmp = '';
+        	    	
+        	    	Object.keys(resullt).forEach(function(key) {
+        	    	
+        	    		console.log(key, conform_list[key]); 
+        	    		console.log(key, resullt[key]); 
+        	    		console.log(key, logs_list[key]);
+        	    		
+        	    		// konform
+        	    		if(conform_list[key] === '0'){
+        	    			tmp = [tmp, <Card style={{ backgroundColor: '#90ee90' }}> 
+        	    							{resullt[key]}
+        	    						</Card>
+        	    				  ];
+        	    		}
+        	    		else if(conform_list[key] === '1'){
+        	    			tmp = [tmp, 
+        	    				<Accordion  defaultActiveKey="0" >
+	        	    			  <Card>
+	        	    			      <Accordion.Toggle as={Card.Header} variant="link" eventKey="1" style={{ backgroundColor: ' #ff5050' }}>
+	        	    			      	  {resullt[key]}
+	        	    			      </Accordion.Toggle>
+	        	    			      <Accordion.Collapse eventKey="1" style={{ backgroundColor: '#ffb2b2' }}>
+		        	    			      <Card.Body>
+		        	    			      	<label> Error Logs </label>
+		        	    			      	{logs_list[key]}
+		        	    			      </Card.Body>
+	        	    			     </Accordion.Collapse>
+	        	    			  </Card>
+        	    			</Accordion>
+        	    				 
+        	    				];
+        	    		}
+            		});
+        	    	
+        	    	
+        	    	this.setResult(tmp);
+                	this.setPopUp(true)
                 	console.log(response.status)
                 } else {
+                
                 	console.log(response.status)
                 }
             });
@@ -33,20 +124,41 @@ const TextForm = () => {
 		 console.log("after send request");
     }
     
-    
-    return (
-        <div className={"TextForm"}>
-            <div className="head"> 
-                <h1>Requirements Description</h1> 
-            </div>
-	        <div className={"check"}>            
-		         <label>  Description </label>
-				 <textarea value={description}  onChange={handleChange} placeholder=" Write requirements.."/>
-	             <button onClick={checkText} >Check</button>
-	        </div>
-            {popUp && <PopUp setPopUp={setPopUp}/>}
-        </div>
-    );
+     
+	    render() {
+	    	return (
+	            <div className={"TextForm"}>
+		            <div className="head"> 
+		                <h1>Requirements Description</h1> 
+		            </div> 
+		            <div className="check">        
+					   <Form>
+						   <Form.Group  value={this.state.description}  onChange={this.handleOnChange}>
+						     <Form.Control as="textarea" rows={10} />
+						   </Form.Group>
+					    </Form>
+					   <Button variant="success" onClick={this.checkText} >Check</Button>
+				       
+				      {this.state.alert &&
+				    	  	<Modal show={true} onHide={() =>this.showAlert(false)} variant="danger" animation={true}>
+						        <Modal.Header >
+						          <Modal.Title>Warning</Modal.Title>
+						        </Modal.Header>
+						        <Modal.Body>
+						        	Please fill out the field 
+						        </Modal.Body>
+						        <Modal.Footer>
+						          <Button variant="danger" onClick={() =>this.showAlert(false)}>
+						            Close
+						          </Button>
+						        </Modal.Footer>
+						    </Modal>
+				      }
+				     </div>
+		            {this.state.popUp && <PopUp onSetPopUp={this.setPopUp} onSetContent={this.state.result} />}
+	           </div>
+	    	);
+	    }
 }
 
-export default TextForm;
+// export default TextForm;

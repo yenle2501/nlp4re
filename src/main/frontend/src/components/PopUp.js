@@ -1,24 +1,33 @@
-import React from 'react';
-// styling
+import React,{Component} from 'react';
 import './PopUp/PopUp.css';
+import {Button} from 'react-bootstrap';
+import Draggable from 'react-draggable';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const PopUp = props => {
-    // function that takes boolean as param to conditionally display popup
-    const { setPopUp } = props 
+export default class PopUp extends Component {
+ 
+    constructor(props){
+	   super(props);
+	   this.state = {
+	          popUpChange: this.props.onSetPopUp,
+	          content    : this.props.onSetContent
+	        }
+	}
 
-    return (
-        <div className="PopUp">
-            {/* x close window */}
-            <button className="popup-x" onClick={()=> setPopUp(false)} >X</button>
-            <div className="pu-content-container">
-                <h1>compliant requirements</h1>
-            </div>
-            {/* button controls */}
-            <div className="pu-button-container">
-                <button onClick={()=> setPopUp(false)}> close</button>
-            </div>
-        </div>
-    );
+    
+    render() {
+    	return (
+    		<Draggable  disabled={false} active="true">
+    	        <div className="PopUp">
+    	            <Button className="popup-close" variant="light" onClick={()=> this.props.onSetPopUp(false)} >
+    	            	X
+    	            </Button>
+    	            <h2>Compliant requirements</h2>
+    	            <div className="pu-content-container">
+                		{this.state.content}
+                	</div>
+               </div>
+            </Draggable>
+    	    );
+    }
 }
-
-export default PopUp;

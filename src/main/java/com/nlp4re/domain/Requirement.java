@@ -1,12 +1,12 @@
 package com.nlp4re.domain;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
+import javax.persistence.Id;
 
 @Entity
 public class Requirement {
-
+	
 	@Id
 	@NotNull
 	private String id;
@@ -17,7 +17,7 @@ public class Requirement {
 	public Requirement() {
 	}
 
-	public Requirement( String id, String description) {
+	public Requirement(String id, String description) {
 		this.id = id;
 		this.description = description;
 	}

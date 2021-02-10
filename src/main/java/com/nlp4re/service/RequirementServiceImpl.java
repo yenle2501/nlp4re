@@ -3,38 +3,26 @@ package com.nlp4re.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nlp4re.domain.Requirement;
 import com.nlp4re.logic.RequirementLogic;
-import com.nlp4re.repository.RequirementRespository;
 
 @Service
 public class RequirementServiceImpl implements RequirementService {
 
-	@Autowired
-	private RequirementRespository repository;
-
 	@Override
-	public Requirement findById(int id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Map<Integer, String> save(Requirement requirement) throws IOException {
+	public List<Map<Integer, String>> save(Requirement requirement) throws IOException {
 		RequirementLogic logic = new RequirementLogic();
 		String[] sentences = logic.getSentences(requirement.getDescription());
-		Map<Integer, String> conformance_sentence = logic.doParse(sentences);
+		if (sentences == null) {
+			return null;
+		} else {
+			
+			List<Map<Integer, String>> conformance_sentence = logic.doParse(sentences);
 
-		conformance_sentence.forEach((index, sentence) -> {
-
-			System.out.println("CONFORMED SENTENCE: " + index + "--" + sentence);
-		});
-		
-		return conformance_sentence;
+			return conformance_sentence;
+		}
 	}
 
 	// public static void main(String[] args) throws IOException {
