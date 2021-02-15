@@ -123,4 +123,18 @@ public class SentenceAnalyzerTest {
 		String[] POSTags = analyzer.getPOSTags(tokens);
 	}
 
+	@Test
+	public void test_getConditions_NullPointerException() {
+		SentenceAnalyzer analyzer = new SentenceAnalyzer();
+		assertThrows(NullPointerException.class, () -> analyzer.getChunks(null, null));
+
+	}
+
+	@Test
+	public void test_getConditions_NotNull() {
+		SentenceAnalyzer analyzer = new SentenceAnalyzer();
+		String[] tokens = analyzer.getTokens(sentence);
+		String[] POSTags = analyzer.getPOSTags(tokens);
+	}
+	
 }
