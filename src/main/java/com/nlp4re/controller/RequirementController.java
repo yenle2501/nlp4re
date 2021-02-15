@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.*;
 import com.nlp4re.domain.Requirement;
 import com.nlp4re.service.RequirementService;
 
+/**
+ * 
+ *
+ */
 @RestController
 @RequestMapping("/description")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -27,12 +31,26 @@ public class RequirementController {
 	@Autowired
 	private RequirementService service;
 
+	/**
+	 * 
+	 * @param requirement
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	@RequestMapping(path = "/check", method = RequestMethod.PUT)
-	public ResponseEntity<List<Map<Integer, String>>> saveCurrentAccount(@Valid @RequestBody Requirement requirement)
+	public ResponseEntity<List<Map<Integer, String>>> checkRequirement(@Valid @RequestBody Requirement requirement)
 			throws FileNotFoundException, IOException {
 
+		if (requirement == null) {
+			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+		}
+
 		System.out.println("RECEIVED Requirements: " + requirement.getDescription());
-		List<Map<Integer, String>> response = service.save(requirement);
+		List<Map<Integer, String>> response = service.check(requirement.getDescription());
+		if (response == null) {
+			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+		}
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 

@@ -12,80 +12,76 @@ import opennlp.tools.sentdetect.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 
+/**
+ * This class works as logic class
+ */
 public class RequirementLogic {
 
-	public RequirementLogic() {
-
-	}
-
-	public String[] getSentences(String requirement) throws IOException {
+	/**
+	 * This method helps to get single sentence from the requirements description
+	 * 
+	 * @param desc requirements description
+	 * @return a String array with sentences
+	 * @throws IOException
+	 */
+	public String[] getSentences(String desc) throws IOException {
 		// sentence detector
 		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-sent.bin");
 		SentenceModel model = new SentenceModel(inputStream);
 
 		SentenceDetector detector = new SentenceDetectorME(model);
-		String[] sentences = detector.sentDetect(requirement);
-		if(sentences.length == 0) {
+		String[] sentences = detector.sentDetect(desc);
+		if (sentences.length == 0) {
 			return null;
 		}
 		return sentences;
 	}
 
+	/**
+	 * This method helps to parse each single sentence with the chosen template.
+	 * 
+	 * @param sentences list of sentences
+	 * @return a list of map with key-value-pair 1.Map contains all sentences of requirement 2.Map contains all
+	 *         compliant and non-compliant sentences with the order as the keys in 1.Map 3.Map contains all log for the
+	 *         non-compliant sentences with the order as the keys in 1.Map
+	 * @throws IOException
+	 */
 	public List<Map<Integer, String>> doParse(String[] sentences) throws IOException {
 
-		List<String> requirement_list = new LinkedList<String>();
-		// List<String> conformance_list = new LinkedList<String>();
-		Map<Integer, String> conformance_list = new HashMap<Integer, String>();
-		Map<Integer, String> list_sentences = new  HashMap<Integer, String>();
-		Map<Integer, String> list_logs = new  HashMap<Integer, String>();
-		
-		// for (String sentence : sentences) {
+		Map<Integer, String> map_sentences = new HashMap<Integer, String>();
+		Map<Integer, String> map_compliant_sentences = new HashMap<Integer, String>();
+		Map<Integer, String> map_logs_for_non_compliant_sentences = new HashMap<Integer, String>();
 
-		// Arrays.asList().stream().forEach(sentence -> {
 		for (int index = 0; index < sentences.length; index++) {
-			// System.out.println();
 			String sentence = sentences[index];
-			list_sentences.put(index, sentence);
-			
+			map_sentences.put(index, sentence);
+
 			System.out.println("SENTENCE: " + sentence);
+			MazoAndJaramilloLogic mazoAndJaramilloLogic = new MazoAndJaramilloLogic();
+			mazoAndJaramilloLogic.tokenizeSentence(sentence);
+			mazoAndJaramilloLogic.parseModalVp();
+			mazoAndJaramilloLogic.parseSystemName();
+			mazoAndJaramilloLogic.parseAnchor();
+			mazoAndJaramilloLogic.isValidSentence();
+			mazoAndJaramilloLogic.parseCondition();
+			mazoAndJaramilloLogic.parseObject();
+			mazoAndJaramilloLogic.parseConformantSegment();
+			mazoAndJaramilloLogic.parseDetails();
+			boolean isConformance = mazoAndJaramilloLogic.parseTemplateConformance();
+			String error_logs = mazoAndJaramilloLogic.error_logs;
 
-			try {
-				MazoAndJaramilloLogic mazoAndJaramilloLogic = new MazoAndJaramilloLogic();
-				mazoAndJaramilloLogic.first(sentence);
-				mazoAndJaramilloLogic.parseModalVp();
-				mazoAndJaramilloLogic.parseSystemName();
-				mazoAndJaramilloLogic.parseAnchor();
-				mazoAndJaramilloLogic.isValidSentence();
-				mazoAndJaramilloLogic.parseCondition();
-				mazoAndJaramilloLogic.parseObject();
-				mazoAndJaramilloLogic.parseConformantSegment();
-				mazoAndJaramilloLogic.parseDetails();
-				boolean isConformance = mazoAndJaramilloLogic.parseTemplateConformance();
-				String error_logs =  mazoAndJaramilloLogic.error_logs;
-				
-				requirement_list.add(sentence);
-				if (isConformance) {
-					//0: sentence is compliant
-					conformance_list.put(index, "0");
-				}
-				else {
-					conformance_list.put(index, "1");
-					list_logs.put(index, error_logs);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (isConformance) {
+				map_compliant_sentences.put(index, "0");
+			} else {
+				map_compliant_sentences.put(index, "1");
+				map_logs_for_non_compliant_sentences.put(index, error_logs);
 			}
-
-			/**
-			 * if all rights, then return true if any if all false, check that it is not re
-			 */
 		}
 		List<Map<Integer, String>> result = new LinkedList<Map<Integer, String>>();
-		result.add(list_sentences);
-		result.add(conformance_list);
-		result.add(list_logs);
-		
+		result.add(map_sentences);
+		result.add(map_compliant_sentences);
+		result.add(map_logs_for_non_compliant_sentences);
+
 		return result;
 
 	}

@@ -3,17 +3,17 @@ package com.nlp4re.logic;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.springframework.util.StringUtils;
-
-import opennlp.tools.namefind.RegexNameFinder;
-import opennlp.tools.parser.Parse;
 import opennlp.tools.util.Span;
 
+/**
+ * This class works as the logic class for check the logic
+ * 
+ * @TODO
+ */
 public class MazoAndJaramilloLogic {
 
 	private static final String[] MODALS = { "SHOULD", "SHALL", "COULD", "WILL", "MUST" };
@@ -33,13 +33,12 @@ public class MazoAndJaramilloLogic {
 	public boolean isConformantSegment;
 	public boolean isValidObject;
 	private boolean isValidCondition;
-	private boolean isValidDetails;
-
-	private boolean hasModalVerb;
 	private boolean hasSystemName;
 	private boolean hasCondition;
-	private boolean hasAnchor;
+	private boolean isValidDetails;
 	private boolean hasDetails;
+	private boolean hasModalVerb;
+	private boolean hasAnchor;
 
 	private int anchor_start_index;
 	private int anchor_end_index;
@@ -48,7 +47,6 @@ public class MazoAndJaramilloLogic {
 
 	private SentenceAnalyzer sentenceAnalyzer = null;
 	private PatternMatcher matcher = null;
-	private String sentence;
 	private String[] tokens;
 	private String[] tags;
 
@@ -65,12 +63,21 @@ public class MazoAndJaramilloLogic {
 		isValidCondition = false;
 	}
 
-	public void first(String sentence) throws IOException {
-		this.sentence = sentence;
+	/**
+	 * 
+	 * @param sentence
+	 * @throws IOException
+	 */
+	public void tokenizeSentence(String sentence) throws IOException {
 		this.tokens = sentenceAnalyzer.getTokens(sentence);
 		this.tags = sentenceAnalyzer.getPOSTags(tokens);
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public boolean parseCondition() throws IOException {
 
 		String[] conditions = sentenceAnalyzer.getConditions(tokens, tags);
@@ -325,7 +332,8 @@ public class MazoAndJaramilloLogic {
 	}
 
 	public boolean parseObject() throws IOException {
-		if(!hasAnchor) return false;
+		if (!hasAnchor)
+			return false;
 
 		String[] possible_object_tokens = Arrays.copyOfRange(tokens, anchor_end_index, tokens.length);
 		String possible_object_string = StringUtils.arrayToDelimitedString(possible_object_tokens, " ");

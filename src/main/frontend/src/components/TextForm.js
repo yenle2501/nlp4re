@@ -60,7 +60,6 @@ export default class TextForm  extends Component {
     checkText=() =>{
     	// check input
     	if(this.state.description === null || this.state.description === "") {
-    		console.log("alert");
     		this.showAlert(true);
     		return;
     	}
@@ -120,9 +119,7 @@ export default class TextForm  extends Component {
                 	console.log(response.status)
                 }
             });
-		
-		 console.log("after send request");
-    }
+	    }
     
      
 	    render() {
@@ -160,5 +157,3 @@ export default class TextForm  extends Component {
 	    	);
 	    }
 }
-
-// export default TextForm;
