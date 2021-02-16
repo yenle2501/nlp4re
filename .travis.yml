@@ -6,7 +6,6 @@ services:
 env:
   global:
     - IMAGE_NAME=${DOCKERHUB_USER}/nlp4re
-    - IMAGE_NAME_TAGGED=${DOCKERHUB_USER}/nlp4re:${TRAVIS_TAG}
 
 script:
   - docker build -t ${IMAGE_NAME} .
@@ -19,6 +18,6 @@ deploy:
       branch: master
   
   - provider: script
-    script: docker login -u ${DOCKERHUB_USER} -p ${DOCKERHUB_PW} && docker tag ${IMAGE_NAME} ${IMAGE_NAME_TAGGED} && docker push ${IMAGE_NAME_TAGGED}
+    script: docker login -u ${DOCKERHUB_USER} -p ${DOCKERHUB_PW} && docker tag ${IMAGE_NAME} 
     on:
       tags: true
