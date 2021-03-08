@@ -1,5 +1,7 @@
 package com.nlp4re.logic;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,17 +26,26 @@ public class RequirementLogic {
 	 * @return a String array with sentences
 	 * @throws IOException
 	 */
-	public String[] getSentences(String desc) throws IOException {
+	public Map<Integer, String> getSentences(String desc) {
+		checkNotNull(desc);
+
 		// sentence detector
-		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-sent.bin");
-		SentenceModel model = new SentenceModel(inputStream);
+		SentenceModel model = null;
+		try {
+			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-sent.bin");
+			model = new SentenceModel(inputStream);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		SentenceDetector detector = new SentenceDetectorME(model);
 		String[] sentences = detector.sentDetect(desc);
-		if (sentences.length == 0) {
-			return null;
+		Map<Integer, String> map_sentences = new HashMap<Integer, String>();
+		for (int index = 0; index < sentences.length; index++) {
+			map_sentences.put(index, sentences[index]);
 		}
-		return sentences;
+		return map_sentences;
 	}
 
 	/**
@@ -46,39 +57,27 @@ public class RequirementLogic {
 	 *         non-compliant sentences with the order as the keys in 1.Map
 	 * @throws IOException
 	 */
-	public List<Map<Integer, String>> doParse(String[] sentences) throws IOException {
+	public List<Map<Integer, String>> doParse(Map<Integer, String> sentences) {
+		checkNotNull(sentences);
 
-		Map<Integer, String> map_sentences = new HashMap<Integer, String>();
 		Map<Integer, String> map_compliant_sentences = new HashMap<Integer, String>();
 		Map<Integer, String> map_logs_for_non_compliant_sentences = new HashMap<Integer, String>();
 
-		for (int index = 0; index < sentences.length; index++) {
-			String sentence = sentences[index];
-			map_sentences.put(index, sentence);
+		long timestart = System.currentTimeMillis();
 
-			System.out.println("SENTENCE: " + sentence);
-			MazoAndJaramilloLogic mazoAndJaramilloLogic = new MazoAndJaramilloLogic();
-			mazoAndJaramilloLogic.tokenizeSentence(sentence);
-			mazoAndJaramilloLogic.parseModalVp();
-			mazoAndJaramilloLogic.parseSystemName();
-			mazoAndJaramilloLogic.parseAnchor();
-			mazoAndJaramilloLogic.isValidSentence();
-			mazoAndJaramilloLogic.parseCondition();
-			mazoAndJaramilloLogic.parseObject();
-			mazoAndJaramilloLogic.parseConformantSegment();
-			mazoAndJaramilloLogic.parseDetails();
-			boolean isConformance = mazoAndJaramilloLogic.parseTemplateConformance();
-			String error_logs = mazoAndJaramilloLogic.error_logs;
+		MazoAndJaramilloLogic mazoAndJaramilloLogic = new MazoAndJaramilloLogic();
+		
+		sentences.entrySet().stream().forEach(e -> {
+			Integer index = e.getKey();
+			String sentence = e.getValue();
+			help(mazoAndJaramilloLogic, map_compliant_sentences, map_logs_for_non_compliant_sentences, index, sentence);
+		});
 
-			if (isConformance) {
-				map_compliant_sentences.put(index, "0");
-			} else {
-				map_compliant_sentences.put(index, "1");
-				map_logs_for_non_compliant_sentences.put(index, error_logs);
-			}
-		}
+		long timeend = System.currentTimeMillis();
+		System.out.println("TIME: " + (timeend - timestart)); // 42830 --21102
+		// mit Mono -- 42807 --
 		List<Map<Integer, String>> result = new LinkedList<Map<Integer, String>>();
-		result.add(map_sentences);
+		result.add(sentences);
 		result.add(map_compliant_sentences);
 		result.add(map_logs_for_non_compliant_sentences);
 
@@ -86,4 +85,22 @@ public class RequirementLogic {
 
 	}
 
+	private void help(MazoAndJaramilloLogic mazoAndJaramilloLogic, Map<Integer, String> map_compliant_sentences,
+			Map<Integer, String> map_logs_for_non_compliant_sentences, int index, String sentence) {
+		// Integer index = e.getKey();
+		// String sentence = e.getValue();
+
+		System.out.println("SENTENCE: " + sentence);
+		boolean isConformance = mazoAndJaramilloLogic.parseTemplateConformance(sentence);
+		String error_logs = mazoAndJaramilloLogic.error_logs;
+
+		// System.out.println("LOGS:" + error_logs);
+
+		if (isConformance) {
+			map_compliant_sentences.put(index, "0");
+		} else {
+			map_compliant_sentences.put(index, "1");
+			map_logs_for_non_compliant_sentences.put(index, error_logs);
+		}
+	}
 }

@@ -15,24 +15,25 @@ import opennlp.tools.util.Span;
 public class PatternMatcher {
 
 	/**
-	 * match the sentence with definitely regexs
+	 * match the sentence with definitely regexes
 	 * 
-	 * @param regexs
-	 * @param sentence
+	 * @param regexes given regexes
+	 * @param sentence 
 	 * @return Array of spans
 	 */
-	public Span[] matches(Map<String, String> regexs, String sentence) {
-		checkNotNull(regexs);
+	public Span[] matches(Map<String, String> regexes, String sentence) {
+		checkNotNull(regexes);
 		checkNotNull(sentence);
 
 		Map<String, Pattern[]> regexMap = new HashMap<>();
-		regexs.forEach((key, value) -> {
+		regexes.entrySet().parallelStream().forEach(e -> {
+			String key = e.getKey();
+			String value = e.getValue();
 			Pattern pattern = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
 			regexMap.put(key, new Pattern[] { pattern });
-
+		
 		});
-		RegexNameFinder finder = new RegexNameFinder(regexMap);
-		Span[] spans = finder.find(sentence);
-		return spans;
-	}
-}
+
+	RegexNameFinder finder = new RegexNameFinder(regexMap);
+	Span[] spans = finder.find(sentence);return spans;
+}}

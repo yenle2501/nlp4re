@@ -3,13 +3,14 @@ package com.nlp4re.logic;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
+import org.eclipse.collections.impl.utility.ListIterate;
 import org.springframework.util.StringUtils;
 
 import opennlp.tools.chunker.ChunkerME;
@@ -28,6 +29,17 @@ import opennlp.tools.tokenize.TokenizerModel;
  * This class works as a
  */
 public class SentenceAnalyzer {
+	TokenizerME tokenizer;
+	POSTaggerME tagger;
+	Parser parser;
+	ChunkerME chunker;
+
+	public SentenceAnalyzer() {
+		tokenizer = getTokens();
+		tagger = getPOSTags();
+		parser = getParses();
+		chunker = getChunks();
+	}
 
 	/**
 	 * Get Tokens from given sentence
@@ -35,8 +47,8 @@ public class SentenceAnalyzer {
 	 * @param sentence Sentence for conversion to tokens
 	 * @return list of tokens from sentence
 	 */
-	public String[] getTokens(String sentence) {
-		checkNotNull(sentence);
+	public TokenizerME getTokens() {
+		// checkNotNull(sentence);
 
 		TokenizerModel tokenModel = null;
 		try {
@@ -47,8 +59,13 @@ public class SentenceAnalyzer {
 			e.printStackTrace();
 		}
 		TokenizerME tokenizer = new TokenizerME(tokenModel);
-		String tokens[] = tokenizer.tokenize(sentence);
-		return tokens;
+		return tokenizer;
+		// String tokens[] = tokenizer.tokenize(sentence);
+		// return tokens;
+	}
+
+	public String[] getTokens(String sentence) {
+		return tokenizer.tokenize(sentence);
 	}
 
 	/**
@@ -58,181 +75,177 @@ public class SentenceAnalyzer {
 	 * @return An array of POSTags
 	 * 
 	 */
-	public String[] getPOSTags(String[] tokens) {
-		checkNotNull(tokens);
+	public POSTaggerME getPOSTags() {
+		// checkNotNull(tokens);
 
 		POSModel model = null;
 		try {
 			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-pos-maxent.bin");
 			model = new POSModel(inputStream);
-
+			inputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		POSTaggerME tagger = new POSTaggerME(model);
-		String[] tags = tagger.tag(tokens);
-		return tags;
+		return tagger;
+		// String[] tags = tagger.tag(tokens);
+		// return tags;
+	}
+
+	public String[] getPOSTags(String[] tokens) {
+		return tagger.tag(tokens);
 	}
 
 	/**
-	 * Get Parses from given sentence
+	 * Determines Parses from given sentence
 	 * 
 	 * @param sentence Sentence for conversion to parse
 	 * @return An Array of Parses from sentence
 	 * 
 	 */
-	public Parse[] getParses(String sentence) {
-		checkNotNull(sentence);
+	public Parser getParses() {
+		// checkNotNull(sentence);
 
 		ParserModel model = null;
 		try {
 			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-parser-chunking.bin");
 			model = new ParserModel(inputStream);
+			inputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		Parser parser = ParserFactory.create(model);
-		Parse[] parses = ParserTool.parseLine(sentence, parser, 1);
-
-		return parses;
+		return parser;
 	}
+	// Parse[] parses;
+	// synchronized (parser) {
+	// parses = ParserTool.parseLine(sentence, parser, 1);
+	// }
+	//
+	// return parses;
+	// }
 
 	/**
-	 * Get chunks from given tags and tokens
+	 * Determines chunks from given tags and tokens
 	 * 
-	 * @param tokens:
-	 * @param tags:
-	 * @return An Array of chunks
-	 * 
+	 * @param tokens: array of tokens
+	 * @param tags:   array of tags
+	 * @return List of Chunks
+	 * @throws IOException
 	 */
-	public String[] getChunks(String[] tokens, String[] tags) throws IOException {
-		checkNotNull(tokens);
-		checkNotNull(tags);
+	public ChunkerME getChunks() {// (String[] tokens, String[] tags) {
+		// checkNotNull(tokens);
+		// checkNotNull(tags);
 
-		InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-chunker.bin");
-		ChunkerModel model = new ChunkerModel(inputStream);
+		ChunkerModel model = null;
+		try {
+			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-chunker.bin");
+			model = new ChunkerModel(inputStream);
+			inputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		ChunkerME chunker = new ChunkerME(model);
-		String[] chunks = chunker.chunk(tokens, tags);
-		return chunks;
+		return chunker;
+
+		// String[] chunks = chunker.chunk(tokens, tags);
+		// return Arrays.asList(chunks);
+	}
+
+	public List<String> getChunks(String[] tokens, String[] tags) {
+		checkNotNull(tokens);
+		checkNotNull(tags);
+		return Arrays.asList(chunker.chunk(tokens, tags));
 	}
 
 	/**
-	 * Get Condition of the sentence
+	 * Determines the condition in the sentence from given tokens, index of comma and modal verb
 	 * 
-	 * @param token
-	 * @param tags
-	 * @return An Array of tokens from sentence
-	 * 
+	 * @param token:       List of tokens
+	 * @param comma_index: index of comma in sentence
+	 * @param modal_index: index of modal verb in sentence
+	 * @return condition of sentence in form of a list
 	 */
-	public String[] getConditions(String[] tokens, String[] tags) {
+	public List<String> getConditions(List<String> tokens, int modal_index, int comma_index) {
 		checkNotNull(tokens);
-		checkNotNull(tags);
 
-		int token_index = Arrays.asList(tokens).indexOf(",");
-		int index_of_modal = Arrays.asList(tags).indexOf("MD");
-
-		if (token_index == -1 || token_index > index_of_modal) {
+		if (comma_index == -1 || comma_index > modal_index) {
 			return null;
 		}
-		String[] conditions = Arrays.copyOfRange(tokens, 0, Arrays.asList(tokens).indexOf(","));
-		return conditions;
+		return tokens.subList(0, comma_index);
 	}
 
 	/**
+	 * Determines the system name from given tokens
 	 * 
-	 * @return An array of tokens from sentence
+	 * @param tokens:      List of tokens
+	 * @param comma_index: index of comma in sentence
+	 * @param modal_index: index of modal verb in sentence
+	 * @return system name in form of a list
 	 * 
 	 */
-	public String[] getSystemName(String[] tokens, String[] tags) {
+	public List<String> getSystemName(List<String> tokens, int comma_index, int modal_index) {
 		checkNotNull(tokens);
-		checkNotNull(tags);
 
-		int index_of_comma = Arrays.asList(tokens).indexOf(",");
-		int index_of_modal = Arrays.asList(tags).indexOf("MD");
-		String[] systemName = new String[] {};
+		List<String> systemName = new LinkedList<String>();
 
-		if (index_of_comma != -1 && index_of_comma < index_of_modal) {
+		if (comma_index != -1 && comma_index < modal_index) {
 			// cause if..., then
-			if (tokens[index_of_comma + 1].equals("then")) {
-				systemName = Arrays.copyOfRange(tokens, index_of_comma + 2, index_of_modal);
+			if (tokens.get(comma_index + 1).equals("then")) {
+				systemName = tokens.subList(comma_index + 2, modal_index);
 			} else {
-				systemName = Arrays.copyOfRange(tokens, index_of_comma + 1, index_of_modal);
+				systemName = tokens.subList(comma_index + 1, modal_index);
 			}
 		} else {
-			systemName = Arrays.copyOfRange(tokens, 0, index_of_modal);
+			systemName = tokens.subList(0, modal_index);
 		}
 		return systemName;
 	}
 
 	/**
-	 * Get modal verb from given tokens and tags
+	 * Determines object of sentence
 	 * 
-	 * @param tokens:
-	 * @param tags:
-	 * @return list of tokens from sentence
-	 * 
+	 * @param sentence Sentence to check
+	 * @return Object of the sentence
 	 */
-	public List<String> getModalVp(String[] tags, String[] tokens) {
-		checkNotNull(tokens);
-		checkNotNull(tags);
-
-		List<String> modals = new LinkedList<String>();
-		for (int i = 0; i < tags.length; i++) {
-			if (tags[i].equals("MD") || tags[i] == "MD") {
-				modals.add(tokens[i]);
-			}
-		}
-		return modals;
-	}
-
-	/**
-	 * 
-	 * @param sentence
-	 * @return
-	 * @throws IOException
-	 */
-	public String getObjects(String sentence) throws IOException {
+	public String getObjects(String sentence, String[] possible_object_tokens) {
 		checkNotNull(sentence);
+		checkNotNull(possible_object_tokens);
 
-		Parse[] a = getParses(sentence);
+		
+		
+		Parse[] parses = new Parse[] {};
+		parses = ParserTool.parseLine(sentence, parser, 1);
+
 		LinkedList<Parse> list_objects = new LinkedList<Parse>();
-		Arrays.asList(a).forEach(parse -> {
+
+		Arrays.asList(parses).stream().forEach(parse -> {
 			getNounChunk(parse, list_objects);
 		});
 
-		LinkedList<Parse> list_objects_cpy = new LinkedList<Parse>();
-		list_objects_cpy.addAll(list_objects);
+		Stream<Parse> new_ob = list_objects.stream().filter(parse -> !parse.getCoveredText().equals(sentence));
+		String object = new_ob.findFirst().get().getCoveredText();
 
-		list_objects_cpy.stream().sequential().forEach(parse -> {
-			for (Parse object : list_objects) {
-				if (Arrays.asList(object.getChildren()).contains(parse)) {
-					list_objects.remove(object);
-					break;
-				}
-			}
-		});
-
-		String object = list_objects.get(0).getCoveredText();
-		String[] object_tokens = getTokens(object);
-		String[] possible_object_tokens = getTokens(sentence);
+		String[] object_tokens = new String[] {};
+		object_tokens = tokenizer.tokenize(object);
 
 		// because Possessive pronoun such as his/her.. or between are not nouns
 		if (!object_tokens[0].equalsIgnoreCase(possible_object_tokens[0])) {
 			int index = Arrays.asList(possible_object_tokens).indexOf(object_tokens[0]);
 
 			String[] missed_tokens = Arrays.copyOfRange(possible_object_tokens, 0, index);
-			// System.out.println("missed tokens:" + Arrays.toString(missed_tokens));
-			object = StringUtils.arrayToDelimitedString(missed_tokens, " ") + " " + object;
+			object = StringUtils.arrayToDelimitedString(missed_tokens, " ") + " " + object; // 2840
 		}
 
 		return object;
 	}
 
 	/**
+	 * Determines noun chunk from Parse and save it in list_object
 	 * 
-	 * @param parse
-	 * @param list_objects
+	 * @param parse        Parse for determination of noun chunks
+	 * @param list_objects list of objects
 	 */
 	public void getNounChunk(Parse parse, List<Parse> list_objects) {
 		checkNotNull(parse);
@@ -242,72 +255,51 @@ public class SentenceAnalyzer {
 			list_objects.add(parse);
 
 		}
-		for (Parse child : parse.getChildren()) {
+		// for (Parse child : parse.getChildren()) {
+		Arrays.asList(parse.getChildren()).stream().forEach(child -> {
 			getNounChunk(child, list_objects);
-		}
+		});
 	}
 
 	/**
-	 * Get anchor from given tokens and tags
+	 * Get modal verb index from given tags
 	 * 
-	 * @param tokens: Array of token
-	 * @param tags:   Array of tags
-	 * @return start index of anchor from given tokens and tags
+	 * @param tags:        List of tags
+	 * @param index_comma: index of comma in sentence
+	 * @return index of modal verb in the sentence
 	 * 
 	 */
-	public int getAnchorStartIndex(String[] tags, String[] tokens) {
+	public int getModalIndex(List<String> tags, int index_comma) {
 		checkNotNull(tags);
+
+		int modal_index = ListIterate.detectIndex(tags, "MD"::equals);
+		// if the sentence contains condition
+		if (index_comma != -1 && index_comma <= modal_index) {
+			int x = ListIterate.detectIndex(tags.subList(index_comma, tags.size()), "MD"::equals);
+			return x + index_comma;
+		}
+		return modal_index;
+	}
+
+	/**
+	 * Get start index of anchor in sentence from given tokens
+	 * 
+	 * @param tokens:      List of tokens
+	 * @param comma_index: index of comma in sentence
+	 * @param modal_index: index of modal verb in sentence
+	 * @return start index of anchor
+	 * 
+	 */
+	public int getAnchorStartIndex(List<String> tokens, int comma_index, int modal_index) {
 		checkNotNull(tokens);
 
 		int start_index_anchor = 0;
-		int index_of_comma = Arrays.asList(tokens).indexOf(",");
-		int index_of_modal = Arrays.asList(tags).indexOf("MD");
-
 		// in case the sentence looks like : if ..., then ...
-		if (index_of_comma < index_of_modal && index_of_comma != -1 && !tokens[index_of_comma + 1].equals("then")) {
-			start_index_anchor = index_of_comma + 1;
-		} else if (index_of_comma < index_of_modal && index_of_comma != -1
-				&& tokens[index_of_comma + 1].equals("then")) {
-			start_index_anchor = index_of_comma + 2;
+		if (comma_index < modal_index && comma_index != -1 && !tokens.get(comma_index + 1).equals("then")) {
+			start_index_anchor = comma_index + 1;
+		} else if (comma_index < modal_index && comma_index != -1 && tokens.get(comma_index + 1).equals("then")) {
+			start_index_anchor = comma_index + 2;
 		}
-
 		return start_index_anchor;
-	}
-
-	/**
-	 * Get index of the given token and tag
-	 * 
-	 * @param tags             Array of the tags
-	 * @param tokens           Array of tokens
-	 * @param tagname          given tag name
-	 * @param tokenname        the given token name
-	 * @param condition_tokens Array of tokens in condition part
-	 * @param isPre            true : if the condition precedes the main clause false: if the condition comes after the
-	 *                         main clause
-	 * @return index of the given token
-	 */
-	public int getTokenIndex(String[] tags, String[] tokens, String tagname, String tokenname,
-			String[] condition_tokens, boolean isPre) {
-		checkNotNull(tags);
-		checkNotNull(tokens);
-		checkNotNull(tagname);
-		checkNotNull(tokenname);
-		checkNotNull(condition_tokens);
-
-		int index = -1;
-		for (int i = 0; i < tags.length; i++) {
-			if (tags[i].equalsIgnoreCase(tagname) && tokens[i].equalsIgnoreCase(tokenname)) {
-				String[] b = isPre ? Arrays.copyOfRange(tokens, i - condition_tokens.length, i)
-						: Arrays.copyOfRange(tokens, i, i + condition_tokens.length);
-
-				String a = StringUtils.arrayToDelimitedString(b, " ");
-				String condition_string = StringUtils.arrayToDelimitedString(condition_tokens, " ");
-				if (a.equalsIgnoreCase(condition_string)) {
-					index = i;
-					break;
-				}
-			}
-		}
-		return index;
 	}
 }
