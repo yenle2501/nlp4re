@@ -1,5 +1,7 @@
 package com.nlp4re.logic;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,12 +11,12 @@ import java.util.Map;
 
 import org.eclipse.collections.impl.utility.ListIterate;
 import org.springframework.util.StringUtils;
+
+import opennlp.tools.parser.Parse;
 import opennlp.tools.util.Span;
 
 /**
  * This class works as the logic class for check the logic
- * 
- * @TODO
  */
 public class MazoAndJaramilloLogic {
 
@@ -23,41 +25,23 @@ public class MazoAndJaramilloLogic {
 
 	public String error_logs;
 
-	// public String modal_vp;
-	// public String system_name;
-	// public String process_vp;
-	// public String object;
-	// public String details;
-	// public String conditions;
-	//
-	// // private int anchor_start_index;
-	// private int anchor_end_index;
-	// private int modal_index;
-	// private int object_end_index;
-
-	private SentenceAnalyzer sentenceAnalyzer = null;
-	private PatternMatcher matcher = null;
-	// private String[] tokens;
-	// private String[] tags;
-	//
-	// private List<String> list_tokens;
-	// private List<String> list_tags;
-
-	// private int index_comma = -1;
+	private SentenceAnalyzer sentenceAnalyzer;
+	private PatternMatcher matcher;
 
 	public MazoAndJaramilloLogic() {
-		sentenceAnalyzer = new SentenceAnalyzer();
-		matcher = new PatternMatcher();
-		// error_logs = "";
+		this.sentenceAnalyzer = new SentenceAnalyzer();
+		this.matcher = new PatternMatcher();
 	}
 
 	/**
-	 * tokenize the sentence
+	 * tokenizes the sentence
 	 * 
-	 * @param sentence
-	 * @throws IOException
+	 * @param sentence sentence to tokenize
+	 * @return List of tokens and tags of sentence
 	 */
 	public List<String[]> tokenizeSentence(String sentence) {
+		checkNotNull(sentence);
+
 		String[] tokens = sentenceAnalyzer.getTokens(sentence);
 		String[] tags = sentenceAnalyzer.getPOSTags(tokens);
 		List<String[]> result = new LinkedList<String[]>();
@@ -73,6 +57,8 @@ public class MazoAndJaramilloLogic {
 	 *         otherwise
 	 */
 	public boolean parseModalVp(int modal_index, List<String> list_tokens) {
+		checkNotNull(list_tokens);
+
 		if (modal_index == -1) {
 			error_logs = "The sentence does not contain any modal verbs. The modal verbs should be SHOULD, SHALL, COULD, WILL, MUST.\n";
 			return false;
@@ -93,49 +79,53 @@ public class MazoAndJaramilloLogic {
 	 * @return true : if the sentence has a valid name of system false: otherwise
 	 */
 	public boolean parseSystemName(List<String> list_tokens, int index_comma, int modal_index) {
+		checkNotNull(list_tokens);
 
-		List<String> tokens_systemName = sentenceAnalyzer.getSystemName(list_tokens, index_comma, modal_index);
+		List<String> tokens_possible_systemName = sentenceAnalyzer.getSystemName(list_tokens, index_comma, modal_index);
 
-		if (tokens_systemName != null && !tokens_systemName.isEmpty()
-				&& Arrays.asList(SYSTEM_NAMES).contains(tokens_systemName.get(0).toUpperCase())) {
-
-			String systemName = StringUtils.collectionToDelimitedString(tokens_systemName, " ");
+		if (tokens_possible_systemName != null && !tokens_possible_systemName.isEmpty()
+				&& Arrays.asList(SYSTEM_NAMES).contains(tokens_possible_systemName.get(0).toUpperCase())) {
+			String systemName = StringUtils.collectionToDelimitedString(tokens_possible_systemName, " ");
 
 			Map<String, String> regexs = new HashMap<String, String>();
-			regexs.put("all_some", "^ALL|SOME SYSTEMS OF THE [\\w\\s]+");
-			regexs.put("those", "^THOSE SYSTEMS OF THE [\\w\\s]+");
-			regexs.put("the", "^THE [\\w\\s]+");
+			regexs.put("all_some", "^ALL|SOME SYSTEMS OF THE[\\w\\s]+");
+			regexs.put("those", "^THOSE SYSTEMS OF THE[\\w\\s]+");
+			regexs.put("the", "^THE[\\w\\s]+");
+			regexs.put("all_some", "^all|some systems of the [\\w\\s]+");
+			regexs.put("those", "^those systems of the [\\w\\s]+");
+			regexs.put("the", "^the [\\w\\s]+");
 
 			Span[] spans = matcher.matches(regexs, systemName);
 
 			if (spans == null || spans.length != 1) {
 				error_logs = "Name of system should be one of following forms:\n"
 						+ "ALL|SOME SYSTEMS OF THE <Product line name>\n"
-						+ "THOS SYSTEMS OF THE <Product line name> <Restriction>\n" + "THE <System or part name>\n";
+						+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\n" + "THE <System or part name>\n";
 				return false;
-			}
+			} else if (spans.length == 1) {
+				int start_index = spans[0].getType().equals("the") ? 1 : 4;
+				String[] a = tokens_possible_systemName.toArray(new String[0]);
+				String[] tokens_system_name = Arrays.copyOfRange(a, start_index, tokens_possible_systemName.size());
+				List<String> tags_system_name = Arrays.asList(sentenceAnalyzer.getPOSTags(tokens_system_name));
 
-			int start_index = spans[0].getType().equals("the") ? 1 : 4;
-			String[] a = tokens_systemName.toArray(new String[0]);
-			String[] tokens_system_name = Arrays.copyOfRange(a, start_index, tokens_systemName.size());
-			List<String> tags_systemName = Arrays.asList(sentenceAnalyzer.getPOSTags(tokens_system_name));
+				if (spans[0].getType().equals("the") || spans[0].getType().equals("all_some")) {
+					// that contains only noun
+					if (!tags_system_name.contains("VB")) {
+						return true;
+					} else {
+						error_logs += "No Verb after system name.\n";
+						return false;
+					}
 
-			if (spans[0].getType().equals("the") || spans[0].getType().equals("all_some")) {
-				// that contains only noun
-				if (!tags_systemName.contains("VB")) {
+				} else if (spans[0].getType().equals("those")) {
+					// cause of restriction, the sentence can have verb
 					return true;
-				} else {
-					error_logs += "No Verb after system name.\n";
-					return false;
 				}
-
-			} else if (spans[0].getType().equals("those")) {
-				return true;
 			}
 		}
 		error_logs = "Name of system should be one of following forms:\n"
 				+ "ALL|SOME SYSTEMS OF THE <Product line name>\n"
-				+ "THOS SYSTEMS OF THE <Product line name> <Restriction>\n" + "THE <System or part name>\n";
+				+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\n" + "THE <System or part name>\n";
 		return false;
 
 	}
@@ -145,21 +135,26 @@ public class MazoAndJaramilloLogic {
 	 * 
 	 * @return true :if the sentence has no condition or a valid condition false: otherwise
 	 */
-	public boolean parseCondition(List<String> list_tokens, int index_comma, int modal_index) {
+	public boolean parseCondition(List<String> list_tokens, int comma_index, int modal_index) {
+		checkNotNull(list_tokens);
 
-		List<String> conditions = sentenceAnalyzer.getConditions(list_tokens, modal_index, index_comma);
-		if (conditions == null || conditions.isEmpty()) {
+		List<String> token_conditions = sentenceAnalyzer.getConditions(list_tokens, modal_index, comma_index);
+		if (token_conditions == null || token_conditions.isEmpty()) {
 			return true;
 		}
 
-		String contions_str = StringUtils.collectionToDelimitedString(conditions, " ");
-		Map<String, String> regexs = new HashMap<String, String>();
-		regexs.put("if", "^IF.*");
-		regexs.put("while_during", "^WHILE|DURING.* ");
-		regexs.put("after", "^AFTER|BEFORE|AS SOON AS.* ");
-		regexs.put("incase", "^IN CASE.*IS INCLUDED\t");
+		String condition = StringUtils.collectionToDelimitedString(token_conditions, " ");
+		Map<String, String> regexes = new HashMap<String, String>();
+		regexes.put("if", "^IF+");
+		regexes.put("while_during", "^WHILE|DURING+ ");
+		regexes.put("after", "^AFTER|BEFORE|AS SOON AS+ ");
+		regexes.put("incase", "^IN CASE [:alpha:] IS INCLUDED+");
+		regexes.put("if", "^if+");
+		regexes.put("while_during", "^while|during+ ");
+		regexes.put("after", "^after|before|as soon as+ ");
+		regexes.put("incase", "^in case [:alpha:] is included+");
 
-		Span[] spans = matcher.matches(regexs, contions_str);
+		Span[] spans = matcher.matches(regexes, condition);
 		if (spans == null || spans.length != 1) {
 			error_logs += "The condtionals should be one of following forms:\n" + "IF <Condition|Event>, THEN\n"
 					+ "WHILE|DURING <Activation state>\n" + "IN CASE <Included feature> IS INCLUDED\n"
@@ -167,7 +162,7 @@ public class MazoAndJaramilloLogic {
 			return false;
 		} else {
 			if (spans[0].getType().equals("if")) {
-				if (list_tokens.get(index_comma + 1).equals("then")) {
+				if (list_tokens.get(comma_index + 1).equals("then")) {
 					return true;
 				} else {
 					error_logs += "The conditionals should be IF <Condition|Event>, THEN\n";
@@ -190,82 +185,77 @@ public class MazoAndJaramilloLogic {
 	 * 
 	 * @return true: if the sentence has a valid anchor false: otherwise
 	 */
-	public List<Integer> parseAnchor(List<String> list_tokens, List<String> list_tags, int index_comma,
+	public List<Integer> parseAnchor(List<String> list_tokens, List<String> list_tags, int comma_index,
 			int modal_index) {
-		int anchor_start_index = sentenceAnalyzer.getAnchorStartIndex(list_tokens, index_comma, modal_index);
+		checkNotNull(list_tokens);
+		checkNotNull(list_tags);
+
+		int anchor_start_index = sentenceAnalyzer.getAnchorStartIndex(list_tokens, comma_index, modal_index);
 		List<String> anchor_tokens = list_tokens.subList(anchor_start_index, list_tokens.size());
 		String anchor = StringUtils.collectionToDelimitedString(anchor_tokens, " ");
 
 		List<Integer> result = new LinkedList<Integer>();
 		int erg = -1;
-		int anchor_end_index = -1;
-		if (list_tags.get(modal_index + 1).equals("VB")) {
+		int global_object_start_index = -1;
 
+		if (list_tags.get(modal_index + 1).equals("VB")) {
+			List<String> tags_after_modal_verb = list_tags.subList(modal_index, list_tags.size());
 			Map<String, String> regex_map = new HashMap<String, String>();
 			regex_map.put("provide", "PROVIDE [\\w\\s]+ WITH THE ABILITY TO [\\w\\s]");
-			regex_map.put("be_able_to", "BE ABLE TO");
+			regex_map.put("be_able_to", "BE ABLE TO+");
+			regex_map.put("provide", "provide [\\w\\s]+ with the ability to [\\w\\s]");
+			regex_map.put("be_able_to", "be able to +");
 
 			Span[] spans = matcher.matches(regex_map, anchor);
-
+			// System has a normal verb
 			if (spans == null || spans.length == 0) {
-				// System has a normal verb
-				/**
-				 * iwie nict richtig, vllt verb hat 2 woerter or in passiv phrase e.x : should be created
-				 */
-				anchor_end_index = modal_index + 2;
+				// in passiv form
+				int object_start_index = tags_after_modal_verb.indexOf("DT");
+				if (object_start_index == -1 || object_start_index > 4) {
+					object_start_index = tags_after_modal_verb.indexOf("NN");
+					if (object_start_index == -1 || object_start_index > 4) {
+						object_start_index = tags_after_modal_verb.indexOf("NNS");
+					}
+				}
+				global_object_start_index = modal_index + object_start_index;
 				erg = 0;
-				// true
 			} else if (spans.length == 1) {
-
-				int index_of_with = anchor_start_index
-						+ ListIterate.detectIndex(anchor_tokens, "WITH"::equalsIgnoreCase);
-
-				// System.out.println("index with " + index_of_with );
-
 				// PROVIDE Pattern
 				if (spans[0].getType().equals("provide")) {
-					// System.out.println("from with: " + list_tokens.subList(modal_index + 2, index_of_with));
+					// System.out.println("PROVIDE");
 					// check who is noun
+					int index_of_with = anchor_start_index
+							+ ListIterate.detectIndex(anchor_tokens, "WITH"::equalsIgnoreCase);
 					List<String> who_chunk = sentenceAnalyzer.getChunks(
 							list_tokens.subList(modal_index + 2, index_of_with).toArray(new String[0]),
 							list_tags.subList(modal_index + 2, index_of_with).toArray(new String[0]));
 
 					for (String action : who_chunk) {
-						// System.out.println("228 action " + action);
 						if (!action.contains("-NP")) {
 							error_logs += "After PROVIDE an Object should be shown. For example USER| <Name>\n";
 							erg = 1;
 							break;
-							// return false;
 						}
 					}
-
-					// check verb after "with the ability to"
-					/**
-					 * TODO muss check chunk
-					 */
-					// System.out.println("239 anchor tag " + anchor_tags.toString());
-
 					if (list_tags.get(index_of_with + 4).equals("VB")) {
-						anchor_end_index = modal_index + (index_of_with - modal_index) + 5;
-						// return true;
+						// the ability to
+						global_object_start_index = index_of_with + 5;
+
+						// System.out.println("OBJECT33:" + list_tokens.subList(global_object_start_index,
+						// list_tokens.size()));
 						erg = 0;
 					} else {
-						error_logs += "A Verb must be shown after WITH THE ABILITY.\n";
-						// return false;
+						error_logs += "A Verb must be shown after WITH THE ABILITY TO.\n";
 						erg = 1;
 					}
 				} else if (spans[0].getType().equals("be_able_to")) {
-					/**
-					 * TODO muss check chunk
-					 */
+					// be able to
 					if (list_tags.get(modal_index + 4).equals("VB")) {
-						anchor_end_index = modal_index + 5;
-						// return true;
+						global_object_start_index = modal_index + 5;
 						erg = 0;
 					} else {
 						// the sentence is not valid, no verb after to
-						error_logs += "A Verb must be shown after TO BE ABLE TO.\n";
+						error_logs += "A Verb must be shown after BE ABLE TO.\n";
 						erg = 1;
 					}
 				}
@@ -274,13 +264,14 @@ public class MazoAndJaramilloLogic {
 				error_logs += "The sentence has more than one Pattern.\n";
 				erg = 1;
 			}
+		} else {
+			error_logs += "No verb after modal verb.\n";
+			erg = 1;
 		}
 		// do not have normal verb
-//		error_logs += "There is no verb after modal verb\n";
-//		erg = 1;
-
 		result.add(erg);
-		result.add(anchor_end_index);
+		result.add(global_object_start_index);
+
 		return result;
 	}
 
@@ -289,65 +280,75 @@ public class MazoAndJaramilloLogic {
 	 * 
 	 * @return true: if the sentence has a valid object false: otherwise
 	 */
-	public boolean parseObject(String[] tokens, String[] tags, int anchor_end_index, int object_end_index) {
+	public List<Integer> parseObject(String[] tokens, String[] tags, int object_start_index) {
+		checkNotNull(tokens);
+		checkNotNull(tags);
 
-		String[] possible_object_tokens = Arrays.copyOfRange(tokens, anchor_end_index, tokens.length);
+		int erg = -1;
+		int object_end_index = -1;
+		String[] possible_object_tokens = Arrays.copyOfRange(tokens, object_start_index, tokens.length);
 		String possible_object_string = StringUtils.arrayToDelimitedString(possible_object_tokens, " ");
-
 		String object_string = sentenceAnalyzer.getObjects(possible_object_string, possible_object_tokens);
+//		System.out.println("OBJECT:" + possible_object_string);
 
 		if (object_string.equals("") || object_string == null) {
-			return true;
+			erg = 0;
 		}
-
-		// System.out.println("OBJECT:" + object_string);
-
 		Map<String, String> regexs = new HashMap<String, String>();
 		regexs.put("single_obj", "^A |^AN |^THE |^ONE |^EACH +");
-		regexs.put("between", "^BETWEEN * AND +");
+		regexs.put("between", "^BETWEEN  [:alpha:] AND +");
 		regexs.put("all_the", "^ALL THE +");
-
-		/***
-		 * TODO muss noch angepasst werden, IWIE nicht richtig
-		 */
+		regexs.put("single_obj", "^a |^an |^the |^one |^each +");
+		regexs.put("between", "^between [:alpha:] and +");
+		regexs.put("all_the", "^all the +");
 		Span[] spans = matcher.matches(regexs, object_string);
 
 		// maybe do not contains all of them
 		if (spans == null || spans.length == 0) {
-			// object_end_index = anchor_end_index + object_tokens.length;
-			error_logs += object_string + " must be startet with A| AN| THE|ONE| EACH| ALL THE| BETWEEN <A> AND <B>.\n";
-			return false;
+			error_logs += "'" + object_string + "'"
+					+ " must be startet with A| AN| THE|ONE| EACH| ALL THE| BETWEEN <A> AND <B>.\n";
+			erg = 1;
 		}
 		// one of the cases
 		else if (spans.length == 1) {
-			// String[] object_tokens = StringUtils.tokenizeToStringArray(object_string, "
-			// ").length;//sentenceAnalyzer.getTokens(object_string);
-			object_end_index = anchor_end_index + StringUtils.tokenizeToStringArray(object_string, " ").length - 1;
-			return true;
-		}
+			// System.out.println("OBJECT:" + object_string);
 
-		error_logs += object_string + " must be startet with A| AN| THE|ONE| EACH| ALL THE| BETWEEN <A> AND <B>.\n";
-		return false;
+			object_end_index = object_start_index + StringUtils.tokenizeToStringArray(object_string, " ").length - 1;
+			erg = 0;
+		}
+		List<Integer> result = new LinkedList<Integer>();
+		result.add(erg);
+		result.add(object_end_index);
+
+		return result;
 	}
 
 	/**
-	 *
+	 * This method helps to check the details of the sentence
+	 * 
+	 * @param tokens           List of tokens
+	 * @param object_end_index end index of object
+	 * @return true: if the sentence has valid details false: otherwise
 	 */
-	public boolean parseDetails(String[] tokens, int object_end_index) {
-		if ((object_end_index + 1) == tokens.length) {
+	public boolean parseDetails(List<String> tokens, int object_end_index) {
+		checkNotNull(tokens);
+
+		if ((object_end_index + 1) == tokens.size()) {
 			return true;
 		}
 
-		String[] details = Arrays.copyOfRange(tokens, object_end_index + 1, tokens.length);
+		List<String> details = tokens.subList(object_end_index + 1, tokens.size());
 		Map<String, String> regexs = new HashMap<String, String>();
 		regexs.put("condition", "IF AND ONLY IF+");
-		Span[] spans = matcher.matches(regexs, StringUtils.arrayToDelimitedString(details, " "));
+		regexs.put("condition", "if and only if+");
+		Span[] spans = matcher.matches(regexs, StringUtils.collectionToDelimitedString(details, " "));
 
 		// detail contains no condition
 		if (spans.length == 0) {
+			return true;
 		} else if (spans.length == 1) {
 			if (spans[0].getType().equals("condition")) {
-				System.out.println("DETAILS: " + Arrays.toString(details));
+				System.out.println("DETAILS: " + details.toString());
 				return true;
 			}
 		}
@@ -356,82 +357,51 @@ public class MazoAndJaramilloLogic {
 
 	/**
 	 * parse the complete sentence
+	 * 
+	 * @param sentence: sentence to check
+	 * @return true: if the sentence does not match with the template false: otherwise
 	 */
 	public boolean parseTemplateConformance(String sentence) {
-
+		checkNotNull(sentence);
 		error_logs = "";
 
 		List<String[]> tokens_tags = tokenizeSentence(sentence);
+
 		String[] tokens = tokens_tags.get(0);
 		String[] tags = tokens_tags.get(1);
-
 		List<String> list_tokens = Arrays.asList(tokens);
 		List<String> list_tags = Arrays.asList(tags);
 
-		int index_comma = ListIterate.detectIndex(list_tokens, ","::equals);
-		int modal_index = sentenceAnalyzer.getModalIndex(list_tags, index_comma);
+		int comma_index = ListIterate.detectIndex(list_tokens, ","::equals);
+		int modal_index = sentenceAnalyzer.getModalIndex(list_tags, comma_index);
 
-		long a = System.currentTimeMillis();
 		boolean hasModalVerb = parseModalVp(modal_index, list_tokens);
-		long b = System.currentTimeMillis();
-		System.out.println("TIME 1: " + (b - a));
-
 		if (!hasModalVerb) {
-			// System.out.println(" 395 no modal");
 			return false;
 		} else {
-			long c = System.currentTimeMillis();
-			boolean hasSystemName = parseSystemName(list_tokens, index_comma, modal_index);
-			long d = System.currentTimeMillis();
-			System.out.println("TIME 2: " + (d - c));
+			boolean hasSystemName = parseSystemName(list_tokens, comma_index, modal_index);
 			if (!hasSystemName) {
 				return false;
 			}
-			long e = System.currentTimeMillis();
-			List<Integer> parAnchor = parseAnchor(list_tokens, list_tags, index_comma, modal_index);
-
+			List<Integer> parAnchor = parseAnchor(list_tokens, list_tags, comma_index, modal_index);
 			boolean hasAnchor = parAnchor.get(0) == 0 ? true : false;
-			int anchor_index = parAnchor.get(1);
-
-			long f = System.currentTimeMillis();
-			System.out.println("TIME 3: " + (f - e));
-
-			long g = System.currentTimeMillis();
-			boolean isValidCondition = parseCondition(list_tokens, index_comma, modal_index);
-			long h = System.currentTimeMillis();
-			System.out.println("TIME 4: " + (h - g));
 
 			if (hasAnchor) {
-				// System.out.println(" 402 ancho ");
+				int object_start_index = parAnchor.get(1);
+				boolean hasValidCondition = parseCondition(list_tokens, comma_index, modal_index);
 
-				long l = System.currentTimeMillis();
+				List<Integer> parObject = parseObject(tokens, tags, object_start_index);
+				boolean hasObject = parObject.get(0) == 0 ? true : false;
+				int object_end_index = parObject.get(1);
 
-				int object_end_index = -1;
-				boolean hasObject = parseObject(tokens, tags, anchor_index, object_end_index);
-
-				long k = System.currentTimeMillis();
-				System.out.println("TIME 5: " + (k - l));
-
-				boolean isConformantSegment = hasModalVerb && hasAnchor && isValidCondition;
-
+				boolean hasDetails = parseDetails(list_tokens, object_end_index);
+				boolean isConformantSegment = hasModalVerb && hasAnchor && hasValidCondition && hasObject && hasDetails;
 				if (isConformantSegment) {
-					// System.out.println(" 407");
-					long t = System.currentTimeMillis();
-					boolean hasDetails = parseDetails(tokens, object_end_index);
-					long r = System.currentTimeMillis();
-					System.out.println("TIME 6: " + (r - t));
-
-				}
-
-				if (!hasModalVerb || !hasAnchor || !isValidCondition || !isConformantSegment) {
-					// System.out.println(" 412");
-					return false;
-				} else {
-					// System.out.println(" 415");
 					return true;
+				} else {
+					return false;
 				}
 			}
-			// System.out.println(" 418");
 			return false;
 		}
 	}

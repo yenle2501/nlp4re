@@ -26,7 +26,7 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 
 /**
- * This class works as a
+ * This class helps to analyze the sentence
  */
 public class SentenceAnalyzer {
 	TokenizerME tokenizer;
@@ -35,21 +35,18 @@ public class SentenceAnalyzer {
 	ChunkerME chunker;
 
 	public SentenceAnalyzer() {
-		tokenizer = getTokens();
-		tagger = getPOSTags();
-		parser = getParses();
-		chunker = getChunks();
+		this.tokenizer = getTokenizerME();
+		this.tagger = getPOSTaggerME();
+		this.parser = getParser();
+		this.chunker = getChunks();
 	}
 
 	/**
-	 * Get Tokens from given sentence
+	 * Get TokenizerME from InputStream
 	 * 
-	 * @param sentence Sentence for conversion to tokens
-	 * @return list of tokens from sentence
+	 * @return TokenizerME
 	 */
-	public TokenizerME getTokens() {
-		// checkNotNull(sentence);
-
+	public TokenizerME getTokenizerME() {
 		TokenizerModel tokenModel = null;
 		try {
 			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-token.bin");
@@ -60,24 +57,25 @@ public class SentenceAnalyzer {
 		}
 		TokenizerME tokenizer = new TokenizerME(tokenModel);
 		return tokenizer;
-		// String tokens[] = tokenizer.tokenize(sentence);
-		// return tokens;
 	}
 
+	/**
+	 * Get Tokens from given sentence
+	 * 
+	 * @param sentence Sentence for conversion to tokens
+	 * @return list of tokens from sentence
+	 */
 	public String[] getTokens(String sentence) {
+
 		return tokenizer.tokenize(sentence);
 	}
 
 	/**
-	 * Get Part of Speech Tags from array of tokens
+	 * Get POSTaggerME from InputStream
 	 * 
-	 * @param tokens List of Tokens
-	 * @return An array of POSTags
-	 * 
+	 * @return POSTaggerME
 	 */
-	public POSTaggerME getPOSTags() {
-		// checkNotNull(tokens);
-
+	public POSTaggerME getPOSTaggerME() {
 		POSModel model = null;
 		try {
 			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-pos-maxent.bin");
@@ -89,24 +87,27 @@ public class SentenceAnalyzer {
 
 		POSTaggerME tagger = new POSTaggerME(model);
 		return tagger;
-		// String[] tags = tagger.tag(tokens);
-		// return tags;
 	}
 
+	/**
+	 * Get Part of Speech Tags from array of tokens
+	 * 
+	 * @param tokens List of Tokens
+	 * @return An array of POSTags
+	 * 
+	 */
 	public String[] getPOSTags(String[] tokens) {
+		checkNotNull(tokens);
 		return tagger.tag(tokens);
 	}
 
 	/**
-	 * Determines Parses from given sentence
+	 * Get Parser from InputStream
 	 * 
-	 * @param sentence Sentence for conversion to parse
-	 * @return An Array of Parses from sentence
+	 * @return Parser
 	 * 
 	 */
-	public Parser getParses() {
-		// checkNotNull(sentence);
-
+	public Parser getParser() {
 		ParserModel model = null;
 		try {
 			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-parser-chunking.bin");
@@ -118,25 +119,22 @@ public class SentenceAnalyzer {
 		Parser parser = ParserFactory.create(model);
 		return parser;
 	}
-	// Parse[] parses;
-	// synchronized (parser) {
-	// parses = ParserTool.parseLine(sentence, parser, 1);
-	// }
-	//
-	// return parses;
-	// }
-
 	/**
-	 * Determines chunks from given tags and tokens
+	 * Get Parses from sentence
 	 * 
-	 * @param tokens: array of tokens
-	 * @param tags:   array of tags
-	 * @return List of Chunks
+	 * @return Parser
+	 * 
+	 */
+	public  Parse[] getParses(String sentence) {
+		return ParserTool.parseLine(sentence, this.parser, 1);
+	}
+	/**
+	 * Get ChunkerME from InputStream
+	 * 
+	 * @return ChunkerME
 	 * @throws IOException
 	 */
-	public ChunkerME getChunks() {// (String[] tokens, String[] tags) {
-		// checkNotNull(tokens);
-		// checkNotNull(tags);
+	public ChunkerME getChunks() {
 
 		ChunkerModel model = null;
 		try {
@@ -148,11 +146,13 @@ public class SentenceAnalyzer {
 		}
 		ChunkerME chunker = new ChunkerME(model);
 		return chunker;
-
-		// String[] chunks = chunker.chunk(tokens, tags);
-		// return Arrays.asList(chunks);
 	}
 
+	/**
+	 * Get Chunks from given tokens and tags
+	 * 
+	 * @return List of chunks
+	 */
 	public List<String> getChunks(String[] tokens, String[] tags) {
 		checkNotNull(tokens);
 		checkNotNull(tags);
@@ -162,7 +162,7 @@ public class SentenceAnalyzer {
 	/**
 	 * Determines the condition in the sentence from given tokens, index of comma and modal verb
 	 * 
-	 * @param token:       List of tokens
+	 * @param tokens:      List of tokens
 	 * @param comma_index: index of comma in sentence
 	 * @param modal_index: index of modal verb in sentence
 	 * @return condition of sentence in form of a list
@@ -189,7 +189,6 @@ public class SentenceAnalyzer {
 		checkNotNull(tokens);
 
 		List<String> systemName = new LinkedList<String>();
-
 		if (comma_index != -1 && comma_index < modal_index) {
 			// cause if..., then
 			if (tokens.get(comma_index + 1).equals("then")) {
@@ -206,45 +205,40 @@ public class SentenceAnalyzer {
 	/**
 	 * Determines object of sentence
 	 * 
-	 * @param sentence Sentence to check
+	 * @param sentence:               Sentence to check
+	 * @param possible_object_tokens: tokens of possible object
 	 * @return Object of the sentence
 	 */
 	public String getObjects(String sentence, String[] possible_object_tokens) {
 		checkNotNull(sentence);
 		checkNotNull(possible_object_tokens);
 
-		
-		
-		Parse[] parses = new Parse[] {};
-		parses = ParserTool.parseLine(sentence, parser, 1);
+		Parse[] parses = getParses(sentence);
 
 		LinkedList<Parse> list_objects = new LinkedList<Parse>();
-
 		Arrays.asList(parses).stream().forEach(parse -> {
 			getNounChunk(parse, list_objects);
 		});
 
 		Stream<Parse> new_ob = list_objects.stream().filter(parse -> !parse.getCoveredText().equals(sentence));
-		String object = new_ob.findFirst().get().getCoveredText();
 
-		String[] object_tokens = new String[] {};
-		object_tokens = tokenizer.tokenize(object);
+		String object = new_ob.findFirst().get().getCoveredText();
+		String[] object_tokens = tokenizer.tokenize(object);
 
 		// because Possessive pronoun such as his/her.. or between are not nouns
 		if (!object_tokens[0].equalsIgnoreCase(possible_object_tokens[0])) {
 			int index = Arrays.asList(possible_object_tokens).indexOf(object_tokens[0]);
 
 			String[] missed_tokens = Arrays.copyOfRange(possible_object_tokens, 0, index);
-			object = StringUtils.arrayToDelimitedString(missed_tokens, " ") + " " + object; // 2840
+			object = StringUtils.arrayToDelimitedString(missed_tokens, " ") + " " + object; 
 		}
-
 		return object;
 	}
 
 	/**
 	 * Determines noun chunk from Parse and save it in list_object
 	 * 
-	 * @param parse        Parse for determination of noun chunks
+	 * @param parse:        Parse for determination of noun chunks
 	 * @param list_objects list of objects
 	 */
 	public void getNounChunk(Parse parse, List<Parse> list_objects) {
@@ -255,7 +249,6 @@ public class SentenceAnalyzer {
 			list_objects.add(parse);
 
 		}
-		// for (Parse child : parse.getChildren()) {
 		Arrays.asList(parse.getChildren()).stream().forEach(child -> {
 			getNounChunk(child, list_objects);
 		});

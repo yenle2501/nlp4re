@@ -74,8 +74,7 @@ public class RequirementLogic {
 		});
 
 		long timeend = System.currentTimeMillis();
-		System.out.println("TIME: " + (timeend - timestart)); // 42830 --21102
-		// mit Mono -- 42807 --
+		System.out.println("TIME: " + (timeend - timestart)); 
 		List<Map<Integer, String>> result = new LinkedList<Map<Integer, String>>();
 		result.add(sentences);
 		result.add(map_compliant_sentences);
@@ -90,11 +89,11 @@ public class RequirementLogic {
 		// Integer index = e.getKey();
 		// String sentence = e.getValue();
 
-		System.out.println("SENTENCE: " + sentence);
+//		System.out.println("SENTENCE: " + sentence);
 		boolean isConformance = mazoAndJaramilloLogic.parseTemplateConformance(sentence);
 		String error_logs = mazoAndJaramilloLogic.error_logs;
 
-		// System.out.println("LOGS:" + error_logs);
+//		 System.out.println("LOGS:" + error_logs);
 
 		if (isConformance) {
 			map_compliant_sentences.put(index, "0");

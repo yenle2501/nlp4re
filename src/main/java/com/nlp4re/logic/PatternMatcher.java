@@ -17,8 +17,8 @@ public class PatternMatcher {
 	/**
 	 * match the sentence with definitely regexes
 	 * 
-	 * @param regexes given regexes
-	 * @param sentence 
+	 * @param regexes  given regexes
+	 * @param sentence
 	 * @return Array of spans
 	 */
 	public Span[] matches(Map<String, String> regexes, String sentence) {
@@ -26,14 +26,16 @@ public class PatternMatcher {
 		checkNotNull(sentence);
 
 		Map<String, Pattern[]> regexMap = new HashMap<>();
-		regexes.entrySet().parallelStream().forEach(e -> {
+		regexes.entrySet().stream().forEach(e -> {
 			String key = e.getKey();
 			String value = e.getValue();
 			Pattern pattern = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
 			regexMap.put(key, new Pattern[] { pattern });
-		
+
 		});
 
-	RegexNameFinder finder = new RegexNameFinder(regexMap);
-	Span[] spans = finder.find(sentence);return spans;
-}}
+		RegexNameFinder finder = new RegexNameFinder(regexMap);
+		Span[] spans = finder.find(sentence);
+		return spans;
+	}
+}
