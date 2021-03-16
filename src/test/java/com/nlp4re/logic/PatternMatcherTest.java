@@ -34,7 +34,6 @@ public class PatternMatcherTest {
 		String sentence = "The system shall provide functionality to allow truckers to trigger events about their current"
 				+ "status while involved in an active job.";
 		
-		
 		// when
 		Span[] spans = matcher.matches(regexs, sentence);
 		// then

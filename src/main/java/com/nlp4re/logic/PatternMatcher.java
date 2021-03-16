@@ -9,7 +9,7 @@ import opennlp.tools.namefind.RegexNameFinder;
 import opennlp.tools.util.Span;
 
 /**
- * This class works as a help class to
+ * This class helps to match the sentence with the given regular expressions
  * 
  */
 public class PatternMatcher {
@@ -18,7 +18,7 @@ public class PatternMatcher {
 	 * match the sentence with definitely regexes
 	 * 
 	 * @param regexes  given regexes
-	 * @param sentence
+	 * @param sentence Check the sentence with the regular expressions
 	 * @return Array of spans
 	 */
 	public Span[] matches(Map<String, String> regexes, String sentence) {

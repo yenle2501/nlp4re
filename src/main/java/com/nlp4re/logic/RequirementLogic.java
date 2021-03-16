@@ -1,23 +1,81 @@
 package com.nlp4re.logic;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import opennlp.tools.sentdetect.SentenceDetector;
-import opennlp.tools.sentdetect.SentenceDetectorME;
-import opennlp.tools.sentdetect.SentenceModel;
-
 /**
- * This class works as logic class
+ * This class works as a logic class
  */
-public class RequirementLogic {
+public interface RequirementLogic {
+//
+//	/**
+//	 * tokenizes the sentence
+//	 * 
+//	 * @param sentence sentence to tokenize
+//	 * @return List of tokens and tags of sentence
+//	 */
+//	List<String[]> tokenizeSentence(String sentence);
+//
+//	/**
+//	 * Checks the modal verb of the sentence
+//	 * 
+//	 * @return true: if the sentence contains one of the proposed modal verbs such as shall, should, could false:
+//	 *         otherwise
+//	 */
+//	boolean parseModalVp(int modal_index, List<String> list_tokens);
+//
+//	/**
+//	 * This method has the ability to check system name
+//	 * 
+//	 * @return true : if the sentence has a valid name of system false: otherwise
+//	 */
+//	boolean parseSystemName(List<String> list_tokens, int comma_index, int modal_index);
+//
+//	/**
+//	 * This method has the ability to check the condition of the sentence
+//	 * 
+//	 * @return true :if the sentence has no condition or a valid condition false: otherwise
+//	 */
+//	boolean parseCondition(List<String> list_tokens, int comma_index, int modal_index);
+//
+//	/**
+//	 * Anchor should contain SYSTEM NAME + MODAL VERB + NORMAL VERB This method has the ability to check the anchor of
+//	 * the sentence.
+//	 * 
+//	 * @return true: if the sentence has a valid anchor false: otherwise
+//	 */
+//	List<Integer> parseAnchor(List<String> list_tokens, List<String> list_tags, int comma_index, int modal_index);
+//
+//	/**
+//	 * This method has the ability to check the objects of sentence
+//	 * 
+//	 * @return true: if the sentence has a valid object false: otherwise
+//	 */
+//	List<Integer> parseObject(String[] tokens, String[] tags, int object_start_index);
+//
+//	/**
+//	 * This method helps to check the details of the sentence
+//	 * 
+//	 * @param tokens           List of tokens
+//	 * @param object_end_index end index of object
+//	 * @return true: if the sentence has valid details false: otherwise
+//	 */
+//	boolean parseDetails(List<String> tokens, int object_end_index);
+//
+//	/**
+//	 * parse the complete sentence
+//	 * 
+//	 * @param sentence: sentence to check
+//	 * @return true: if the sentence does not match with the template false: otherwise
+//	 */
+//	boolean parseTemplateConformance(String sentence);
+//
+//	/**
+//	 * get error logs for not conformt sentences
+//	 * 
+//	 * @return error logs
+//	 */
+//	public String getErrorLogs();
 
 	/**
 	 * This method helps to get single sentence from the requirements description
@@ -26,80 +84,15 @@ public class RequirementLogic {
 	 * @return a String array with sentences
 	 * @throws IOException
 	 */
-	public Map<Integer, String> getSentences(String desc) {
-		checkNotNull(desc);
-
-		// sentence detector
-		SentenceModel model = null;
-		try {
-			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-sent.bin");
-			model = new SentenceModel(inputStream);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		SentenceDetector detector = new SentenceDetectorME(model);
-		String[] sentences = detector.sentDetect(desc);
-		Map<Integer, String> map_sentences = new HashMap<Integer, String>();
-		for (int index = 0; index < sentences.length; index++) {
-			map_sentences.put(index, sentences[index]);
-		}
-		return map_sentences;
-	}
+	public Map<Integer, String> getSentences(String desc);
 
 	/**
 	 * This method helps to parse each single sentence with the chosen template.
 	 * 
 	 * @param sentences list of sentences
 	 * @return a list of map with key-value-pair 1.Map contains all sentences of requirement 2.Map contains all
-	 *         compliant and non-compliant sentences with the order as the keys in 1.Map 3.Map contains all log for the
+	 *         compliant and non-compliant sentences with the order as the keys in 1.Map 3.Map contains all logs for the
 	 *         non-compliant sentences with the order as the keys in 1.Map
-	 * @throws IOException
 	 */
-	public List<Map<Integer, String>> doParse(Map<Integer, String> sentences) {
-		checkNotNull(sentences);
-
-		Map<Integer, String> map_compliant_sentences = new HashMap<Integer, String>();
-		Map<Integer, String> map_logs_for_non_compliant_sentences = new HashMap<Integer, String>();
-
-		long timestart = System.currentTimeMillis();
-
-		MazoAndJaramilloLogic mazoAndJaramilloLogic = new MazoAndJaramilloLogic();
-		
-		sentences.entrySet().stream().forEach(e -> {
-			Integer index = e.getKey();
-			String sentence = e.getValue();
-			help(mazoAndJaramilloLogic, map_compliant_sentences, map_logs_for_non_compliant_sentences, index, sentence);
-		});
-
-		long timeend = System.currentTimeMillis();
-		System.out.println("TIME: " + (timeend - timestart)); 
-		List<Map<Integer, String>> result = new LinkedList<Map<Integer, String>>();
-		result.add(sentences);
-		result.add(map_compliant_sentences);
-		result.add(map_logs_for_non_compliant_sentences);
-
-		return result;
-
-	}
-
-	private void help(MazoAndJaramilloLogic mazoAndJaramilloLogic, Map<Integer, String> map_compliant_sentences,
-			Map<Integer, String> map_logs_for_non_compliant_sentences, int index, String sentence) {
-		// Integer index = e.getKey();
-		// String sentence = e.getValue();
-
-//		System.out.println("SENTENCE: " + sentence);
-		boolean isConformance = mazoAndJaramilloLogic.parseTemplateConformance(sentence);
-		String error_logs = mazoAndJaramilloLogic.error_logs;
-
-//		 System.out.println("LOGS:" + error_logs);
-
-		if (isConformance) {
-			map_compliant_sentences.put(index, "0");
-		} else {
-			map_compliant_sentences.put(index, "1");
-			map_logs_for_non_compliant_sentences.put(index, error_logs);
-		}
-	}
+	public List<Map<Integer, String>> doParse(Map<Integer, String> sentences);
 }
