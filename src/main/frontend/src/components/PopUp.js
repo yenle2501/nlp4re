@@ -1,7 +1,8 @@
 import React,{Component} from 'react';
-import './PopUp/PopUp.css';
+import './PopUp.css';
 import {Button} from 'react-bootstrap';
 import Draggable from 'react-draggable';
+import { MDBContainer} from "mdbreact";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default class PopUp extends Component {
@@ -19,12 +20,14 @@ export default class PopUp extends Component {
     	return (
     		<Draggable  disabled={false} active="true">
     	        <div className="PopUp">
-    	            <Button className="popup-close" variant="light" onClick={()=> this.props.onSetPopUp(false)} >
+    	            <Button className="popup-close" variant="danger" onClick={()=> this.props.onSetPopUp(false)} >
     	            	X
     	            </Button>
     	            <h2>Compliant requirements</h2>
     	            <div className="pu-content-container">
-                		{this.state.content}
+    	            	<MDBContainer className="scrollbar scrollbar-primary">
+    	            		{this.state.content}
+                		</MDBContainer>
                 	</div>
                </div>
             </Draggable>

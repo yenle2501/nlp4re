@@ -1,0 +1,64 @@
+
+.PopUp{
+	position: fixed;
+    top: 30%;
+    left: 30%;
+    width: 70%;
+    border: 1px solid ;
+    border-radius: 0.5em;
+    background-color: #FDFFFC;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center ;
+    color: #011627;
+    flex-wrap: wrap;
+    cursor: -webkit-grab;
+  	cursor: grab;
+}
+
+.popup-close{
+    width: 2em;
+    height: 2em;
+    align-self: flex-end;
+}
+
+
+.pu-content-container{
+    display: flex;
+    width: 900px;
+    height: 400px;
+  	justify-content: center;
+  	align-items: left;
+  	flex-direction: column;
+}
+
+.scrollbar {
+  overflow: scroll;
+}
+
+.scrollbar-primary {
+  scrollbar-color: #00ff80 #f5f5f5;
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 5px;
+  background-color: #F5F5F5;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  background-color: #80ff80;
+}
+
+label{
+	 padding: 0px 0px 0px 0px;
+}

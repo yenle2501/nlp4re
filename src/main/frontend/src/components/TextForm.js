@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
-import './TextForm/TextForm.css';
+import './TextForm.css';
 import PopUp from './PopUp';
 import {Accordion,Button, Card, Modal, Form} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -83,13 +83,14 @@ export default class TextForm  extends Component {
         	    		console.log(key, resullt[key]); 
         	    		console.log(key, logs_list[key]);
         	    		
-        	    		// konform
+        	    		// conform
         	    		if(conform_list[key] === '0'){
         	    			tmp = [tmp, <Card style={{ backgroundColor: '#90ee90' }}> 
         	    							{resullt[key]}
         	    						</Card>
         	    				  ];
         	    		}
+        	    		// not conform
         	    		else if(conform_list[key] === '1'){
         	    			tmp = [tmp, 
         	    				<Accordion  defaultActiveKey="0" >
@@ -99,7 +100,7 @@ export default class TextForm  extends Component {
 	        	    			      </Accordion.Toggle>
 	        	    			      <Accordion.Collapse eventKey="1" style={{ backgroundColor: '#ffb2b2' }}>
 		        	    			      <Card.Body>
-		        	    			      	<label> Error Logs </label>
+		        	    			      	<label>Logs:</label>
 		        	    			      	<div>
 		        	    			      		{logs_list[key]}
 		        	    			      	</div>
