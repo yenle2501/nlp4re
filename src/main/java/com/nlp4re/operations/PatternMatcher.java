@@ -1,4 +1,4 @@
-package com.nlp4re.logic;
+package com.nlp4re.operations;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.HashMap;
@@ -15,9 +15,9 @@ import opennlp.tools.util.Span;
 public class PatternMatcher {
 
 	/**
-	 * match the sentence with definitely regexes
+	 * match the sentence with defined regexes
 	 * 
-	 * @param regexes  given regexes
+	 * @param regexes  the given regexes
 	 * @param sentence Check the sentence with the regular expressions
 	 * @return Array of spans
 	 */
@@ -26,7 +26,7 @@ public class PatternMatcher {
 		checkNotNull(sentence);
 
 		Map<String, Pattern[]> regexMap = new HashMap<>();
-		regexes.entrySet().stream().forEach(e -> {
+		regexes.entrySet().forEach(e -> {
 			String key = e.getKey();
 			String value = e.getValue();
 			Pattern pattern = Pattern.compile(value, Pattern.CASE_INSENSITIVE);

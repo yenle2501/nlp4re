@@ -17,6 +17,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+
+import com.nlp4re.operations.PatternMatcher;
+import com.nlp4re.operations.SentenceAnalyzer;
+
 import opennlp.tools.sentdetect.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
@@ -76,34 +81,4 @@ public class RequirementLogicImpl_EngTest {
 		assertThrows(NullPointerException.class, () -> requirementLogic.doParse(null));
 	}
 
-	@Test
-	public void test_doParse_false() {
-		// given
-		SentenceAnalyzer mockSentenceAnalyzer = mock(SentenceAnalyzer.class);
-		when(mockSentenceAnalyzer.getTokens(anyString())).thenReturn(new String[] { "return", "," ,"then", "tokens","should","provide" });
-		when(mockSentenceAnalyzer.getPOSTags(any(String[].class))).thenReturn(new String[] { "VP",",", "PP", "NNS", "MD", "VB" });
-		when(mockSentenceAnalyzer.getModalIndex(anyList(), anyInt())).thenReturn(5);
-		when(mockSentenceAnalyzer.getAnchorStartIndex(anyList(), anyInt(),anyInt())).thenReturn(1);
-		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt())).thenReturn(Arrays.asList(new String[] { "the", "system"}));
-		when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt())).thenReturn(Arrays.asList(new String[] { "if", "system", "then" }));
-		when(mockSentenceAnalyzer.getChunks(any(String[].class), any(String[].class))).thenReturn(Arrays.asList(new String[] { "SP" }));
-		when(mockSentenceAnalyzer.getObjects( anyString(),any(String[].class))).thenReturn("one object");
-		
-		PatternMatcher mockPatternMatcher = mock(PatternMatcher.class);
-		Span mockSpan = new Span(0, 0, "if");
-		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan });
-		
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
-				mockPatternMatcher);
-		
-		Map<Integer, String> sentences = new HashMap<Integer, String>();
-		sentences.put(0, "some String");//"if the sentence has something, then the system should provide the user with the ability to do one chance");
-		// when
-		List<Map<Integer, String>> result = requirementLogic.doParse(sentences);
-		// then
-		assertThat(!result.isEmpty(), is(true));
-		assertThat(result.get(0).get(0), is("some String"));
-		assertThat(result.get(1).get(0), is("1"));
-		verify(mockSentenceAnalyzer, times(1)).getTokens(anyString());
-	}
 }

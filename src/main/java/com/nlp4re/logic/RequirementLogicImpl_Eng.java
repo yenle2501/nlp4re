@@ -13,14 +13,14 @@ import java.util.Map;
 import org.eclipse.collections.impl.utility.ListIterate;
 import org.springframework.util.StringUtils;
 
+import com.nlp4re.operations.PatternMatcher;
+import com.nlp4re.operations.SentenceAnalyzer;
+
 import opennlp.tools.sentdetect.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.Span;
 
-/**
- * This class works as the logic class for check the logic
- */
 public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 	private static final String[] MODALS = { "SHOULD", "SHALL", "COULD", "WILL", "MUST" };
@@ -31,17 +31,15 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	private PatternMatcher matcher;
 
 	public RequirementLogicImpl_Eng(SentenceAnalyzer sentenceAnalyzer, PatternMatcher matcher) {
-		// this.sentenceAnalyzer = new SentenceAnalyzer();
-		// this.matcher = new PatternMatcher();
 		this.error_logs = "";
 		this.sentenceAnalyzer = sentenceAnalyzer;
 		this.matcher = matcher;
 	}
 
 	/**
-	 * tokenizes the sentence
+	 * Tokenizes the sentence
 	 * 
-	 * @param sentence sentence to tokenize
+	 * @param sentence sentence for tokenizing
 	 * @return List of tokens and tags of sentence
 	 */
 
@@ -57,10 +55,10 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	}
 
 	/**
-	 * Checks the modal verb of the sentence
+	 * Checks the modal verb
 	 * 
-	 * @return true: if the sentence contains one of the proposed modal verbs such as shall, should, could false:
-	 *         otherwise
+	 * @return true : if the sentence contains one of the proposed modal verbs such as shall, should, could, will, must
+	 *         false: otherwise
 	 */
 	private boolean parseModalVp(int modal_index, List<String> list_tokens) {
 		checkNotNull(list_tokens);
@@ -69,8 +67,8 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			error_logs = "The sentence does not contain any modal verbs. The modal verbs should be SHOULD, SHALL, COULD, WILL, MUST.\n";
 			return false;
 		} else {
+			
 			String modal_vp = list_tokens.get(modal_index);
-
 			if (Arrays.asList(MODALS).contains(modal_vp.toUpperCase())) {
 				return true;
 			} else {
@@ -172,9 +170,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		Span[] spans = matcher.matches(regexes, condition);
 
 		if (spans == null || spans.length != 1) {
-			error_logs += "The condtions should be one of the following forms:\n" + "IF <Condition|Event>, THEN\n"
-					+ "WHILE|DURING <Activation state>\n" + "IN CASE <Included feature> IS INCLUDED\n"
-					+ "AFTER|BEFORE|AS SOON AS <Bahavior>\n";
+			error_logs += "The condtions should be one of the following forms:\n" + "IF <Condition|Event>, THEN \n"
+					+ "WHILE|DURING <Activation state> \n" + "IN CASE <Included feature> IS INCLUDED \n"
+					+ "AFTER|BEFORE|AS SOON AS <Bahavior> \n";
 			return false;
 		} else {
 			if (spans[0].getType().equals("if")) {
@@ -189,9 +187,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 				return true;
 			}
 		}
-		error_logs += "The condtions should be one of following forms:\n" + "IF <Condition|Event>,THEN\n"
-				+ "WHILE|DURING <Activation state>\n" + "IN CASE <Included feature> IS INCLUDED\n"
-				+ "AFTER|BEFORE| AS SOON AS <Bahavior>\n";
+		error_logs += "The condtions should be one of following forms:\n" + "IF <Condition|Event>,THEN \n"
+				+ "WHILE|DURING <Activation state> \n" + "IN CASE <Included feature> IS INCLUDED \n"
+				+ "AFTER|BEFORE| AS SOON AS <Bahavior> \n";
 		return false;
 	}
 
@@ -199,7 +197,8 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * Anchor should contain SYSTEM NAME + MODAL VERB + NORMAL VERB This method has the ability to check the anchor of
 	 * the sentence.
 	 * 
-	 * @return true: if the sentence has a valid anchor false: otherwise
+	 * @return true: if the sentence has a valid anchor
+	 *  false: otherwise
 	 */
 
 	private List<Integer> parseAnchor(List<String> list_tokens, List<String> list_tags, int comma_index,
@@ -376,7 +375,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * parse the complete sentence
 	 * 
 	 * @param sentence: sentence to check
-	 * @return true: if the sentence does not match with the template false: otherwise
+	 * @return true: if the sentence matches with the template false: otherwise
 	 */
 	private boolean parseTemplateConformance(String sentence) {
 		checkNotNull(sentence);
@@ -412,7 +411,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 				boolean hasDetails = parseDetails(list_tokens, object_end_index);
 
-				if (hasModalVerb && hasSystemName && hasAnchor && hasValidCondition && hasObject && hasDetails) {
+				if (hasSystemName && hasAnchor && hasValidCondition && hasObject && hasDetails) {
 					return true;
 				} else {
 					return false;
@@ -422,7 +421,6 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		}
 	}
 
-	
 	/**
 	 * This method helps to get single sentence from the requirements description
 	 * 
@@ -455,7 +453,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	/**
 	 * This method helps to parse each single sentence with the chosen template.
 	 * 
-	 * @param sentences list of sentences
+	 * @param sentences map of sentences with indexes
 	 * @return a list of map with key-value-pair 1.Map contains all sentences of requirement 2.Map contains all
 	 *         compliant and non-compliant sentences with the order as the keys in 1.Map 3.Map contains all logs for the
 	 *         non-compliant sentences with the order as the keys in 1.Map
@@ -467,7 +465,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		Map<Integer, String> map_compliant_sentences = new HashMap<Integer, String>();
 		Map<Integer, String> map_logs_for_non_compliant_sentences = new HashMap<Integer, String>();
 
-		sentences.entrySet().stream().forEach(entry -> {
+		sentences.entrySet().forEach(entry -> {
 			Integer index = entry.getKey();
 			String sentence = entry.getValue();
 

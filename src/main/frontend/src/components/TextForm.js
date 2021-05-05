@@ -134,7 +134,7 @@ export default class TextForm  extends Component {
 		            <div className="check">        
 					   <Form>
 						   <Form.Group  value={this.state.description}  onChange={this.handleOnChange}>
-						     <Form.Control as="textarea" rows={10} />
+						     <Form.Control as="textarea" rows={15} />
 						   </Form.Group>
 					    </Form>
 					   <Button variant="success" onClick={this.checkText} >Check</Button>

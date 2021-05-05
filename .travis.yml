@@ -1,23 +1,23 @@
-language: bash
+# tell Travis it's Java -- that'll allow us to pick multiple JDK versions, preinstalls a few dev tools, ...
+language: java
 
-services:
-  - docker
+dist: bionic
 
-env:
-  global:
-    - IMAGE_NAME=${DOCKERHUB_USER}/nlp4re
+# we test against Java 10 and 11 by default
+# Java 8 might be too old, but we can always include it into our build matrix
+jdk:
+  - openjdk8
 
+# a special Java 8 configuration to build a .jar and upload it somewhere
 script:
-  - docker build -t ${IMAGE_NAME} .
-
-deploy:
-  - provider: script
-    script: 
-      docker login -u ${DOCKERHUB_USER} -p ${DOCKERHUB_PW} && docker push ${IMAGE_NAME}
-    on:
-      branch: master
-  
-  - provider: script
-    script: docker login -u ${DOCKERHUB_USER} -p ${DOCKERHUB_PW} && docker tag ${IMAGE_NAME} 
-    on:
-      tags: true
+    - name: "Build (uploads for master builds java 8)"
+      jdk: openjdk8
+      script:
+        - cd nlp4re
+        - ./mvnw clean install
+ 	
+    - name: "Run all tests (including system tests) and report coverage (Java 8)"
+      jdk: openjdk8
+      script:
+        - cd nlp4re
+        - ./mvnw test

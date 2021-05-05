@@ -3,7 +3,7 @@
 	position: fixed;
     top: 30%;
     left: 30%;
-    width: 70%;
+    width: 55%;
     border: 1px solid ;
     border-radius: 0.5em;
     background-color: #FDFFFC;
@@ -26,8 +26,8 @@
 
 .pu-content-container{
     display: flex;
-    width: 900px;
-    height: 400px;
+    width: 90%;
+    height: 500px;
   	justify-content: center;
   	align-items: left;
   	flex-direction: column;

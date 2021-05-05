@@ -1,4 +1,4 @@
-package com.nlp4re.logic;
+package com.nlp4re.operations;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;
@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 import opennlp.tools.util.Span;
 
@@ -28,16 +27,14 @@ public class PatternMatcherTest {
 	public void testMatchesNotNull() {
 		// given
 		PatternMatcher matcher = new PatternMatcher();
-		Map<String, String> regexs = new HashMap<String, String>();
-		regexs.put("id0", "^THE [\\w\\s]+");
-		regexs.put("id1", "SHALL* ");
-		String sentence = "The system shall provide functionality to allow truckers to trigger events about their current"
-				+ "status while involved in an active job.";
-		
+		Map<String, String> mockRegexs = new HashMap<String, String>();
+		mockRegexs.put("id0", "^THE [\\w\\s]+");
+
 		// when
-		Span[] spans = matcher.matches(regexs, sentence);
+		Span[] spans = matcher.matches(mockRegexs, "The system shall");
+
 		// then
+		assertThat(spans.length, is(1));
 		assertThat(spans[0].getType(), is("id0"));
-		assertThat(spans[1].getType(), is("id1"));
 	}
 }
