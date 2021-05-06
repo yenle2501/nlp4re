@@ -5,9 +5,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -15,12 +18,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.util.StringUtils;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.Parser;
+import opennlp.tools.parser.ParserFactory;
+import opennlp.tools.parser.ParserModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.TokenizerME;
 
@@ -29,16 +35,18 @@ import opennlp.tools.tokenize.TokenizerME;
  */
 public class SentenceAnalyzerTest {
 
-	private String sentence = "If the number of products in a warehouse reach the defined minimum limit, then the system shall provide functionality to allow truckers to trigger events about their current "
-			+ "status while involved in an active job.";
-
-	private String[] tokens = { "If", "the", "number", "of", "products", "in", "a", "warehouse", "reach", "the",
-			"defined", "minimum", "limit", ",", "then", "the", "system", "shall", " provide", "functionality", "to",
-			"allow", "truckers", "to", "trigger", "events", "about", "their", "current", "status", "while", "involved",
-			"in", "an", "active", "job", "." };
-	private String[] tags = { "IN", "DT", "NN", "IN", "NNS", "IN", "DT", "NN", "NN", "DT", "VBN", "NN", "NN", ",", "RB",
-			"DT", "NN", "MD", "VB", "NN", "TO", "VB", "NNS", "TO", "VB", "NNS", "IN", "PRP$", "JJ", "NN", "IN", "VBN",
-			"IN", "DT", "JJ", "NN", "." };
+	// private String sentence = "If the number of products in a warehouse reach the defined minimum limit, then the
+	// system shall provide functionality to allow truckers to trigger events about their current "
+	// + "status while involved in an active job.";
+	//
+	// private String[] tokens = { "If", "the", "number", "of", "products", "in", "a", "warehouse", "reach", "the",
+	// "defined", "minimum", "limit", ",", "then", "the", "system", "shall", " provide", "functionality", "to",
+	// "allow", "truckers", "to", "trigger", "events", "about", "their", "current", "status", "while", "involved",
+	// "in", "an", "active", "job", "." };
+	// private String[] tags = { "IN", "DT", "NN", "IN", "NNS", "IN", "DT", "NN", "NN", "DT", "VBN", "NN", "NN", ",",
+	// "RB",
+	// "DT", "NN", "MD", "VB", "NN", "TO", "VB", "NNS", "TO", "VB", "NNS", "IN", "PRP$", "JJ", "NN", "IN", "VBN",
+	// "IN", "DT", "JJ", "NN", "." };
 
 	@Test
 	public void test_getTokens_NullPointerException() {
@@ -86,7 +94,7 @@ public class SentenceAnalyzerTest {
 		POSTaggerME mockPOSTaggerME = mock(POSTaggerME.class);
 		when(mockSentenceOperations.getPOSTaggerME()).thenReturn(mockPOSTaggerME);
 		when(mockPOSTaggerME.tag(any(String[].class))).thenReturn(new String[] { "IN", "DT" });
-
+		//
 		// when
 		String[] POSTags = analyzer.getPOSTags(new String[] { "If", "the" });
 		// then
@@ -111,11 +119,11 @@ public class SentenceAnalyzerTest {
 		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
 		Parser mockParser = mock(Parser.class);
-		
+		Parse mockParse = mock(Parse.class);
 		when(mockSentenceOperations.getParser()).thenReturn(mockParser);
-		
+		when(ParserTool.parseLine(anyString(), mockParser, anyInt())).thenReturn(new Parse[] { mockParse });
 		// when
-		Parse[] result = analyzer.getParses("any sentence");
+		Parse[] result = analyzer.getParses("some string is here");
 
 		// then
 		assertThat(result.length, is(1));
@@ -256,27 +264,27 @@ public class SentenceAnalyzerTest {
 	@Test
 	public void test_getObject() {
 		// given
-		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
+		SentenceOperations mockSentenceOperations = new SentenceOperations();
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
-		
-		Parse mockParse = mock(Parse.class);
-		Parse mockParseChildren = mock(Parse.class);
-		Parser mockParser = mock(Parser.class);
-		Parse[] mockParses = new Parse[] {mockParse};
-		TokenizerME mockTokenizerME = mock(TokenizerME.class);
+		// TokenizerME mockTokenizerME = mock(TokenizerME.class);
+		// Parser mockParser = mock(Parser.class);
+		// when(mockSentenceOperations.getParser()).thenReturn(mockParser);
+		//
+		// Parse mockParse = mock(Parse.class);
+		// Parse mockParseChildren = mock(Parse.class);
+		//
+		// when(any(ParserTool.class).parseLine(anyString(), mockParser, anyInt())).thenReturn(new Parse[] {mockParse,
+		// mockParseChildren});
 
-		when(mockSentenceOperations.getParser()).thenReturn(mockParser);
-		when(ParserTool.parseLine(anyString(), mockParser, 1)).thenReturn(mockParses);
-		
-		when(mockParse.getType()).thenReturn("NP");
-		when(mockParse.getCoveredText()).thenReturn("some objects");
-		when(mockParse.getChildren()).thenReturn(new Parse[] { mockParseChildren });
+		// when(mockParse.getType()).thenReturn("NP");
+		// when(mockParse.getCoveredText()).thenReturn("some objects");
+		// when(mockParse.getChildren()).thenReturn(new Parse[] { mockParseChildren });
 
-		when(mockSentenceOperations.getTokenizerME()).thenReturn(mockTokenizerME);
-		when(mockTokenizerME.tokenize(anyString())).thenReturn(new String[] { "some", "objects" });
+		// when(mockSentenceOperations.getTokenizerME()).thenReturn(mockTokenizerME);
+		// when(mockTokenizerME.tokenize(anyString())).thenReturn(new String[] { "some", "objects" });
 
 		// when
-		String obj = analyzer.getObjects("have some objects", new String[] { "have", "some", "objects" });
+		String obj = analyzer.getObjects("some objects to apply", new String[] { "some", "objects", "to", "apply" });
 		// then
 		assertThat(obj, is("some objects"));
 
@@ -285,7 +293,7 @@ public class SentenceAnalyzerTest {
 	@Test
 	public void test_getObject_w_possesive_noun() {
 		// given
-		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
+		SentenceOperations mockSentenceOperations = new SentenceOperations();
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
 		String possible_object = "his order .";
 		String[] possible_object_tokens = new String[] { "his", "order", "." };
@@ -310,9 +318,9 @@ public class SentenceAnalyzerTest {
 		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
 		// when
-		int modal_index = analyzer.getModalIndex(Arrays.asList(tags), 14);
+		int modal_index = analyzer.getModalIndex(Arrays.asList("NP", ",", "PP", "MD", "VP"), 1);
 		// then
-		assertThat(modal_index, is(17));
+		assertThat(modal_index, is(3));
 	}
 
 	@Test
@@ -321,9 +329,7 @@ public class SentenceAnalyzerTest {
 		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
 		// when
-		String[] s_tags = { "DT", "NN", "MD", "VB", "NN", "TO", "VB", "NNS", "TO", "VB", "NNS", "IN", "PRP$", "JJ",
-				"NN", "IN", "VBN", "IN", "DT", "JJ", "NN", "." };
-		int modal_index = analyzer.getModalIndex(Arrays.asList(s_tags), -1);
+		int modal_index = analyzer.getModalIndex(Arrays.asList("NP", "PP", "MD", "VP"), -1);
 		// then
 		assertThat(modal_index, is(2));
 	}
@@ -343,9 +349,10 @@ public class SentenceAnalyzerTest {
 		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
 		// when
-		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList(tokens), 14, 17);
+		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList("if", "some", ",", "then", "any", "should"), 2,
+				5);
 		// then
-		assertThat(anchor_index, is(15));
+		assertThat(anchor_index, is(4));
 	}
 
 	@Test
@@ -353,13 +360,10 @@ public class SentenceAnalyzerTest {
 		// given
 		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
-		String[] senc = new String[] { "While", "the", "payment", "of", "an", "invoice", ",", "the", "Inventory",
-				"subsystem", "could", "provide", "the", "warehouse", "manager" };
-
 		// when
-		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList(senc), 6, 10);
+		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList("while", "some", ",", "any", "should"), 2, 4);
 		// then
-		assertThat(anchor_index, is(7));
+		assertThat(anchor_index, is(3));
 	}
 
 	@Test
@@ -367,11 +371,9 @@ public class SentenceAnalyzerTest {
 		// given
 		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
-		String[] senc = new String[] { "the", "Inventory", "subsystem", "could", "provide", "the", "warehouse",
-				"manager" };
 
 		// when
-		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList(senc), -1, 2);
+		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList("any", "should"), -1, 1);
 		// then
 		assertThat(anchor_index, is(0));
 	}
