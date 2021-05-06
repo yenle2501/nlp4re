@@ -3,7 +3,9 @@ import axios from 'axios';
 import './TextForm.css';
 import PopUp from './PopUp';
 import {Accordion,Button, Card, Modal, Form} from 'react-bootstrap';
+import BootstrapSwitchButton from 'bootstrap-switch-button-react'
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 export default class TextForm  extends Component {
 	
@@ -130,6 +132,7 @@ export default class TextForm  extends Component {
 	            <div className={"TextForm"}>
 		            <div className="head"> 
 		                <h1>Requirements Description</h1> 
+		                <BootstrapSwitchButton className="switchbutton" checked={true} onlabel='EN' offlabel='DE' onstyle="success" />
 		            </div> 
 		            <div className="check">        
 					   <Form>

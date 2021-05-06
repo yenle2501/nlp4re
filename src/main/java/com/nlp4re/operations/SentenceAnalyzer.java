@@ -35,7 +35,7 @@ public class SentenceAnalyzer {
 	 */
 	public String[] getTokens(String sentence) {
 		checkNotNull(sentence);
-	
+
 		TokenizerME tokenizer = sentenceOperations.getTokenizerME();
 		String[] tokens = new String[] {};
 		synchronized (tokenizer) {
@@ -58,7 +58,7 @@ public class SentenceAnalyzer {
 		synchronized (tagger) {
 			tags = tagger.tag(tokens);
 		}
-		
+
 		return tags;
 	}
 
@@ -77,7 +77,6 @@ public class SentenceAnalyzer {
 		return parses;
 	}
 
-	
 	/**
 	 * Get Chunks from given tokens and tags
 	 * 
@@ -91,7 +90,7 @@ public class SentenceAnalyzer {
 		synchronized (chunker) {
 			chunks = Arrays.asList(chunker.chunk(tokens, tags));
 		}
-		
+
 		return chunks;
 
 	}

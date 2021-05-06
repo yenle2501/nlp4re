@@ -25,6 +25,9 @@ public class SentenceOperations {
 		loadModels();
 	}
 
+	/***
+	 *  Load the required modules provided by OpenNLP
+	 */
 	private void loadModels() {
 		try {
 			InputStream tokenMEInputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-token.bin");
