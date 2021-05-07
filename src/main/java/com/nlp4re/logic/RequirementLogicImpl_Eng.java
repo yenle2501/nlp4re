@@ -30,28 +30,53 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	private SentenceAnalyzer sentenceAnalyzer;
 	private PatternMatcher matcher;
 
+	private int object_start_index;
+	private int object_end_index;
+
 	public RequirementLogicImpl_Eng(SentenceAnalyzer sentenceAnalyzer, PatternMatcher matcher) {
 		this.error_logs = "";
 		this.sentenceAnalyzer = sentenceAnalyzer;
 		this.matcher = matcher;
+		this.object_start_index = -1;
+		this.object_end_index = -1;
 	}
 
 	/**
 	 * Tokenizes the sentence
 	 * 
-	 * @param sentence sentence for tokenizing
+	 * @param sentence sentence for tokenision
 	 * @return List of tokens and tags of sentence
 	 */
-
-	private List<String[]> tokenizeSentence(String sentence) {
+	public String[] getTokensFromSentence(String sentence) {
 		checkNotNull(sentence);
+		return sentenceAnalyzer.getTokens(sentence);
+	}
 
-		String[] tokens = sentenceAnalyzer.getTokens(sentence);
-		String[] tags = sentenceAnalyzer.getPOSTags(tokens);
-		List<String[]> result = new LinkedList<String[]>();
-		result.add(tokens);
-		result.add(tags);
-		return result;
+	/***
+	 * tag each token according to Penn Treebank tag set
+	 * 
+	 * @param tokens input tokens
+	 * @return Array of Tags
+	 */
+	public String[] getTagsFromTokens(String[] tokens) {
+		checkNotNull(tokens);
+		return sentenceAnalyzer.getPOSTags(tokens);
+	}
+
+	private void setObjectStartIndex(int index) {
+		this.object_start_index = index;
+	}
+
+	private int getObjectStartIndex() {
+		return object_start_index;
+	}
+
+	private void setObjectEndIndex(int index) {
+		this.object_end_index = index;
+	}
+
+	private int getObjectEndIndex() {
+		return object_end_index;
 	}
 
 	/**
@@ -60,14 +85,14 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true : if the sentence contains one of the proposed modal verbs such as shall, should, could, will, must
 	 *         false: otherwise
 	 */
-	private boolean parseModalVp(int modal_index, List<String> list_tokens) {
+	public boolean parseModalVp(int modal_index, List<String> list_tokens) {
 		checkNotNull(list_tokens);
 
 		if (modal_index == -1) {
 			error_logs = "The sentence does not contain any modal verbs. The modal verbs should be SHOULD, SHALL, COULD, WILL, MUST.\n";
 			return false;
 		} else {
-			
+
 			String modal_vp = list_tokens.get(modal_index);
 			if (Arrays.asList(MODALS).contains(modal_vp.toUpperCase())) {
 				return true;
@@ -84,7 +109,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true : if the sentence has a valid name of system false: otherwise
 	 */
 
-	private boolean parseSystemName(List<String> list_tokens, int comma_index, int modal_index) {
+	public boolean parseSystemName(List<String> list_tokens, int comma_index, int modal_index) {
 		checkNotNull(list_tokens);
 
 		List<String> tokens_possible_systemName = sentenceAnalyzer.getSystemName(list_tokens, comma_index, modal_index);
@@ -112,14 +137,14 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			}
 			// one of the patterns is matched
 			else if (spans.length == 1) {
-				// if it is 'the' pattern, the start index of system name is one, otherwise it is 4 (for example: 'some
-				// systems of the')
-				int start_index = spans[0].getType().equals("the") ? 1 : 4;
-				String[] a = tokens_possible_systemName.toArray(new String[0]);
-				String[] tokens_system_name = Arrays.copyOfRange(a, start_index, tokens_possible_systemName.size());
-				List<String> tags_system_name = Arrays.asList(sentenceAnalyzer.getPOSTags(tokens_system_name));
-
 				if (spans[0].getType().equals("the") || spans[0].getType().equals("all_some")) {
+					// if it is 'the' pattern, the start index of system name is one, otherwise it is 4 (for example:
+					// 'some systems of the')
+					int start_index = spans[0].getType().equals("the") ? 1 : 4;
+					String[] tokens_system_name = Arrays.copyOfRange(tokens_possible_systemName.toArray(new String[0]),
+							start_index, tokens_possible_systemName.size());
+					List<String> tags_system_name = Arrays.asList(sentenceAnalyzer.getPOSTags(tokens_system_name));
+
 					// that contains only noun
 					if (!tags_system_name.contains("VB")) {
 						return true;
@@ -147,7 +172,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true :if the sentence has no condition or a valid condition false: otherwise
 	 */
 
-	private boolean parseCondition(List<String> list_tokens, int comma_index, int modal_index) {
+	public boolean parseCondition(List<String> list_tokens, int comma_index, int modal_index) {
 		checkNotNull(list_tokens);
 
 		List<String> token_conditions = sentenceAnalyzer.getConditions(list_tokens, modal_index, comma_index);
@@ -169,12 +194,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		String condition = StringUtils.collectionToDelimitedString(token_conditions, " ");
 		Span[] spans = matcher.matches(regexes, condition);
 
-		if (spans == null || spans.length != 1) {
-			error_logs += "The condtions should be one of the following forms:\n" + "IF <Condition|Event>, THEN \n"
-					+ "WHILE|DURING <Activation state> \n" + "IN CASE <Included feature> IS INCLUDED \n"
-					+ "AFTER|BEFORE|AS SOON AS <Bahavior> \n";
-			return false;
-		} else {
+		if (spans != null && spans.length == 1) {
 			if (spans[0].getType().equals("if")) {
 				if (list_tokens.get(comma_index + 1).equals("then")) {
 					return true;
@@ -191,23 +211,21 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 				+ "WHILE|DURING <Activation state> \n" + "IN CASE <Included feature> IS INCLUDED \n"
 				+ "AFTER|BEFORE| AS SOON AS <Bahavior> \n";
 		return false;
+
 	}
 
 	/**
 	 * Anchor should contain SYSTEM NAME + MODAL VERB + NORMAL VERB This method has the ability to check the anchor of
 	 * the sentence.
 	 * 
-	 * @return true: if the sentence has a valid anchor
-	 *  false: otherwise
+	 * @return List of value(1: false, 0: true) and start index of object 0: if the sentence has a valid anchor 1:
+	 *         otherwise
 	 */
 
-	private List<Integer> parseAnchor(List<String> list_tokens, List<String> list_tags, int comma_index,
-			int modal_index) {
+	public boolean parseAnchor(List<String> list_tokens, List<String> list_tags, int comma_index, int modal_index) {
 		checkNotNull(list_tokens);
 		checkNotNull(list_tags);
 
-		List<Integer> result = new LinkedList<Integer>();
-		int erg = -1;
 		int global_object_start_index = -1;
 
 		int anchor_start_index = sentenceAnalyzer.getAnchorStartIndex(list_tokens, comma_index, modal_index);
@@ -229,17 +247,22 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			if (spans == null || spans.length == 0) {
 				// in passiv form
 				int object_start_index = tags_after_modal_verb.indexOf("DT");
+				// singular noun
+				// if object_start_index <= 4, sentence is "should be provided the blaba"
 				if (object_start_index == -1 || object_start_index > 4) {
 					object_start_index = tags_after_modal_verb.indexOf("NN");
+					// plural noun
 					if (object_start_index == -1 || object_start_index > 4) {
 						object_start_index = tags_after_modal_verb.indexOf("NNS");
 					}
 				}
 				global_object_start_index = modal_index + object_start_index;
-				erg = 0;
+				setObjectStartIndex(global_object_start_index);
+				return true;
 			} else if (spans.length == 1) {
 				// PROVIDE Pattern
 				if (spans[0].getType().equals("provide")) {
+					
 					// check who is noun
 					int index_of_with = anchor_start_index
 							+ ListIterate.detectIndex(anchor_tokens, "WITH"::equalsIgnoreCase);
@@ -247,46 +270,49 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 							list_tokens.subList(modal_index + 2, index_of_with).toArray(new String[0]),
 							list_tags.subList(modal_index + 2, index_of_with).toArray(new String[0]));
 
-					for (String action : who_chunk) {
-						if (!action.contains("-NP")) {
+					for (String chunk : who_chunk) {
+						if (!chunk.contains("-NP")) {
 							error_logs += "After PROVIDE an Object should be shown. For example USER| <Name>\n";
-							erg = 1;
-							break;
+							setObjectStartIndex(global_object_start_index);
+							return false;
 						}
 					}
+					
 					if (list_tags.get(index_of_with + 4).equals("VB")) {
 						// the ability to
 						global_object_start_index = index_of_with + 5;
-						erg = 0;
+						setObjectStartIndex(global_object_start_index);
+						return true;
 					} else {
 						error_logs += "A Verb must be shown after WITH THE ABILITY TO.\n";
-						erg = 1;
+						setObjectStartIndex(global_object_start_index);
+						return false;
 					}
 				} else if (spans[0].getType().equals("be_able_to")) {
 					// be able to
 					if (list_tags.get(modal_index + 4).equals("VB")) {
 						global_object_start_index = modal_index + 5;
-						erg = 0;
+						setObjectStartIndex(global_object_start_index);
+						return true;
 					} else {
 						// the sentence is not valid, no verb after to
 						error_logs += "A Verb must be shown after BE ABLE TO.\n";
-						erg = 1;
+						setObjectStartIndex(global_object_start_index);
+						return false;
 					}
 				}
 			} else {
 				// more than one pattern
 				error_logs += "The sentence has more than one Pattern.\n";
-				erg = 1;
+				setObjectStartIndex(global_object_start_index);
+				return false;
 			}
 		} else {
 			error_logs += "No verb after modal verb.\n";
-			erg = 1;
+			setObjectStartIndex(global_object_start_index);
+			return false;
 		}
-		// do not have normal verb
-		result.add(erg);
-		result.add(global_object_start_index);
-
-		return result;
+		return false;
 	}
 
 	/**
@@ -295,11 +321,10 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true: if the sentence has a valid object false: otherwise
 	 */
 
-	private List<Integer> parseObject(String[] tokens, String[] tags, int object_start_index) {
+	public boolean parseObject(String[] tokens, String[] tags, int object_start_index) {
 		checkNotNull(tokens);
 		checkNotNull(tags);
 
-		int erg = -1;
 		int object_end_index = -1;
 		String[] possible_object_tokens = Arrays.copyOfRange(tokens, object_start_index, tokens.length);
 		String possible_object_string = StringUtils.arrayToDelimitedString(possible_object_tokens, " ");
@@ -307,7 +332,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 		if (object_string == null || object_string.isEmpty() || object_string.isBlank()) {
 			error_logs += "The sentence does not contain any Object.\n";
-			erg = 1;
+			return false;
 		} else {
 			Map<String, String> regexs = new HashMap<String, String>();
 			regexs.put("single_obj", "^A |^AN |^THE |^ONE |^EACH +");
@@ -322,20 +347,17 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			if (spans == null || spans.length == 0) {
 				error_logs += "'" + object_string + "'"
 						+ " must be startet with A| AN| THE|ONE| EACH| ALL THE| BETWEEN <A> AND <B>.\n";
-				erg = 1;
+				return false;
 			}
 			// one of the cases
 			else if (spans.length == 1) {
 				object_end_index = object_start_index + StringUtils.tokenizeToStringArray(object_string, " ").length
 						- 1;
-				erg = 0;
+				setObjectEndIndex(object_end_index);
+				return true;
 			}
 		}
-		List<Integer> result = new LinkedList<Integer>();
-		result.add(erg);
-		result.add(object_end_index);
-
-		return result;
+		return false;
 	}
 
 	/**
@@ -346,7 +368,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true: if the sentence has valid details false: otherwise
 	 */
 
-	private boolean parseDetails(List<String> tokens, int object_end_index) {
+	public boolean parseDetails(List<String> tokens, int object_end_index) {
 		checkNotNull(tokens);
 
 		if ((object_end_index + 1) == tokens.size()) {
@@ -354,18 +376,19 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		}
 
 		List<String> details = tokens.subList(object_end_index + 1, tokens.size());
-
 		Map<String, String> regexs = new HashMap<String, String>();
 		regexs.put("condition", "IF AND ONLY IF+");
 		regexs.put("condition", "if and only if+");
 		Span[] spans = matcher.matches(regexs, StringUtils.collectionToDelimitedString(details, " "));
 
 		// detail contains no condition
-		if (spans.length == 0) {
+		if (spans == null || spans.length == 0) {
 			return true;
-		} else if (spans.length == 1) {
+		} else if (spans != null  && spans.length == 1) {
 			if (spans[0].getType().equals("condition")) {
 				return true;
+			} else {
+				return false;
 			}
 		}
 		return false;
@@ -381,10 +404,8 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		checkNotNull(sentence);
 
 		this.error_logs = "";
-
-		List<String[]> tokens_tags = tokenizeSentence(sentence);
-		String[] tokens = tokens_tags.get(0);
-		String[] tags = tokens_tags.get(1);
+		String[] tokens = getTokensFromSentence(sentence);
+		String[] tags = getTagsFromTokens(tokens);
 		List<String> list_tokens = Arrays.asList(tokens);
 		List<String> list_tags = Arrays.asList(tags);
 
@@ -399,16 +420,13 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			if (!hasSystemName) {
 				return false;
 			}
-			List<Integer> parAnchor = parseAnchor(list_tokens, list_tags, comma_index, modal_index);
-			boolean hasAnchor = parAnchor.get(0) == 0 ? true : false;
+			boolean hasAnchor = parseAnchor(list_tokens, list_tags, comma_index, modal_index);
 			if (hasAnchor) {
-				int object_start_index = parAnchor.get(1);
 				boolean hasValidCondition = parseCondition(list_tokens, comma_index, modal_index);
 
-				List<Integer> parObject = parseObject(tokens, tags, object_start_index);
-				boolean hasObject = parObject.get(0) == 0 ? true : false;
-				int object_end_index = parObject.get(1);
-
+				int object_start_index = getObjectStartIndex();
+				boolean hasObject = parseObject(tokens, tags, object_start_index);
+				int object_end_index = getObjectEndIndex();
 				boolean hasDetails = parseDetails(list_tokens, object_end_index);
 
 				if (hasSystemName && hasAnchor && hasValidCondition && hasObject && hasDetails) {

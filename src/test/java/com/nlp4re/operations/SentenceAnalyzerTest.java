@@ -5,28 +5,21 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.springframework.util.StringUtils;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.Parser;
-import opennlp.tools.parser.ParserFactory;
-import opennlp.tools.parser.ParserModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.TokenizerME;
 
@@ -34,19 +27,6 @@ import opennlp.tools.tokenize.TokenizerME;
  * Test for {@link SentenceAnalyzer}
  */
 public class SentenceAnalyzerTest {
-
-	// private String sentence = "If the number of products in a warehouse reach the defined minimum limit, then the
-	// system shall provide functionality to allow truckers to trigger events about their current "
-	// + "status while involved in an active job.";
-	//
-	// private String[] tokens = { "If", "the", "number", "of", "products", "in", "a", "warehouse", "reach", "the",
-	// "defined", "minimum", "limit", ",", "then", "the", "system", "shall", " provide", "functionality", "to",
-	// "allow", "truckers", "to", "trigger", "events", "about", "their", "current", "status", "while", "involved",
-	// "in", "an", "active", "job", "." };
-	// private String[] tags = { "IN", "DT", "NN", "IN", "NNS", "IN", "DT", "NN", "NN", "DT", "VBN", "NN", "NN", ",",
-	// "RB",
-	// "DT", "NN", "MD", "VB", "NN", "TO", "VB", "NNS", "TO", "VB", "NNS", "IN", "PRP$", "JJ", "NN", "IN", "VBN",
-	// "IN", "DT", "JJ", "NN", "." };
 
 	@Test
 	public void test_getTokens_NullPointerException() {
