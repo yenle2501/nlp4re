@@ -25,7 +25,10 @@ jobs:
         distribution: 'adopt'
     - name: Install npm dependencies
       run: npm install
-        
+      
+    - name: install coveralls
+      run: npm install coveralls --save-dev
+    
     - name: Run tests
       run: npm run test-cov
         
