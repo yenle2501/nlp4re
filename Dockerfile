@@ -1,20 +1,36 @@
+#### Stage 1: Build react application
+FROM node as frontend
 
-# Use the official maven/Java 8 image to create a build artifact.
-FROM maven:3.6-jdk-11 as builder
+## Set current working directory
+WORKDIR /frontend
 
-# Copy local code to the container image.
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
+## Copy packages and install the dependencies
+COPY frontend .
+RUN npm ci
+RUN npm run-script build
 
-# Build a release artifact.
-RUN mvn clean package -DskipTests
+#### Stage 2: Build Spring Boot
+FROM maven:3.6.3-jdk-11 as backend
 
-# Use AdoptOpenJDK for base image.
-FROM adoptopenjdk/openjdk11:alpine-slim
+# Set current working directory
+WORKDIR /backend
 
-# Copy the jar to the production image from the builder stage.
-COPY --from=builder /app/target/nlp4re-*.jar /nlp4re-0.0.1-SNAPSHOT.jar
+# Copy backend
+COPY backend .
 
-# Run the web service on container startup.
-CMD ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/nlp4re-0.0.1-SNAPSHOT.jar"]
+# Package application
+RUN mkdir -p src/main/resources/static
+
+# Copy build in static
+COPY --from=frontend /frontend/build src/main/resources/static
+
+# Build maven
+RUN mvn clean package verify
+
+## Copy jar to production image from backend stage
+FROM openjdk:14-jdk-alpine
+COPY --from=backend /backend/target/nlp4re-*.jar ./nlp4re-0.0.1-SNAPSHOT.jar
+EXPOSE 8080
+
+# Run Web service on container image
+CMD [ "sh", "-c", "java -Dserver.port=$PORT -Djava.security.egd=file:/dev/./urandom -jar /nlp4re-0.0.1-SNAPSHOT.jar" ]
