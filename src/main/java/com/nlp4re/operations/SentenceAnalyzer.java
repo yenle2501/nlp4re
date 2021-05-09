@@ -26,6 +26,7 @@ public class SentenceAnalyzer {
 	public SentenceAnalyzer(SentenceOperations sentenceOperations) {
 		this.sentenceOperations = sentenceOperations;
 	}
+	
 
 	/**
 	 * Get Tokens from given sentence

@@ -35,7 +35,6 @@ public class SentenceAnalyzerTest {
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
 		// then
 		assertThrows(NullPointerException.class, () -> analyzer.getTokens(null));
-
 	}
 
 	@Test
@@ -246,23 +245,6 @@ public class SentenceAnalyzerTest {
 		// given
 		SentenceOperations mockSentenceOperations = new SentenceOperations();
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
-		// TokenizerME mockTokenizerME = mock(TokenizerME.class);
-		// Parser mockParser = mock(Parser.class);
-		// when(mockSentenceOperations.getParser()).thenReturn(mockParser);
-		//
-		// Parse mockParse = mock(Parse.class);
-		// Parse mockParseChildren = mock(Parse.class);
-		//
-		// when(any(ParserTool.class).parseLine(anyString(), mockParser, anyInt())).thenReturn(new Parse[] {mockParse,
-		// mockParseChildren});
-
-		// when(mockParse.getType()).thenReturn("NP");
-		// when(mockParse.getCoveredText()).thenReturn("some objects");
-		// when(mockParse.getChildren()).thenReturn(new Parse[] { mockParseChildren });
-
-		// when(mockSentenceOperations.getTokenizerME()).thenReturn(mockTokenizerME);
-		// when(mockTokenizerME.tokenize(anyString())).thenReturn(new String[] { "some", "objects" });
-
 		// when
 		String obj = analyzer.getObjects("some objects to apply", new String[] { "some", "objects", "to", "apply" });
 		// then

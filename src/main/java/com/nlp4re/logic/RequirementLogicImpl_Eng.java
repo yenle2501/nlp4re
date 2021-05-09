@@ -452,13 +452,13 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 		SentenceModel model = null;
 		try {
-			InputStream inputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-sent.bin");
+			InputStream inputStream = new FileInputStream("./src/main/resources/models/en-sent.bin");
 			model = new SentenceModel(inputStream);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 		SentenceDetector detector = new SentenceDetectorME(model);
 		String[] sentences = detector.sentDetect(desc);
 		Map<Integer, String> map_sentences = new HashMap<Integer, String>();

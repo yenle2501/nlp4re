@@ -13,7 +13,6 @@
 	<artifactId>nlp4re</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>nlp4re</name>
-	<description>Demo project for Spring Boot</description>
 
 	<properties>
 		<java.version>11</java.version>
@@ -133,7 +132,6 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-inline</artifactId>
-			<version>3.7.7</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -216,7 +214,38 @@
 				</executions>
 			</plugin>
 			
+			 <!-- Code Coverage report generation -->
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-surefire-plugin</artifactId>
+			  		<version>2.19.1</version>
+			  <configuration>
+			    <forkCount>3</forkCount>
+			    <reuseForks>true</reuseForks>
+			    <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+			  </configuration>
+			</plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.9</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>generate-code-coverage-report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
+	<description>Project: Application of NLP in Requirements Engineering</description>
 </project>

@@ -26,16 +26,14 @@ public class SentenceOperations {
 	}
 
 	/***
-	 *  Load the required modules provided by OpenNLP
+	 * Load the required modules provided by OpenNLP library
 	 */
 	private void loadModels() {
 		try {
-			InputStream tokenMEInputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-token.bin");
-			InputStream posMEInputStream = new FileInputStream(".\\src\\main\\resources\\models\\en-pos-maxent.bin");
-			InputStream parserInputStream = new FileInputStream(
-					".\\src\\main\\resources\\models\\en-parser-chunking.bin");
-			InputStream chunkerModelInputStream = new FileInputStream(
-					".\\src\\main\\resources\\models\\en-chunker.bin");
+			InputStream tokenMEInputStream = new FileInputStream("./src/main/resources/models/en-token.bin");
+			InputStream posMEInputStream = new FileInputStream("./src/main/resources/models/en-pos-maxent.bin");
+			InputStream parserInputStream = new FileInputStream("./src/main/resources/models/en-parser-chunking.bin");
+			InputStream chunkerModelInputStream = new FileInputStream("./src/main/resources/models/en-chunker.bin");
 
 			TokenizerModel tokenModel = new TokenizerModel(tokenMEInputStream);
 			POSModel posModel = new POSModel(posMEInputStream);

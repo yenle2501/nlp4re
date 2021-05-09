@@ -20,7 +20,6 @@ public class PatternMatcherTest {
 		PatternMatcher matcher = new PatternMatcher();
 		// when + then
 		assertThrows(NullPointerException.class, () -> matcher.matches(null, null));
-
 	}
 
 	@Test
