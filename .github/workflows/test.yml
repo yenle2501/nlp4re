@@ -18,10 +18,3 @@ jobs:
         env:
           CODECOV_TOKEN: $
         run: bash <(curl -s https://codecov.io/bash)
-      - name: Pitest
-        run: mvn test org.pitest:pitest-maven:mutationCoverage
-      - name: Upload Pitest to Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: pitest-mutation-testing
-          path: target/pit-reports/**/* 
