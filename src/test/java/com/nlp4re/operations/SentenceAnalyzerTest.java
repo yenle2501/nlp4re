@@ -154,9 +154,11 @@ public class SentenceAnalyzerTest {
 		SentenceOperations mockSentenceOperations = mock(SentenceOperations.class);
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
 		// when
-		List<String> list_conditions = analyzer.getConditions(new LinkedList<String>(), 5, -1);
+		List<String> list_conditions1 = analyzer.getConditions(new LinkedList<String>(), 5, -1);
+		List<String> list_conditions2 = analyzer.getConditions(new LinkedList<String>(), 5, 8);
 		// then
-		assertThat(list_conditions, is(nullValue()));
+		assertThat(list_conditions1, is(nullValue()));
+		assertThat(list_conditions2, is(nullValue()));
 	}
 
 	@Test

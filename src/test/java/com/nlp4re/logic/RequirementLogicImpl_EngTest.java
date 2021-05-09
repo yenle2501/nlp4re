@@ -1,28 +1,32 @@
 package com.nlp4re.logic;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import com.nlp4re.operations.PatternMatcher;
-import com.nlp4re.operations.SentenceAnalyzer;
 import opennlp.tools.util.Span;
 
+import com.nlp4re.operations.PatternMatcher;
+import com.nlp4re.operations.SentenceAnalyzer;
+
+/**
+ * Test for {@link RequirementLogicImpl_Eng}
+ */
 public class RequirementLogicImpl_EngTest {
 
 	@Test
@@ -739,7 +743,7 @@ public class RequirementLogicImpl_EngTest {
 	}
 	
 	@Test
-	public void test_doParse() {
+	public void test_doParse_nonCompliant() {
 		// given
 		SentenceAnalyzer mockSentenceAnalyzer = mock(SentenceAnalyzer.class);
 		PatternMatcher mockPatternMatcher = mock(PatternMatcher.class);
@@ -754,6 +758,34 @@ public class RequirementLogicImpl_EngTest {
 		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "the", "VMS", "System" }));
 
+		Map<Integer, String> sentences = new HashMap<Integer, String>();
+		sentences.put(1, anyString());
+		// when
+		List<Map<Integer, String>> result = requirementLogic.doParse(sentences);
+		// then
+		assertThat(result.size(), is(3));
+		assertEquals(result.get(1).get(1) ,"1");
+	}
+	
+	@Test
+	public void test_doParse_Compliant() {
+		// given
+		SentenceAnalyzer mockSentenceAnalyzer = mock(SentenceAnalyzer.class);
+		PatternMatcher mockPatternMatcher = mock(PatternMatcher.class);
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
+				mockPatternMatcher);
+
+		when(mockSentenceAnalyzer.getTokens(anyString())).thenReturn(new String[] { "The", "VMS", "system", "should",
+				"consume", "the", "unit", "of", "energy", "as", "possible", "." });
+		when(mockSentenceAnalyzer.getPOSTags(any(String[].class)))
+				.thenReturn(new String[] { "DT", "NN", "NN", "MD", "VB","DT", "NN", "IN", "NN", "IN", "NN" });
+		when(mockSentenceAnalyzer.getModalIndex(anyList(), anyInt())).thenReturn(1);
+		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt()))
+				.thenReturn(Arrays.asList(new String[] { "The", "VMS", "System" }));
+		when(mockSentenceAnalyzer.getAnchorStartIndex(anyList(), anyInt(), anyInt())).thenReturn(0);
+		when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt())).thenReturn(null);
+		when(mockSentenceAnalyzer.getObjects(anyString(), any(String[].class))).thenReturn("the unit of energy");
+				
 		Map<Integer, String> sentences = new HashMap<Integer, String>();
 		sentences.put(1, anyString());
 		// when
