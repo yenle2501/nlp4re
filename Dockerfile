@@ -1,11 +1,11 @@
 #### Stage 1: Build react application
-FROM node as frontend
+FROM node as reactFrontend
 
 ## Set current working directory
-WORKDIR /frontend
+WORKDIR /reactFrontend
 
 ## Copy packages and install the dependencies
-COPY frontend .
+COPY reactFrontend .
 RUN npm ci
 RUN npm run-script build
 
@@ -22,7 +22,7 @@ COPY backend .
 RUN mkdir -p src/main/resources/static
 
 # Copy build in static
-COPY --from=frontend /frontend/build src/main/resources/static
+COPY --from=reactFrontend /reactFrontend/build src/main/resources/static
 
 # Build maven
 RUN mvn clean package verify
