@@ -1,37 +1,35 @@
 #### Stage 1: Build react application
-FROM node:12.4.0-alpine as build
+FROM node as frontend
 
 ## Set current working directory
-WORKDIR /app
+WORKDIR /frontend
 
 ## Copy packages and install the dependencies
-COPY package.json package-lock.json ./
-RUN npm install
-
-COPY . ./
-RUN npm run build
+COPY src/main/frontend .
+RUN npm ci
+RUN npm run-script build
 
 #### Stage 2: Build Spring Boot
-FROM maven:3.6.3-jdk-11 as backend
+FROM maven:3.6.3-jdk-11 as nlp4re
 
 # Set current working directory
-WORKDIR /backend
+WORKDIR /nlp4re
 
 # Copy backend
-COPY backend .
+COPY nlp4re .
 
 # Package application
 RUN mkdir -p src/main/resources/static
 
 # Copy build in static
-COPY --from=build /app/build src/main/resources/static
+COPY --from=frontend /frontend/build src/main/resources/static
 
 # Build maven
 RUN mvn clean package verify
 
 ## Copy jar to production image from backend stage
-FROM openjdk:14-jdk-alpine
-COPY --from=backend /backend/target/nlp4re-*.jar ./nlp4re-0.0.1-SNAPSHOT.jar
+FROM openjdk:11-jdk-alpine
+COPY --from=nlp4re /nlp4re/target/nlp4re-*.jar ./nlp4re-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
 
 # Run Web service on container image
