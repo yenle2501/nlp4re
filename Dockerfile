@@ -1,13 +1,15 @@
 #### Stage 1: Build react application
-FROM node as reactFrontend
+FROM node:12.4.0-alpine as build
 
 ## Set current working directory
-WORKDIR /reactFrontend
+WORKDIR /app
 
 ## Copy packages and install the dependencies
-COPY reactFrontend .
-RUN npm ci
-RUN npm run-script build
+COPY package.json package-lock.json ./
+RUN npm install
+
+COPY . ./
+RUN npm run build
 
 #### Stage 2: Build Spring Boot
 FROM maven:3.6.3-jdk-11 as backend
