@@ -24,7 +24,7 @@ COPY backend .
 RUN mkdir -p src/main/resources/static
 
 # Copy build in static
-COPY --from=reactFrontend /reactFrontend/build src/main/resources/static
+COPY --from=build /app/build src/main/resources/static
 
 # Build maven
 RUN mvn clean package verify
