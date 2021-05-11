@@ -5,9 +5,10 @@ FROM node as frontend
 WORKDIR /app
 
 ## Copy packages and install the dependencies
+COPY src/main/frontend .
 COPY src/main/frontend/package.json src/main/frontend/package-lock.json .
 RUN npm ci
-RUN npm run-script build
+RUN npm run build
 
 #### Stage 2: Build maven
 FROM maven:3.6.3-jdk-11 as backend
