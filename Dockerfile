@@ -5,7 +5,7 @@ FROM node as frontend
 WORKDIR /app
 
 ## Copy packages and install the dependencies
-COPY src/main/frontend .
+COPY src/main/frontend/package.json src/main/frontend/package-lock.json .
 RUN npm ci
 RUN npm run-script build
 
@@ -14,6 +14,10 @@ FROM maven:3.6.3-jdk-11 as backend
 
 # Set current working directory
 WORKDIR /app
+
+# Copy maven executable to the image
+COPY mvnw .
+COPY .mvn .mvn
 
 # Copy the pom.xml file
 COPY pom.xml .
@@ -37,7 +41,7 @@ RUN mvn clean package verify
 
 ## Copy jar to production image from backend stage
 FROM adoptopenjdk/openjdk11:alpine-slim
-COPY --from=backend /target/nlp4re-*.jar ./nlp4re-0.0.1-SNAPSHOT.jar
+COPY --from=backend /app/target/nlp4re-*.jar ./nlp4re-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
 
 # Run Web service on container image
