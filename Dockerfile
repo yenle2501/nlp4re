@@ -1,49 +1,28 @@
-#### Stage 1: Build react application
-FROM node as frontend
+#### Stage 1: Build Spring Boot
+FROM maven:3.6.3-jdk-11 AS build
 
-## Set current working directory
-WORKDIR /app
-
-## Copy packages and install the dependencies
-COPY src/main/frontend .
-COPY src/main/frontend/package.json src/main/frontend/package-lock.json .
-RUN npm ci
-RUN npm run build
-
-#### Stage 2: Build maven
-FROM maven:3.6.3-jdk-11 as backend
+# Create an application directory
+RUN mkdir -p nlp4re
 
 # Set current working directory
-WORKDIR /app
+WORKDIR nlp4re
 
-# Copy maven executable to the image
-COPY mvnw .
-COPY .mvn .mvn
-
-# Copy the pom.xml file
-COPY pom.xml .
-
-# Build all the dependencies in preparation to go offline. 
-# This is a separate step so the dependencies will be cached unless 
-# the pom.xml file has changed.
-RUN mvn -B -f pom.xml dependency:go-offline
+# Copy pom
+COPY pom.xml /nlp4re
 
 # Copy src
-COPY src .
+COPY src /nlp4re/src
 
-# Package application
-RUN mkdir -p src/main/resources/static
-
-# Copy frontend in static
-COPY --from=frontend /app/build src/main/resources/static
+## Copy packages and install the dependencies
+COPY src/main/frontend /nlp4re/src/main/frontend
 
 # Build maven
-RUN mvn clean package verify
+RUN mvn -f pom.xml clean package verify
 
 ## Copy jar to production image from backend stage
 FROM adoptopenjdk/openjdk11:alpine-slim
-COPY --from=backend /app/target/nlp4re-*.jar ./nlp4re-0.0.1-SNAPSHOT.jar
+COPY --from=build /nlp4re/target/*.jar nlp4re.jar
 EXPOSE 8080
 
 # Run Web service on container image
-CMD [ "sh", "-c", "java -Dserver.port=$PORT -Djava.security.egd=file:/dev/./urandom -jar /nlp4re-0.0.1-SNAPSHOT.jar" ]
+CMD [ "sh", "-c", "java -Dserver.port=$PORT -Djava.security.egd=file:/dev/./urandom -jar nlp4re.jar" ]

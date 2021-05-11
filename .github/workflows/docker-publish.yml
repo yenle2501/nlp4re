@@ -6,10 +6,6 @@ on:
     branches:
       - master
 
-    # Publish `v1.2.3` tags as releases.
-    tags:
-      - v*
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -35,7 +31,7 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/app:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/nlp4re:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
