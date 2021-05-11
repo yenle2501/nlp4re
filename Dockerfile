@@ -10,13 +10,13 @@ RUN npm ci
 RUN npm run-script build
 
 #### Stage 2: Build Spring Boot
-FROM maven:3.6.3-jdk-11 as nlp4re
+FROM maven:3.6.3-jdk-11 as backend
 
 # Set current working directory
-WORKDIR /nlp4re
+WORKDIR /backend
 
 # Copy backend
-COPY nlp4re .
+COPY src .
 
 # Package application
 RUN mkdir -p src/main/resources/static
@@ -28,8 +28,8 @@ COPY --from=frontend /frontend/build src/main/resources/static
 RUN mvn clean package verify
 
 ## Copy jar to production image from backend stage
-FROM openjdk:11-jdk-alpine
-COPY --from=nlp4re /nlp4re/target/nlp4re-*.jar ./nlp4re-0.0.1-SNAPSHOT.jar
+FROM adoptopenjdk/openjdk11:alpine-slim
+COPY --from=backend /target/nlp4re-*.jar ./nlp4re-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
 
 # Run Web service on container image
