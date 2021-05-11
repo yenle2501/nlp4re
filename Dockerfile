@@ -2,7 +2,13 @@
 FROM node as frontend
 
 ## Set current working directory
-WORKDIR /frontend
+WORKDIR /app
+
+# Copy the package.json as well as the package-lock.json and install 
+# the dependencies. This is a separate step so the dependencies 
+# will be cached unless changes to one of those two files 
+# are made.
+COPY package.json package-lock.json ./
 
 ## Copy packages and install the dependencies
 COPY src/main/frontend .
@@ -13,7 +19,7 @@ RUN npm run-script build
 FROM maven:3.6.3-jdk-11 as backend
 
 # Set current working directory
-WORKDIR /backend
+WORKDIR /app
 
 # Copy the pom.xml file
 COPY pom.xml .
@@ -30,7 +36,7 @@ COPY src .
 RUN mkdir -p src/main/resources/static
 
 # Copy frontend in static
-COPY --from=frontend /frontend/build src/main/resources/static
+COPY --from=frontend /app/build src/main/resources/static
 
 # Build maven
 RUN mvn clean package verify
