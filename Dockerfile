@@ -9,20 +9,28 @@ COPY src/main/frontend .
 RUN npm ci
 RUN npm run-script build
 
-#### Stage 2: Build Spring Boot
+# Package application
+RUN mkdir -p src/main/resources/static
+
+# Copy frontend in static
+COPY --from=frontend /frontend/build src/main/resources/static
+
+#### Stage 2: Build maven
 FROM maven:3.6.3-jdk-11 as backend
 
 # Set current working directory
 WORKDIR /backend
 
-# Copy backend
+# Copy the pom.xml file
+COPY pom.xml .
+
+# Build all the dependencies in preparation to go offline. 
+# This is a separate step so the dependencies will be cached unless 
+# the pom.xml file has changed.
+RUN mvn -B -f pom.xml dependency:go-offline
+
+# Copy src
 COPY src .
-
-# Package application
-RUN mkdir -p src/main/resources/static
-
-# Copy build in static
-COPY --from=frontend /frontend/build src/main/resources/static
 
 # Build maven
 RUN mvn clean package verify
