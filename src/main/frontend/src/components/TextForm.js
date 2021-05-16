@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import axios from 'axios';
 import './TextForm.css';
 import PopUp from './PopUp';
+import ChangeRules from './ChangeRules';
 import {Accordion,Button, Card, Modal, Form} from 'react-bootstrap';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react'
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,14 +18,17 @@ export default class TextForm  extends Component {
 				popUp: false,
 				description: '',
 				result: '',
-				alert: false
+				alert: false,
+				changeRules: false
 		}
 	    
 	    this.handleOnChange =  this.handleOnChange.bind(this);
 	    this.setResult = this.setResult.bind(this);
 	    this.setDescription = this.setDescription.bind(this);
 	    this.setPopUp = this.setPopUp.bind(this);
+	    this.setChangeRules = this.setChangeRules.bind(this);
 	    this.checkText =  this.checkText.bind(this);
+	    this.changeRules =  this.changeRules.bind(this);
 	  }
 	
 	// functions
@@ -47,6 +51,12 @@ export default class TextForm  extends Component {
 		    });
 	 }
 	   
+	 setChangeRules =(value) => {
+		 this.setState({
+			 changeRules: value
+		    });
+	 }
+	 
      handleOnChange =(event) => {
     	 this.setState({
  				description: event.target.value
@@ -126,13 +136,16 @@ export default class TextForm  extends Component {
             });
 	    }
     
-     
+ 
+    changeRules=() =>{
+    	this.setChangeRules(true)
+    }
+    
 	    render() {
 	    	return (
 	            <div className={"TextForm"}>
 		            <div className="head"> 
 		                <h1>Requirements Description</h1> 
-		                <BootstrapSwitchButton className="switchbutton" checked={true} onlabel='EN' offlabel='DE' onstyle="success" />
 		            </div> 
 		            <div className="check">        
 					   <Form>
@@ -141,7 +154,7 @@ export default class TextForm  extends Component {
 						   </Form.Group>
 					    </Form>
 					   <Button variant="success" onClick={this.checkText} >Check</Button>
-				       
+					   <Button variant="success" onClick={this.changeRules} >Change Rules</Button>
 				      {this.state.alert &&
 				    	  	<Modal show={true} onHide={() =>this.showAlert(false)} variant="danger" animation={true}>
 						        <Modal.Header >
@@ -159,6 +172,7 @@ export default class TextForm  extends Component {
 				      }
 				     </div>
 		            {this.state.popUp && <PopUp onSetPopUp={this.setPopUp} onSetContent={this.state.result} />}
+		            {this.state.changeRules && <ChangeRules onSetChangeRules={this.setChangeRules}  />}
 	           </div>
 	    	);
 	    }

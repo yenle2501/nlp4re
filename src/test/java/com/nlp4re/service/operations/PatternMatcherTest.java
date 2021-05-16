@@ -1,4 +1,4 @@
-package com.nlp4re.operations;
+package com.nlp4re.service.operations;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;
@@ -7,6 +7,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+
+import com.nlp4re.service.operations.PatternMatcher;
+
 import opennlp.tools.util.Span;
 
 /**

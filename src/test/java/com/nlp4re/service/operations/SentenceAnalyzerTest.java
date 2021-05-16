@@ -1,4 +1,4 @@
-package com.nlp4re.operations;
+package com.nlp4re.service.operations;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;
@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.StringUtils;
+
+import com.nlp4re.service.operations.SentenceAnalyzer;
+import com.nlp4re.service.operations.SentenceOperations;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.cmdline.parser.ParserTool;

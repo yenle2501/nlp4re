@@ -1,4 +1,4 @@
-package com.nlp4re.logic;
+package com.nlp4re.service.logic;
 
 import java.util.List;
 import java.util.Map;

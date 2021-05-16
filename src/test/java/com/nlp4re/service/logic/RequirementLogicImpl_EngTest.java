@@ -1,4 +1,4 @@
-package com.nlp4re.logic;
+package com.nlp4re.service.logic;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -21,8 +21,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import opennlp.tools.util.Span;
 
-import com.nlp4re.operations.PatternMatcher;
-import com.nlp4re.operations.SentenceAnalyzer;
+import com.nlp4re.service.logic.RequirementLogicImpl_Eng;
+import com.nlp4re.service.operations.PatternMatcher;
+import com.nlp4re.service.operations.SentenceAnalyzer;
 
 /**
  * Test for {@link RequirementLogicImpl_Eng}

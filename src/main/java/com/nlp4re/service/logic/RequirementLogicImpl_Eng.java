@@ -1,4 +1,4 @@
-package com.nlp4re.logic;
+package com.nlp4re.service.logic;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -13,8 +13,8 @@ import java.util.Map;
 import org.eclipse.collections.impl.utility.ListIterate;
 import org.springframework.util.StringUtils;
 
-import com.nlp4re.operations.PatternMatcher;
-import com.nlp4re.operations.SentenceAnalyzer;
+import com.nlp4re.service.operations.PatternMatcher;
+import com.nlp4re.service.operations.SentenceAnalyzer;
 
 import opennlp.tools.sentdetect.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;

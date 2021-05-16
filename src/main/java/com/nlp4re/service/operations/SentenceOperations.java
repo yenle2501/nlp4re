@@ -1,4 +1,4 @@
-package com.nlp4re.operations;
+package com.nlp4re.service.operations;
 
 import java.io.FileInputStream;
 import java.io.IOException;

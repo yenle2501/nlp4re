@@ -1,4 +1,4 @@
-package com.nlp4re.operations;
+package com.nlp4re.service.operations;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.HashMap;

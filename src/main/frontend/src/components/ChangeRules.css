@@ -1,0 +1,38 @@
+
+.ChangeRules{
+	position: fixed;
+    top: 30%;
+    left: 50%;
+    width: 55%;
+    border: 1px solid ;
+    border-radius: 0.5em;
+    background-color: #FDFFFC;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center ;
+    color: #011627;
+    flex-wrap: wrap;
+    cursor: -webkit-grab;
+  	cursor: grab;
+}
+
+.close{
+    width: 2em;
+    height: 2em;
+    align-self: flex-end;
+}
+
+
+.content{
+    display: flex;
+    width: 90%;
+    height: 500px;
+  	justify-content: center;
+  	align-items: left;
+  	flex-direction: column;
+}
+
+label{
+	 padding: 0px 0px 0px 0px;
+}
