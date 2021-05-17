@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.eclipse.collections.impl.utility.ListIterate;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.cmdline.parser.ParserTool;
@@ -19,6 +20,7 @@ import opennlp.tools.tokenize.TokenizerME;
 /**
  * This class helps to analyze the sentence and converts the sentence into tokens, tags, Chunks, Parsers
  */
+@Component
 public class SentenceAnalyzer {
 
 	private SentenceOperations sentenceOperations;
