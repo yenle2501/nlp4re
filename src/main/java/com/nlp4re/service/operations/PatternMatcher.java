@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.springframework.stereotype.Component;
+
 import opennlp.tools.namefind.RegexNameFinder;
 import opennlp.tools.util.Span;
 
@@ -12,6 +14,7 @@ import opennlp.tools.util.Span;
  * This class helps to match the sentence with the given regular expressions
  * 
  */
+@Component
 public class PatternMatcher {
 
 	/**
