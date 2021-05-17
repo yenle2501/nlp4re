@@ -7,9 +7,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-
-import com.nlp4re.service.operations.PatternMatcher;
-
 import opennlp.tools.util.Span;
 
 /**

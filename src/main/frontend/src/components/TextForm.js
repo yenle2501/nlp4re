@@ -4,8 +4,6 @@ import './TextForm.css';
 import PopUp from './PopUp';
 import ChangeRules from './ChangeRules';
 import {Accordion,Button, Card, Modal, Form} from 'react-bootstrap';
-import BootstrapSwitchButton from 'bootstrap-switch-button-react'
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 export default class TextForm  extends Component {

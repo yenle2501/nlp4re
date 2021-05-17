@@ -10,10 +10,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.eclipse.collections.impl.utility.ListIterate;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.nlp4re.service.operations.PatternMatcher;
+import com.nlp4re.service.operations.RegexesProvider;
 import com.nlp4re.service.operations.SentenceAnalyzer;
 
 import opennlp.tools.sentdetect.SentenceDetector;
@@ -21,22 +25,24 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.Span;
 
-public class RequirementLogicImpl_Eng implements RequirementLogic {
-
-	private static final String[] MODALS = { "SHOULD", "SHALL", "COULD", "WILL", "MUST" };
-	private static final String[] SYSTEM_NAMES = { "ALL", "SOME", "THOSE", "THE" };
+@Component
+public class RequirementLogicImpl_Eng implements RequirementLogic{
 
 	private String error_logs;
-	private SentenceAnalyzer sentenceAnalyzer;
-	private PatternMatcher matcher;
-
 	private int object_start_index;
 	private int object_end_index;
+	private SentenceAnalyzer sentenceAnalyzer;
+	private PatternMatcher matcher;
+	private RegexesProvider regexesProvider;
 
-	public RequirementLogicImpl_Eng(SentenceAnalyzer sentenceAnalyzer, PatternMatcher matcher) {
-		this.error_logs = "";
+	/**
+	 * Constructor
+	 */
+	public RequirementLogicImpl_Eng(SentenceAnalyzer sentenceAnalyzer, PatternMatcher matcher, RegexesProvider regexesProvider) {
 		this.sentenceAnalyzer = sentenceAnalyzer;
 		this.matcher = matcher;
+		this.regexesProvider = regexesProvider;
+		this.error_logs = "";
 		this.object_start_index = -1;
 		this.object_end_index = -1;
 	}
@@ -94,7 +100,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		} else {
 
 			String modal_vp = list_tokens.get(modal_index);
-			if (Arrays.asList(MODALS).contains(modal_vp.toUpperCase())) {
+			List<String> modalverbs = regexesProvider.getModalRegexes().stream().map(m -> m.getKey_name().toUpperCase())
+					.collect(Collectors.toList());
+			if (modalverbs.contains(modal_vp.toUpperCase())) {
 				return true;
 			} else {
 				error_logs = "The sentence does not contain any valid modal verbs. The modal verbs should be SHOULD, SHALL, COULD, WILL, MUST.\n";
@@ -114,25 +122,23 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 		List<String> tokens_possible_systemName = sentenceAnalyzer.getSystemName(list_tokens, comma_index, modal_index);
 
-		if (tokens_possible_systemName != null && !tokens_possible_systemName.isEmpty()
-				&& Arrays.asList(SYSTEM_NAMES).contains(tokens_possible_systemName.get(0).toUpperCase())) {
+		if (tokens_possible_systemName != null && !tokens_possible_systemName.isEmpty()) {
 
 			Map<String, String> regexs = new HashMap<String, String>();
-			regexs.put("all_some", "^ALL|SOME SYSTEMS OF THE[\\w\\s]+");
-			regexs.put("those", "^THOSE SYSTEMS OF THE[\\w\\s]+");
-			regexs.put("the", "^THE[\\w\\s]+");
-			regexs.put("all_some", "^all|some systems of the [\\w\\s]+");
-			regexs.put("those", "^those systems of the [\\w\\s]+");
-			regexs.put("the", "^the [\\w\\s]+");
+			regexesProvider.getSystemNameRegexes().forEach(systemname -> {
+				regexs.put(systemname.getKey_name(), systemname.getRegex());
+				regexs.put(systemname.getKey_name(), systemname.getRegex().toUpperCase());
+			});
 
 			String systemName = StringUtils.collectionToDelimitedString(tokens_possible_systemName, " ");
 
 			Span[] spans = matcher.matches(regexs, systemName);
 			// No patterns are matched
 			if (spans == null || spans.length != 1) {
-				error_logs = "System name should be one of the following forms:\n"
-						+ "ALL|SOME SYSTEMS OF THE <Product line name>\n"
-						+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\n" + "THE <System or part name>\n";
+				error_logs = "System name should be one of the following forms:\r\n"
+						+ "ALL|SOME SYSTEMS OF THE <Product line name>\r\n"
+						+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\r\n"
+						+ "THE <System or part name>\r\n";
 				return false;
 			}
 			// one of the patterns is matched
@@ -153,15 +159,15 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 						return false;
 					}
 
-				} else if (spans[0].getType().equals("those")) {
-					// cause of restriction, the sentence can contain verb
+				} // another type of regex
+				else {
 					return true;
 				}
 			}
 		}
-		error_logs = "System name should be one of the following forms:\n"
-				+ "ALL|SOME SYSTEMS OF THE <Product line name>\n"
-				+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\n" + "THE <System or part name>\n";
+		error_logs = "System name should be one of the following forms:\r\n"
+				+ "ALL|SOME SYSTEMS OF THE <Product line name>\r\n"
+				+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\r\n" + "THE <System or part name>\r\n";
 		return false;
 
 	}
@@ -182,14 +188,10 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		}
 
 		Map<String, String> regexes = new HashMap<String, String>();
-		regexes.put("if", "^IF+");
-		regexes.put("while_during", "^WHILE|DURING+ ");
-		regexes.put("after", "^AFTER|BEFORE|AS SOON AS+ ");
-		regexes.put("incase", "^IN CASE [:alpha:] IS INCLUDED+");
-		regexes.put("if", "^if+");
-		regexes.put("while_during", "^while|during+ ");
-		regexes.put("after", "^after|before|as soon as+ ");
-		regexes.put("incase", "^in case [:alpha:] is included+");
+		regexesProvider.getConditionsRegexes().forEach(condition -> {
+			regexes.put(condition.getKey_name(), condition.getRegex());
+			regexes.put(condition.getKey_name(), condition.getRegex().toUpperCase());
+		});
 
 		String condition = StringUtils.collectionToDelimitedString(token_conditions, " ");
 		Span[] spans = matcher.matches(regexes, condition);
@@ -207,9 +209,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 				return true;
 			}
 		}
-		error_logs += "The condtions should be one of following forms:\n" + "IF <Condition|Event>,THEN \n"
-				+ "WHILE|DURING <Activation state> \n" + "IN CASE <Included feature> IS INCLUDED \n"
-				+ "AFTER|BEFORE| AS SOON AS <Bahavior> \n";
+		error_logs += "The condtions should be one of following forms:\r\n" + "IF <Condition|Event>,THEN \r\n"
+				+ "WHILE|DURING <Activation state> \n" + "IN CASE <Included feature> IS INCLUDED \r\n"
+				+ "AFTER|BEFORE| AS SOON AS <Bahavior> \r\n";
 		return false;
 
 	}
@@ -235,10 +237,10 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			List<String> tags_after_modal_verb = list_tags.subList(modal_index, list_tags.size());
 
 			Map<String, String> regex_map = new HashMap<String, String>();
-			regex_map.put("provide", "PROVIDE [\\w\\s]+ WITH THE ABILITY TO [\\w\\s]");
-			regex_map.put("be_able_to", "BE ABLE TO+");
-			regex_map.put("provide", "provide [\\w\\s]+ with the ability to [\\w\\s]");
-			regex_map.put("be_able_to", "be able to +");
+			regexesProvider.getAnchorRegexes().forEach(anchor -> {
+				regex_map.put(anchor.getKey_name(), anchor.getRegex());
+				regex_map.put(anchor.getKey_name(), anchor.getRegex().toUpperCase());
+			});
 
 			String anchor = StringUtils.collectionToDelimitedString(anchor_tokens, " ");
 			Span[] spans = matcher.matches(regex_map, anchor);
@@ -259,10 +261,12 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 				global_object_start_index = modal_index + object_start_index;
 				setObjectStartIndex(global_object_start_index);
 				return true;
-			} else if (spans.length == 1) {
+			}
+			// System has one of the provided patterns
+			else if (spans.length == 1) {
 				// PROVIDE Pattern
 				if (spans[0].getType().equals("provide")) {
-					
+
 					// check who is noun
 					int index_of_with = anchor_start_index
 							+ ListIterate.detectIndex(anchor_tokens, "WITH"::equalsIgnoreCase);
@@ -272,19 +276,19 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 					for (String chunk : who_chunk) {
 						if (!chunk.contains("-NP")) {
-							error_logs += "After PROVIDE an Object should be shown. For example USER| <Name>\n";
+							error_logs += "After PROVIDE an Object should be shown. For example USER| <Name>";
 							setObjectStartIndex(global_object_start_index);
 							return false;
 						}
 					}
-					
+
 					if (list_tags.get(index_of_with + 4).equals("VB")) {
 						// the ability to
 						global_object_start_index = index_of_with + 5;
 						setObjectStartIndex(global_object_start_index);
 						return true;
 					} else {
-						error_logs += "A Verb must be shown after WITH THE ABILITY TO.\n";
+						error_logs += "A Verb must be shown after WITH THE ABILITY TO";
 						setObjectStartIndex(global_object_start_index);
 						return false;
 					}
@@ -296,23 +300,26 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 						return true;
 					} else {
 						// the sentence is not valid, no verb after to
-						error_logs += "A Verb must be shown after BE ABLE TO.\n";
+						error_logs += "A Verb must be shown after BE ABLE TO";
 						setObjectStartIndex(global_object_start_index);
 						return false;
 					}
 				}
+				// another types of regex and is already in database
+				else {
+					return true;
+				}
 			} else {
 				// more than one pattern
-				error_logs += "The sentence has more than one Pattern.\n";
+				error_logs += "The sentence has more than one Pattern";
 				setObjectStartIndex(global_object_start_index);
 				return false;
 			}
 		} else {
-			error_logs += "No verb after modal verb.\n";
+			error_logs += "No verb after modal verb";
 			setObjectStartIndex(global_object_start_index);
 			return false;
 		}
-		return false;
 	}
 
 	/**
@@ -335,18 +342,16 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			return false;
 		} else {
 			Map<String, String> regexs = new HashMap<String, String>();
-			regexs.put("single_obj", "^A |^AN |^THE |^ONE |^EACH +");
-			regexs.put("between", "^BETWEEN  [:alpha:] AND +");
-			regexs.put("all_the", "^ALL THE +");
-			regexs.put("single_obj", "^a |^an |^the |^one |^each +");
-			regexs.put("between", "^between [:alpha:] and +");
-			regexs.put("all_the", "^all the +");
+			regexesProvider.getObjectRegexes().forEach(object -> {
+				regexs.put(object.getKey_name(), object.getRegex());
+				regexs.put(object.getKey_name(), object.getRegex().toUpperCase());
+			});
 
 			Span[] spans = matcher.matches(regexs, object_string);
 			// maybe do not contains all of them
 			if (spans == null || spans.length == 0) {
 				error_logs += "'" + object_string + "'"
-						+ " must be startet with A| AN| THE|ONE| EACH| ALL THE| BETWEEN <A> AND <B>.\n";
+						+ " must be startet with A| AN| THE|ONE| EACH| ALL THE| BETWEEN <A> AND <B>";
 				return false;
 			}
 			// one of the cases
@@ -371,20 +376,22 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	public boolean parseDetails(List<String> tokens, int object_end_index) {
 		checkNotNull(tokens);
 
-		if ((object_end_index + 1) == tokens.size()) {
+		if ((object_end_index + 1) >= tokens.size()) {
 			return true;
 		}
 
 		List<String> details = tokens.subList(object_end_index + 1, tokens.size());
 		Map<String, String> regexs = new HashMap<String, String>();
-		regexs.put("condition", "IF AND ONLY IF+");
-		regexs.put("condition", "if and only if+");
+		regexesProvider.getDetailsRegexes().forEach(detail -> {
+			regexs.put(detail.getKey_name(), detail.getRegex());
+			regexs.put(detail.getKey_name(), detail.getRegex().toUpperCase());
+		});
 		Span[] spans = matcher.matches(regexs, StringUtils.collectionToDelimitedString(details, " "));
 
 		// detail contains no condition
 		if (spans == null || spans.length == 0) {
 			return true;
-		} else if (spans != null  && spans.length == 1) {
+		} else if (spans != null && spans.length == 1) {
 			if (spans[0].getType().equals("condition")) {
 				return true;
 			} else {
@@ -458,7 +465,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		SentenceDetector detector = new SentenceDetectorME(model);
 		String[] sentences = detector.sentDetect(desc);
 		Map<Integer, String> map_sentences = new HashMap<Integer, String>();

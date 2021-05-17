@@ -16,9 +16,6 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.StringUtils;
 
-import com.nlp4re.service.operations.SentenceAnalyzer;
-import com.nlp4re.service.operations.SentenceOperations;
-
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
