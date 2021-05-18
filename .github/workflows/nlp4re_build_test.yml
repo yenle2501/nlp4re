@@ -28,7 +28,7 @@ jobs:
         java-version: ${{ matrix.java-version }}
     - name: start mysql
       run: sudo systemctl start mysql.service
-    - run: mysql> SHOW GLOBAL VARIABLES LIKE 'PORT';
+    - run: netstat -tlpn
     - name: Create sql database
       run: mysql -e 'CREATE DATABASE ${{ env.MYSQL_DATABASE }};' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }}
     - name: Build with Maven
