@@ -27,6 +27,7 @@ import com.nlp4re.repository.ModalRepository;
 import com.nlp4re.repository.ObjectRepository;
 import com.nlp4re.repository.SystemNameRepository;
 
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class RequirementServiceTest {
 	

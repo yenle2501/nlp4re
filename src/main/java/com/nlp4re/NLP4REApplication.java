@@ -4,11 +4,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 /**
  * This class works as an entry point to launch this application.
  * 
  */
+@EntityScan("<package with entities>")
 @SpringBootApplication
 @EnableAutoConfiguration
 public class NLP4REApplication implements CommandLineRunner {
