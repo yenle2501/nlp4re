@@ -30,8 +30,6 @@ jobs:
       run: sudo systemctl start mysql.service
     - name: Create sql database
       run: mysql -e 'CREATE DATABASE ${{ env.MYSQL_DATABASE }};' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }}
-    - run: mysql -e 'show databases;' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }}
-    - run: mysql -e 'SHOW GLOBAL VARIABLES LIKE 'PORT';' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }}
     - name: Build with Maven
       run: mvn clean package --file pom.xml
 
