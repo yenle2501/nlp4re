@@ -29,7 +29,7 @@ jobs:
     - name: start mysql
       run: sudo systemctl start mysql.service
     - name: Create sql database
-      run: mysqladmin -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }} CREATE DATABASE ${{ env.MYSQL_DATABASE }}
+      run: mysqladmin -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }} CREATE ${{ env.MYSQL_DATABASE }}
     - run: mysql show databases;
     - name: Build with Maven
       run: mvn clean package --file pom.xml
@@ -50,7 +50,7 @@ jobs:
     - name: start mysql
       run: sudo systemctl start mysql.service
     - name: Create sql database
-      run: mysqladmin -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }} CREATE DATABASE ${{ env.MYSQL_DATABASE }}
+      run: mysqladmin -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }} CREATE ${{ env.MYSQL_DATABASE }}
     - name: Run test and create report
       run: mvn test jacoco:report
     - name: Upload to Codecov
