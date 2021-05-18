@@ -34,43 +34,39 @@ import com.nlp4re.service.operations.SentenceOperations;
 public class RequirementService {
 
 	@Autowired
-	protected AnchorRepository anchorRepository;
+	private AnchorRepository anchorRepository;
 
 	@Autowired
-	protected ConditionsRepository conditionsRepository;
+	private ConditionsRepository conditionsRepository;
 
 	@Autowired
-	protected DetailsRepository detailsRepository;
+	private DetailsRepository detailsRepository;
 
 	@Autowired
-	protected ModalRepository modalRepository;
+	private ModalRepository modalRepository;
 
 	@Autowired
-	protected ObjectRepository objectRepository;
+	private ObjectRepository objectRepository;
 
 	@Autowired
-	protected SystemNameRepository systemNameRepository;
+	private SystemNameRepository systemNameRepository;
 
-	protected SentenceOperations sentenceOperations;
-	protected SentenceAnalyzer sentenceAnalyzer;
-	protected PatternMatcher matcher;
+	private SentenceOperations sentenceOperations;
+	private SentenceAnalyzer sentenceAnalyzer;
+	private PatternMatcher matcher;
 	private RegexesProvider regexesProvider;
 
-	protected List<Anchor> anchorRegexes;
-	protected List<Conditions> conditionsRegexes;
-	protected List<Details> detailsRegexes;
-	protected List<Modal> modalRegexes;
-	protected List<Object> objectRegexes;
-	protected List<SystemName> systemNameRegexes;
+	private List<Anchor> anchorRegexes;
+	private List<Conditions> conditionsRegexes;
+	private List<Details> detailsRegexes;
+	private List<Modal> modalRegexes;
+	private List<Object> objectRegexes;
+	private List<SystemName> systemNameRegexes;
 
 	/**
 	 * Constructor
 	 */
 	public RequirementService() {
-	}
-
-	@PostConstruct
-	protected void loadServiceOperations() {
 		this.sentenceOperations = new SentenceOperations();
 	}
 
@@ -113,22 +109,4 @@ public class RequirementService {
 			return result;
 		}
 	}
-	/**
-	 * This method helps to get single sentence from the requirements description
-	 * 
-	 * @param desc requirements description
-	 * @return a String array with sentences
-	 * @throws IOException
-	 */
-	// public Map<Integer, String> getSentences(String desc);
-	//
-	// /**
-	// * This method helps to parse each single sentence with the chosen template.
-	// *
-	// * @param sentences list of sentences
-	// * @return a list of map with key-value-pair 1.Map contains all sentences of requirement 2.Map contains all
-	// * compliant and non-compliant sentences with the order as the keys in 1.Map 3.Map contains all logs for the
-	// * non-compliant sentences with the order as the keys in 1.Map
-	// */
-	// public List<Map<Integer, String>> doParse(Map<Integer, String> sentences);
 }

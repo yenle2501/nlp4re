@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,7 +46,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_getTokensFromSentence_NullPointerException() {
 		// given
-
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when + then
@@ -74,7 +72,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_getTagsFromTokens_NullPointerException() {
 		// given
-
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when + then
@@ -83,8 +80,8 @@ public class RequirementLogicImpl_EngTest {
 
 	@Test
 	public void test_getTagsFromTokens() {
+		
 		// given
-
 		when(mockSentenceAnalyzer.getPOSTags(any(String[].class))).thenReturn(new String[] { "VP", "NNS" });
 
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
@@ -100,10 +97,7 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseModalVp_NullPointerException() {
 		// given
-		SentenceAnalyzer sentenceAnalyzer = mock(SentenceAnalyzer.class);
-		PatternMatcher matcher = mock(PatternMatcher.class);
-
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
 				mockRegexesProvider);
 		// when + then
 		assertThrows(NullPointerException.class, () -> requirementLogic.parseModalVp(0, null));
@@ -112,10 +106,7 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseModalVp_returnFalse() {
 		// given
-		SentenceAnalyzer sentenceAnalyzer = mock(SentenceAnalyzer.class);
-		PatternMatcher matcher = mock(PatternMatcher.class);
-
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
 				mockRegexesProvider);
 		// when
 		boolean result = requirementLogic.parseModalVp(-1, Arrays.asList(new String[] { "return", "tokens" }));
@@ -126,11 +117,8 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseModalVp_returnTrue() {
 		// given
-		SentenceAnalyzer sentenceAnalyzer = mock(SentenceAnalyzer.class);
-		PatternMatcher matcher = mock(PatternMatcher.class);
-
 		when(mockRegexesProvider.getModalRegexes()).thenReturn(List.of(new Modal("should")));
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
 				mockRegexesProvider);
 		// when
 		boolean result = requirementLogic.parseModalVp(2, Arrays.asList(new String[] { "some", "tokens", "should" }));
@@ -141,10 +129,7 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseSystemname_NullPointerException() {
 		// given
-		SentenceAnalyzer sentenceAnalyzer = mock(SentenceAnalyzer.class);
-		PatternMatcher matcher = mock(PatternMatcher.class);
-
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
 				mockRegexesProvider);
 		// when + then
 		assertThrows(NullPointerException.class, () -> requirementLogic.parseSystemName(null, 1, 1));
@@ -153,7 +138,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseSystemname_returnTrue() {
 		// given
-
 		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "the", "system", "name" }));
 		when(mockSentenceAnalyzer.getPOSTags(any(String[].class))).thenReturn(new String[] { "DT", "NP", "NP" });
@@ -175,7 +159,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseSystemname_noPattern() {
 		// given
-
 		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "the", "system", "name" }));
 
@@ -196,7 +179,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseSystemname_noSystemname() {
 		// given
-
 		// return no system name
 		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt())).thenReturn(null);
 
@@ -214,7 +196,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseSystemname_VerbAfterSystemname() {
 		// given
-
 		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "all", "systems", "of", "the", "something", "have" }));
 		when(mockSentenceAnalyzer.getPOSTags(any(String[].class))).thenReturn(new String[] { "DT", "NP", "NP", "VB" });
@@ -236,7 +217,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseSystemname_NoVerbAfterSystemname() {
 		// given
-
 		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "all", "systems", "of", "the", "something", "have" }));
 		when(mockSentenceAnalyzer.getPOSTags(any(String[].class))).thenReturn(new String[] { "DT", "NP", "NP", "MD" });
@@ -258,7 +238,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseSystemname_ThoseType_returnTrue() {
 		// given
-
 		when(mockSentenceAnalyzer.getSystemName(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "all", "systems", "of", "the", "something", "have" }));
 
@@ -279,10 +258,7 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseCondition_NullPointerException() {
 		// given
-		SentenceAnalyzer sentenceAnalyzer = mock(SentenceAnalyzer.class);
-		PatternMatcher matcher = mock(PatternMatcher.class);
-
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
 				mockRegexesProvider);
 		// when + then
 		assertThrows(NullPointerException.class, () -> requirementLogic.parseCondition(null, 0, 0));
@@ -292,9 +268,7 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseCondition_returnTrue_no_condition() {
 		// given
-
-		when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt())).thenReturn(null);
-
+	when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt())).thenReturn(null);
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
@@ -309,7 +283,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseCondition_noPattern() {
 		// given
-
 		when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "the", "system", "name" }));
 
@@ -329,7 +302,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseCondition_returnTrue_If_Then() {
 		// given
-
 		when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "if", ",", "then" }));
 
@@ -350,7 +322,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseCondition_returnFalse_If_Then() {
 		// given
-
 		when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "if", ",", "ahhaha" }));
 
@@ -371,7 +342,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseCondition_otherConditionTypes() {
 		// given
-
 		when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt()))
 				.thenReturn(Arrays.asList(new String[] { "while", "system", "haha" }));
 
@@ -392,7 +362,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseAnchor_NullPointerException() {
 		// given
-
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when + then
@@ -402,7 +371,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseAnchor_ProvideType_ReturnFalse() {
 		// given
-
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 
@@ -426,7 +394,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseAnchor_ProvideType_ReturnFalse_noVerbAfterAbilityTo() {
 		// given
-
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 
@@ -451,7 +418,6 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseAnchor_ProvideType_returnTrue() {
 		// given
-
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 
@@ -565,7 +531,6 @@ public class RequirementLogicImpl_EngTest {
 	public void test_parseObject_NullPointerException() {
 
 		// given
-
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when + then
