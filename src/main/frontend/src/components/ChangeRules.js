@@ -2,7 +2,6 @@ import React,{Component} from 'react';
 import './ChangeRules.css';
 import {Button} from 'react-bootstrap';
 import Draggable from 'react-draggable';
-import { MDBContainer} from "mdbreact";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default class ChangeRules extends Component {

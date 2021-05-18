@@ -84,12 +84,14 @@ public class RequirementService {
 	}
 
 	/**
-	 * This method helps to check the requirements
+	 * This method helps to check the requirements description
 	 * 
 	 * @param desc the requirements description
-	 * @return a list of map with key-value-pair 1.Map contains all sentences of requirement 2.Map contains all
-	 *         compliant and non-compliant sentences with the order as the keys in 1.Map (value 1: for non-compliant, 0:
-	 *         compliant) 3.Map contains all logs for the non-compliant sentences with the order as the keys in 1.Map
+	 * @return a list of map with key-value-pair 
+	 * 				1.Map contains all sentences of requirement 
+	 * 				2.Map contains all compliant and non-compliant sentences with the order as the keys in 1.Map
+	 * 						 (value 1: for non-compliant, 0: compliant)
+	 * 				3.Map contains all logs for the non-compliant sentences with the order as the keys in 1.Map
 	 * @throws IOException
 	 */
 	public List<Map<Integer, String>> checkRequirements(String desc) {
@@ -99,8 +101,8 @@ public class RequirementService {
 
 		this.sentenceAnalyzer = new SentenceAnalyzer(this.sentenceOperations);
 		this.matcher = new PatternMatcher();
-		RequirementLogicImpl_Eng requirementServiceImpl_Eng = new RequirementLogicImpl_Eng(sentenceAnalyzer,
-				matcher, regexesProvider);
+		RequirementLogicImpl_Eng requirementServiceImpl_Eng = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
+				regexesProvider);
 		Map<Integer, String> sentences = requirementServiceImpl_Eng.getSentences(desc);
 		if (sentences == null) {
 			return null;
