@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import opennlp.tools.util.Span;
 
@@ -34,6 +35,7 @@ import com.nlp4re.service.operations.SentenceAnalyzer;
  * Test for {@link RequirementLogicImpl_Eng}
  */
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class RequirementLogicImpl_EngTest {
 
 	@Mock
