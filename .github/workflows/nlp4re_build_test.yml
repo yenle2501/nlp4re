@@ -26,9 +26,10 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java-version }}
-    - name: set up mysql
-      run: sudo /etc/init.d/mysql start
-    - run: mysql -e 'CREATE DATABASE ${{ env.MYSQL_DATABASE }};' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }}
+    - name: start mysql
+      run: sudo systemctl start mysql.service
+    - name: Create sql database
+      run: mysql -e 'CREATE DATABASE ${{ env.MYSQL_DATABASE }};' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }}
     - name: Build with Maven
       run: mvn clean package --file pom.xml
 
@@ -45,9 +46,10 @@ jobs:
     - uses: actions/setup-java@v1
       with:
          java-version: 11
-    - name: set up mysql
-      run: sudo /etc/init.d/mysql start
-    - run: mysql -e 'CREATE DATABASE ${{ env.MYSQL_DATABASE }};' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }}
+    - name: start mysql
+      run: sudo systemctl start mysql.service
+    - name: Create sql database
+      run: mysql -e 'CREATE DATABASE ${{ env.MYSQL_DATABASE }};' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }}
     - name: Run test and create report
       run: mvn test jacoco:report
     - name: Upload to Codecov
