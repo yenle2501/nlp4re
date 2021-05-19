@@ -3,7 +3,7 @@
 	position: fixed;
     top: 30%;
     left: 50%;
-    width: 55%;
+    width: 50%;
     border: 1px solid ;
     border-radius: 0.5em;
     background-color: #FDFFFC;
@@ -27,7 +27,7 @@
 .content{
     display: flex;
     width: 90%;
-    height: 500px;
+    height: 70%;
   	justify-content: center;
   	align-items: left;
   	flex-direction: column;
@@ -35,4 +35,8 @@
 
 label{
 	 padding: 0px 0px 0px 0px;
+}
+
+Control{
+	width: 200px;
 }

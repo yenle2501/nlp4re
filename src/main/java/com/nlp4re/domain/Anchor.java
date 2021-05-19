@@ -1,5 +1,6 @@
 package com.nlp4re.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,13 +13,16 @@ import javax.persistence.Table;
 public class Anchor {
 
 	@Id
+	@Column
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
+	@Column
 	@NotNull
 	private String key_name;
 	
 	@NotNull
+	@Column
 	private String regex;
 	
 	public Anchor() {
