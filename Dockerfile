@@ -17,7 +17,7 @@ COPY src /nlp4re/src
 COPY src/main/frontend /nlp4re/src/main/frontend
 
 # Build maven
-RUN mvn -f pom.xml clean package verify
+RUN mvn clean package --file pom.xml
 
 ## Copy jar to production image from backend stage
 FROM adoptopenjdk/openjdk11:alpine-slim
