@@ -16,8 +16,12 @@ COPY src /nlp4re/src
 ## Copy packages and install the dependencies
 COPY src/main/frontend /nlp4re/src/main/frontend
 
+# set enviroment variables
+ENV DATABASE_HOST=nlp4re_mysql
+RUN echo ${DATABASE_HOST}
+
 # Build maven
-RUN mvn clean package --file pom.xml
+RUN mvn -B clean package --file pom.xml
 
 ## Copy jar to production image from backend stage
 FROM adoptopenjdk/openjdk11:alpine-slim
