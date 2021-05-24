@@ -668,7 +668,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic
 				.parseDetails(Arrays.asList(new String[] { "the", "system", "should", "have", "some", "thing" }), 1);
 		// then
-		assertThat(result, is(false));
+		assertThat(result, is(true));
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 	}
 
