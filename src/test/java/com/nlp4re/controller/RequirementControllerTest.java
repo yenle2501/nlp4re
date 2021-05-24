@@ -3,6 +3,8 @@ package com.nlp4re.controller;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
 
@@ -21,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.nlp4re.domain.Requirement;
+import com.nlp4re.domain.Template;
 import com.nlp4re.service.RequirementService;
 
 @ExtendWith(SpringExtension.class)
@@ -32,6 +35,9 @@ public class RequirementControllerTest {
 
 	@MockBean
 	private Requirement requirement;
+
+	@MockBean
+	private Template template;
 
 	@Autowired
 	private RequirementController requirementController;
@@ -82,6 +88,25 @@ public class RequirementControllerTest {
 		assertThat(result.getBody().get(1).get(1), is("key2"));
 		assertThat(result.getBody().get(2).get(1), is("key3"));
 		assertThat(result.getStatusCode(), is(HttpStatus.OK));
+	}
+
+	@Test
+	void testChangeRules_returnNull() throws Exception {
+		// given + when
+		ResponseEntity<HttpStatus> result = requirementController.changeRules(null);
+		// then
+		assertThat(result.getBody(), is(nullValue()));
+		assertThat(result.getStatusCode(), is(HttpStatus.NO_CONTENT));
+	}
+
+	@Test
+	void testChangeRules() throws Exception {
+		// given + when
+		ResponseEntity<HttpStatus> result = requirementController.changeRules(template);
+		// then
+
+		verify(requirementService, times(1)).saveRules(template);
+		assertThat(result.getStatusCode(), is(HttpStatus.CREATED));
 	}
 
 }

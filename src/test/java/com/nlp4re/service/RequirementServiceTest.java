@@ -1,8 +1,12 @@
 package com.nlp4re.service;
 
+import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -20,6 +24,7 @@ import com.nlp4re.domain.Details;
 import com.nlp4re.domain.Modal;
 import com.nlp4re.domain.Object;
 import com.nlp4re.domain.SystemName;
+import com.nlp4re.domain.Template;
 import com.nlp4re.repository.AnchorRepository;
 import com.nlp4re.repository.ConditionsRepository;
 import com.nlp4re.repository.DetailsRepository;
@@ -30,8 +35,7 @@ import com.nlp4re.repository.SystemNameRepository;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class RequirementServiceTest {
-	
-	
+
 	@MockBean
 	private AnchorRepository anchorRepository;
 	@MockBean
@@ -44,10 +48,12 @@ public class RequirementServiceTest {
 	private ObjectRepository objectRepository;
 	@MockBean
 	private SystemNameRepository systemNameRepository;
+	@MockBean
+	private Template template;
 
 	@SpyBean
 	private RequirementService requirementService;
-	
+
 	@Test
 	public void test_checkRequirements_NullPointerException() {
 		// given+ when
@@ -60,13 +66,14 @@ public class RequirementServiceTest {
 	@Test
 	public void test_checkRequirements() {
 		// given
-		when(anchorRepository.findAll()).thenReturn(List.of(new Anchor("be_able_to", "be able to +",1)));
-		when(conditionsRepository.findAll()).thenReturn(List.of(new Conditions("if", "^if+",1)));
-		when(detailsRepository.findAll()).thenReturn(List.of(new Details("the", "some regexes",1)));
-		when(modalRepository.findAll()).thenReturn(List.of(new Modal("should",1)));
-		when(objectRepository.findAll()).thenReturn(List.of(new Object("single_obj", "^a |^an |^the |^one |^each +",1)));
-		when(systemNameRepository.findAll()).thenReturn(List.of(new SystemName("the", "^the [\\w\\s]+",1)));
-		
+		when(anchorRepository.findAll()).thenReturn(List.of(new Anchor("be_able_to", "be able to +", 1)));
+		when(conditionsRepository.findAll()).thenReturn(List.of(new Conditions("if", "^if+", 1)));
+		when(detailsRepository.findAll()).thenReturn(List.of(new Details("the", "some regexes", 1)));
+		when(modalRepository.findAll()).thenReturn(List.of(new Modal("should", 1)));
+		when(objectRepository.findAll())
+				.thenReturn(List.of(new Object("single_obj", "^a |^an |^the |^one |^each +", 1)));
+		when(systemNameRepository.findAll()).thenReturn(List.of(new SystemName("the", "^the [\\w\\s]+", 1)));
+
 		// when
 		requirementService.loadRegexes();
 		List<Map<Integer, String>> result = requirementService
@@ -75,5 +82,35 @@ public class RequirementServiceTest {
 		assertThat(result.size(), is(3));
 		assertThat(result.get(0).get(0), is("The System should have the object for the test."));
 		assertThat(result.get(1).get(0), is("0"));
+	}
+
+	@Test
+	public void test_saveRules_NullPointerException() {
+		// given+ when + then
+		assertThrows(NullPointerException.class, () -> requirementService.saveRules(null));
+
+	}
+
+	@Test
+	public void test_saveRules() {
+		// given
+
+		when(template.getAnchor()).thenReturn(new Anchor("key", "regex", 1));
+		when(template.getConditions()).thenReturn(new Conditions("key", "regex", 1));
+		when(template.getDetails()).thenReturn(new Details("key", "regex", 1));
+		when(template.getModal()).thenReturn(new Modal("key", 1));
+		when(template.getObject()).thenReturn(new Object("key", "regex", 1));
+		when(template.getSystemName()).thenReturn(new SystemName("key", "regex", 1));
+
+		// when
+		requirementService.saveRules(template);
+		
+		// then
+		verify(template, times(3)).getAnchor();
+		verify(template, times(3)).getConditions();
+		verify(template, times(3)).getDetails();
+		verify(template, times(3)).getModal();
+		verify(template, times(3)).getObject();
+		verify(template, times(3)).getSystemName();
 	}
 }

@@ -211,6 +211,10 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 					|| spans[0].getType().equals("incase")) {
 				return true;
 			}
+			// another cases
+			else {
+				return true;
+			}
 		}
 		error_logs += "The condtions should be one of following forms:\r\n" + "IF <Condition|Event>,THEN \r\n"
 				+ "WHILE|DURING <Activation state> \n" + "IN CASE <Included feature> IS INCLUDED \r\n"
@@ -328,7 +332,8 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	/**
 	 * This method has the ability to check the objects of sentence
 	 * 
-	 * @return true: if the sentence has a valid object false: otherwise
+	 * @return true: if the sentence has a valid object 
+	 *         false: otherwise
 	 */
 
 	public boolean parseObject(String[] tokens, String[] tags, int object_start_index) {
@@ -359,8 +364,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			}
 			// one of the cases
 			else if (spans.length == 1) {
-				object_end_index = object_start_index + StringUtils.tokenizeToStringArray(object_string, " ").length
-						- 1;
+				object_end_index = object_start_index + StringUtils.tokenizeToStringArray(object_string, " ").length- 1;
 				setObjectEndIndex(object_end_index);
 				return true;
 			}
@@ -373,7 +377,8 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * 
 	 * @param tokens           List of tokens
 	 * @param object_end_index end index of object
-	 * @return true: if the sentence has valid details false: otherwise
+	 * @return true: if the sentence has valid details 
+	 *         false: otherwise
 	 */
 
 	public boolean parseDetails(List<String> tokens, int object_end_index) {
@@ -478,9 +483,10 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * This method helps to parse each single sentence with the chosen template.
 	 * 
 	 * @param sentences map of sentences with indexes
-	 * @return a list of map with key-value-pair 1.Map contains all sentences of requirement 2.Map contains all
-	 *         compliant and non-compliant sentences with the order as the keys in 1.Map 3.Map contains all logs for the
-	 *         non-compliant sentences with the order as the keys in 1.Map
+	 * @return a list of map with key-value-pair 
+	 * 1.Map contains all sentences of requirement 
+	 * 2.Map contains all compliant and non-compliant sentences with the order as the keys in 1.Map 
+	 * 3.Map contains all logs for the non-compliant sentences with the order as the keys in 1.Map
 	 */
 	@Override
 	public List<Map<Integer, String>> doParse(Map<Integer, String> sentences) {
