@@ -60,12 +60,12 @@ public class RequirementServiceTest {
 	@Test
 	public void test_checkRequirements() {
 		// given
-		when(anchorRepository.findAll()).thenReturn(List.of(new Anchor("be_able_to", "be able to +")));
-		when(conditionsRepository.findAll()).thenReturn(List.of(new Conditions("if", "^if+")));
-		when(detailsRepository.findAll()).thenReturn(List.of(new Details("the", "some regexes")));
-		when(modalRepository.findAll()).thenReturn(List.of(new Modal("should")));
-		when(objectRepository.findAll()).thenReturn(List.of(new Object("single_obj", "^a |^an |^the |^one |^each +")));
-		when(systemNameRepository.findAll()).thenReturn(List.of(new SystemName("the", "^the [\\w\\s]+")));
+		when(anchorRepository.findAll()).thenReturn(List.of(new Anchor("be_able_to", "be able to +",1)));
+		when(conditionsRepository.findAll()).thenReturn(List.of(new Conditions("if", "^if+",1)));
+		when(detailsRepository.findAll()).thenReturn(List.of(new Details("the", "some regexes",1)));
+		when(modalRepository.findAll()).thenReturn(List.of(new Modal("should",1)));
+		when(objectRepository.findAll()).thenReturn(List.of(new Object("single_obj", "^a |^an |^the |^one |^each +",1)));
+		when(systemNameRepository.findAll()).thenReturn(List.of(new SystemName("the", "^the [\\w\\s]+",1)));
 		
 		// when
 		requirementService.loadRegexes();

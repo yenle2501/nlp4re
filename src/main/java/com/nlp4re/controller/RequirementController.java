@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.nlp4re.domain.Requirement;
+import com.nlp4re.domain.Template;
 import com.nlp4re.service.RequirementService;
 
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,7 +26,7 @@ public class RequirementController {
 
 	@Autowired
 	private RequirementService service;
-	
+
 	/**
 	 * 
 	 * @param requirement the requirements description
@@ -45,5 +46,24 @@ public class RequirementController {
 			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	/**
+	 * change/add rules for the template
+	 * 
+	 * @param requirement the requirements description
+	 * @return ResponseEntity<httpStatus>
+	 */
+	@RequestMapping(path = "/changeRules", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> changeRules(@Valid @RequestBody Template templateRule)
+			throws FileNotFoundException, IOException {
+
+		if (templateRule == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} else {
+
+			service.saveRules(templateRule);
+			return new ResponseEntity<>( HttpStatus.CREATED);
+		}
 	}
 }

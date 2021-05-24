@@ -87,12 +87,7 @@ export default class TextForm  extends Component {
         	    	
         	    	var tmp = '';
         	    	
-        	    	Object.keys(resullt).forEach(function(key) {
-        	    	
-        	    		console.log(key, conform_list[key]); 
-        	    		console.log(key, resullt[key]); 
-        	    		console.log(key, logs_list[key]);
-        	    		
+        	    	Object.keys(resullt).forEach(function(key) {        	    		
         	    		// conform
         	    		if(conform_list[key] === '0'){
         	    			tmp = [tmp, <Card style={{ backgroundColor: '#90ee90' }}> 
@@ -125,8 +120,7 @@ export default class TextForm  extends Component {
         	    	
         	    	
         	    	this.setResult(tmp);
-                	this.setPopUp(true)
-                	console.log(response.status)
+                	this.setPopUp(true);
                 } else {
                 
                 	console.log(response.status)

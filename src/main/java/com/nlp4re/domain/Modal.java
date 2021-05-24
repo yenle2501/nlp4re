@@ -1,5 +1,6 @@
 package com.nlp4re.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,14 +19,19 @@ public class Modal {
 	@NotNull
 	private String key_name;
 
+	@NotNull
+	@Column
+	private int required;
+
 	public Modal() {
-		
+
 	}
-	
-	public Modal(String key_name) {
+
+	public Modal(String key_name, int required) {
 		this.key_name = key_name;
+		this.required = required;
 	}
-	
+
 	public int getId() {
 		return id;
 	}
@@ -40,5 +46,13 @@ public class Modal {
 
 	public void setKey_name(String key_name) {
 		this.key_name = key_name;
+	}
+
+	public int getRequired() {
+		return required;
+	}
+
+	public void setRequired(int required) {
+		this.required = required;
 	}
 }

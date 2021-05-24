@@ -119,7 +119,7 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseModalVp_returnTrue() {
 		// given
-		when(mockRegexesProvider.getModalRegexes()).thenReturn(List.of(new Modal("should")));
+		when(mockRegexesProvider.getModalRegexes()).thenReturn(List.of(new Modal("should",1)));
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
 				mockRegexesProvider);
 		// when
@@ -495,7 +495,7 @@ public class RequirementLogicImpl_EngTest {
 		Span mockSpan1 = new Span(0, 0, "be_able_to");
 
 		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan, mockSpan1 });
-		when(mockRegexesProvider.getAnchorRegexes()).thenReturn(List.of(new Anchor("the", "the .")));
+		when(mockRegexesProvider.getAnchorRegexes()).thenReturn(List.of(new Anchor("the", "the .",1)));
 		// when
 		boolean result = requirementLogic.parseAnchor(
 				Arrays.asList(

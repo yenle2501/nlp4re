@@ -1,4 +1,4 @@
-#### Stage 1: Build Spring Boot
+#### Build Spring Boot
 FROM maven:3.6.3-jdk-11 AS build
 
 # Create an application directory
@@ -18,7 +18,6 @@ COPY src/main/frontend /nlp4re/src/main/frontend
 
 # set enviroment variables
 ENV DATABASE_HOST=nlp4re_mysql
-RUN echo ${DATABASE_HOST}
 
 # Build maven
 RUN mvn -B clean package --file pom.xml

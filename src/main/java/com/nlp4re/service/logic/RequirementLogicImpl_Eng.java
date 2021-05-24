@@ -26,7 +26,7 @@ import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.Span;
 
 @Component
-public class RequirementLogicImpl_Eng implements RequirementLogic{
+public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 	private String error_logs;
 	private int object_start_index;
@@ -38,7 +38,8 @@ public class RequirementLogicImpl_Eng implements RequirementLogic{
 	/**
 	 * Constructor
 	 */
-	public RequirementLogicImpl_Eng(SentenceAnalyzer sentenceAnalyzer, PatternMatcher matcher, RegexesProvider regexesProvider) {
+	public RequirementLogicImpl_Eng(SentenceAnalyzer sentenceAnalyzer, PatternMatcher matcher,
+			RegexesProvider regexesProvider) {
 		this.sentenceAnalyzer = sentenceAnalyzer;
 		this.matcher = matcher;
 		this.regexesProvider = regexesProvider;
@@ -114,7 +115,8 @@ public class RequirementLogicImpl_Eng implements RequirementLogic{
 	/**
 	 * This method has the ability to check system name
 	 * 
-	 * @return true : if the sentence has a valid name of system false: otherwise
+	 * @return true : if the sentence has a valid name of system 
+	 *         false: otherwise
 	 */
 
 	public boolean parseSystemName(List<String> list_tokens, int comma_index, int modal_index) {
@@ -173,9 +175,10 @@ public class RequirementLogicImpl_Eng implements RequirementLogic{
 	}
 
 	/**
-	 * This method has the ability to check the condition of the sentence
+	 * This method has the ability to check the precondition of the sentence
 	 * 
-	 * @return true :if the sentence has no condition or a valid condition false: otherwise
+	 * @return true :if the sentence has no precondition or a valid condition 
+	 *         false: otherwise
 	 */
 
 	public boolean parseCondition(List<String> list_tokens, int comma_index, int modal_index) {
@@ -392,11 +395,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic{
 		if (spans == null || spans.length == 0) {
 			return true;
 		} else if (spans != null && spans.length == 1) {
-			if (spans[0].getType().equals("condition")) {
-				return true;
-			} else {
-				return false;
-			}
+			return true;
 		}
 		return false;
 	}

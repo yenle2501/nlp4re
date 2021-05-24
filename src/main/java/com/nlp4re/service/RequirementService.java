@@ -1,5 +1,7 @@
 package com.nlp4re.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import com.nlp4re.domain.Details;
 import com.nlp4re.domain.Modal;
 import com.nlp4re.domain.Object;
 import com.nlp4re.domain.SystemName;
+import com.nlp4re.domain.Template;
 import com.nlp4re.repository.AnchorRepository;
 import com.nlp4re.repository.ConditionsRepository;
 import com.nlp4re.repository.DetailsRepository;
@@ -27,9 +30,6 @@ import com.nlp4re.service.operations.RegexesProvider;
 import com.nlp4re.service.operations.SentenceAnalyzer;
 import com.nlp4re.service.operations.SentenceOperations;
 
-/**
- * This class works as a service
- */
 @Service
 public class RequirementService {
 
@@ -88,10 +88,10 @@ public class RequirementService {
 	 * 
 	 * @param desc the requirements description
 	 * @return a list of map with key-value-pair 
-	 * 				1.Map contains all sentences of requirement 
-	 * 				2.Map contains all compliant and non-compliant sentences with the order as the keys in 1.Map
-	 * 						 (value 1: for non-compliant, 0: compliant)
-	 * 				3.Map contains all logs for the non-compliant sentences with the order as the keys in 1.Map
+	 * 			1.Map contains all sentences of requirement 
+	 *          2.Map contains all compliant and non-compliant sentences with the order as the keys in 1.Map
+	 *          (value 1: for non-compliant, 0: compliant)
+	 *          3.Map contains all logs for the non-compliant sentences with the order as the keys in 1.Map
 	 * @throws IOException
 	 */
 	public List<Map<Integer, String>> checkRequirements(String desc) {
@@ -109,6 +109,33 @@ public class RequirementService {
 		} else {
 			List<Map<Integer, String>> result = requirementServiceImpl_Eng.doParse(sentences);
 			return result;
+		}
+	}
+
+	/***
+	 * change rules/ regexes of temlate
+	 * @param templateRule all rules of template
+	 */
+	public void saveRules(Template templateRule) {
+		checkNotNull(templateRule);
+		
+		if (templateRule.getAnchor().getRegex() != null && !templateRule.getAnchor().getRegex().isBlank()) {
+			this.anchorRepository.save(templateRule.getAnchor());
+		}
+		if (templateRule.getConditions().getRegex() != null && !templateRule.getConditions().getRegex().isBlank()) {
+			this.conditionsRepository.save(templateRule.getConditions());
+		}
+		if (templateRule.getDetails().getRegex() != null && !templateRule.getDetails().getRegex().isBlank()) {
+			this.detailsRepository.save(templateRule.getDetails());
+		}
+		if (templateRule.getModal().getKey_name() != null && !templateRule.getModal().getKey_name().isBlank()) {
+			this.modalRepository.save(templateRule.getModal());
+		}
+		if (templateRule.getObject().getRegex() != null && !templateRule.getObject().getRegex().isBlank()) {
+			this.objectRepository.save(templateRule.getObject());
+		}
+		if (templateRule.getSystemName().getRegex() != null && !templateRule.getSystemName().getRegex().isBlank()) {
+			this.systemNameRepository.save(templateRule.getSystemName());
 		}
 	}
 }

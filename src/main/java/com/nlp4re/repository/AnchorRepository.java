@@ -11,4 +11,5 @@ import com.nlp4re.domain.Anchor;
 public interface AnchorRepository extends CrudRepository<Anchor, Integer>{
 	
 	List<Anchor> findAll();
+	
 } 

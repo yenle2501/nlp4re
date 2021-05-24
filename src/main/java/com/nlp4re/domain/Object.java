@@ -1,5 +1,6 @@
 package com.nlp4re.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,13 +26,18 @@ public class Object {
 	@NotNull
 	private String regex;
 
+	@NotNull
+	@Column
+	private int required;
+
 	public Object() {
 
 	}
 
-	public Object(String key_name, String regex) {
+	public Object(String key_name, String regex, int required) {
 		this.key_name = key_name;
 		this.regex = regex;
+		this.required = required;
 	}
 
 	public int getId() {
@@ -56,5 +62,13 @@ public class Object {
 
 	public void setRegex(String regex) {
 		this.regex = regex;
+	}
+
+	public int getRequired() {
+		return required;
+	}
+
+	public void setRequired(int required) {
+		this.required = required;
 	}
 }
