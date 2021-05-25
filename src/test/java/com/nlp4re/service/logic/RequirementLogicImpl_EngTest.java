@@ -203,7 +203,7 @@ public class RequirementLogicImpl_EngTest {
 				.thenReturn(Arrays.asList(new String[] { "all", "systems", "of", "the", "something", "have" }));
 		when(mockSentenceAnalyzer.getPOSTags(any(String[].class))).thenReturn(new String[] { "DT", "NP", "NP", "VB" });
 
-		Span mockSpan = new Span(0, 0, "all_some");
+		Span mockSpan = new Span(0, 0, "all");
 		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan });
 
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
@@ -224,7 +224,7 @@ public class RequirementLogicImpl_EngTest {
 				.thenReturn(Arrays.asList(new String[] { "all", "systems", "of", "the", "something", "have" }));
 		when(mockSentenceAnalyzer.getPOSTags(any(String[].class))).thenReturn(new String[] { "DT", "NP", "NP", "MD" });
 
-		Span mockSpan = new Span(0, 0, "all_some");
+		Span mockSpan = new Span(0, 0, "all");
 		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan });
 
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,

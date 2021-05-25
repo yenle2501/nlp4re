@@ -171,8 +171,6 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			}
 		}
 		error_logs = "System name should be one of the following forms:\r\n" + str_regexes;
-//				+ "ALL|SOME SYSTEMS OF THE <Product line name>\r\n"
-//				+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\r\n" + "THE <System or part name>\r\n";
 		return false;
 
 	}
