@@ -16,6 +16,9 @@ import org.eclipse.collections.impl.utility.ListIterate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.nlp4re.domain.Conditions;
+import com.nlp4re.domain.SystemName;
+import com.nlp4re.domain.Object;
 import com.nlp4re.service.operations.PatternMatcher;
 import com.nlp4re.service.operations.RegexesProvider;
 import com.nlp4re.service.operations.SentenceAnalyzer;
@@ -94,19 +97,20 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 */
 	public boolean parseModalVp(int modal_index, List<String> list_tokens) {
 		checkNotNull(list_tokens);
-
+		List<String> modalverbs = regexesProvider.getModalRegexes().stream().map(m -> m.getKey_name().toUpperCase())
+				.collect(Collectors.toList());
+		
 		if (modal_index == -1) {
-			error_logs = "The sentence does not contain any modal verbs. The modal verbs should be SHOULD, SHALL, COULD, WILL, MUST.\n";
+			error_logs = "The sentence does not contain any modal verbs. The modal verbs should be one of " + modalverbs.toString().toUpperCase() ;
 			return false;
 		} else {
 
 			String modal_vp = list_tokens.get(modal_index);
-			List<String> modalverbs = regexesProvider.getModalRegexes().stream().map(m -> m.getKey_name().toUpperCase())
-					.collect(Collectors.toList());
+		
 			if (modalverbs.contains(modal_vp.toUpperCase())) {
 				return true;
 			} else {
-				error_logs = "The sentence does not contain any valid modal verbs. The modal verbs should be SHOULD, SHALL, COULD, WILL, MUST.\n";
+				error_logs = "The sentence does not contain any valid modal verbs. The modal verbs should be one of "+ modalverbs.toString().toUpperCase() ;
 				return false;
 			}
 		}
@@ -124,28 +128,27 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 		List<String> tokens_possible_systemName = sentenceAnalyzer.getSystemName(list_tokens, comma_index, modal_index);
 
+		String str_regexes = "";
 		if (tokens_possible_systemName != null && !tokens_possible_systemName.isEmpty()) {
 
 			Map<String, String> regexs = new HashMap<String, String>();
-			regexesProvider.getSystemNameRegexes().forEach(systemname -> {
+			for(SystemName systemname :regexesProvider.getSystemNameRegexes()) {
+				str_regexes += systemname.getRegex().toUpperCase() + "\r\n";
 				regexs.put(systemname.getKey_name(), systemname.getRegex());
 				regexs.put(systemname.getKey_name(), systemname.getRegex().toUpperCase());
-			});
+			}
 
 			String systemName = StringUtils.collectionToDelimitedString(tokens_possible_systemName, " ");
 
 			Span[] spans = matcher.matches(regexs, systemName);
 			// No patterns are matched
 			if (spans == null || spans.length != 1) {
-				error_logs = "System name should be one of the following forms:\r\n"
-						+ "ALL|SOME SYSTEMS OF THE <Product line name>\r\n"
-						+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\r\n"
-						+ "THE <System or part name>\r\n";
+				error_logs = "System name should be one of the following forms:\r\n" + str_regexes;
 				return false;
 			}
 			// one of the patterns is matched
 			else if (spans.length == 1) {
-				if (spans[0].getType().equals("the") || spans[0].getType().equals("all_some")) {
+				if (spans[0].getType().equals("the") || spans[0].getType().equals("all") || spans[0].getType().equals("some")) {
 					// if it is 'the' pattern, the start index of system name is one, otherwise it is 4 (for example:
 					// 'some systems of the')
 					int start_index = spans[0].getType().equals("the") ? 1 : 4;
@@ -167,9 +170,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 				}
 			}
 		}
-		error_logs = "System name should be one of the following forms:\r\n"
-				+ "ALL|SOME SYSTEMS OF THE <Product line name>\r\n"
-				+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\r\n" + "THE <System or part name>\r\n";
+		error_logs = "System name should be one of the following forms:\r\n" + str_regexes;
+//				+ "ALL|SOME SYSTEMS OF THE <Product line name>\r\n"
+//				+ "THOSE SYSTEMS OF THE <Product line name> <Restriction>\r\n" + "THE <System or part name>\r\n";
 		return false;
 
 	}
@@ -191,10 +194,12 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		}
 
 		Map<String, String> regexes = new HashMap<String, String>();
-		regexesProvider.getConditionsRegexes().forEach(condition -> {
+		String str_regexes = "";
+		for (Conditions condition :regexesProvider.getConditionsRegexes()) {
+			str_regexes += condition.getRegex().toUpperCase() + "\r\n";
 			regexes.put(condition.getKey_name(), condition.getRegex());
 			regexes.put(condition.getKey_name(), condition.getRegex().toUpperCase());
-		});
+		}
 
 		String condition = StringUtils.collectionToDelimitedString(token_conditions, " ");
 		Span[] spans = matcher.matches(regexes, condition);
@@ -204,21 +209,15 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 				if (list_tokens.get(comma_index + 1).equals("then")) {
 					return true;
 				} else {
-					error_logs += "The condition should be IF <Condition|Event>, THEN\n";
+					error_logs += "The condition should be IF <Condition|Event>, THEN\r\n";
 					return false;
 				}
-			} else if (spans[0].getType().equals("while_during") || spans[0].getType().equals("after")
-					|| spans[0].getType().equals("incase")) {
-				return true;
-			}
-			// another cases
-			else {
+			} else {
 				return true;
 			}
 		}
-		error_logs += "The condtions should be one of following forms:\r\n" + "IF <Condition|Event>,THEN \r\n"
-				+ "WHILE|DURING <Activation state> \n" + "IN CASE <Included feature> IS INCLUDED \r\n"
-				+ "AFTER|BEFORE| AS SOON AS <Bahavior> \r\n";
+		
+		error_logs += "The condtions should be one of following forms:" +str_regexes;
 		return false;
 
 	}
@@ -227,8 +226,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * Anchor should contain SYSTEM NAME + MODAL VERB + NORMAL VERB This method has the ability to check the anchor of
 	 * the sentence.
 	 * 
-	 * @return List of value(1: false, 0: true) and start index of object 0: if the sentence has a valid anchor 1:
-	 *         otherwise
+	 * @return List of value(1: false, 0: true) and start index of object
+	 * 				 0: if the sentence has a valid anchor 
+	 * 				 1: otherwise
 	 */
 
 	public boolean parseAnchor(List<String> list_tokens, List<String> list_tags, int comma_index, int modal_index) {
@@ -350,16 +350,17 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			return false;
 		} else {
 			Map<String, String> regexs = new HashMap<String, String>();
-			regexesProvider.getObjectRegexes().forEach(object -> {
+			String str_regexes = "";
+			for( Object object : regexesProvider.getObjectRegexes()) {
+				str_regexes +=  object.getRegex().toUpperCase() + "\r\n";
 				regexs.put(object.getKey_name(), object.getRegex());
 				regexs.put(object.getKey_name(), object.getRegex().toUpperCase());
-			});
+			}
 
 			Span[] spans = matcher.matches(regexs, object_string);
 			// maybe do not contains all of them
 			if (spans == null || spans.length == 0) {
-				error_logs += "'" + object_string + "'"
-						+ " must be startet with A| AN| THE|ONE| EACH| ALL THE| BETWEEN <A> AND <B>";
+				error_logs += "'" + object_string + "' must be startet with \r\n" + str_regexes; 
 				return false;
 			}
 			// one of the cases

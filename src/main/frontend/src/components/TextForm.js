@@ -106,7 +106,7 @@ export default class TextForm  extends Component {
 	        	    			      <Accordion.Collapse eventKey="1" style={{ backgroundColor: '#ffb2b2' }}>
 		        	    			      <Card.Body>
 		        	    			      	<label>Logs:</label>
-		        	    			      	<div>
+		        	    			      	<div className="logs">
 		        	    			      		{logs_list[key]}
 		        	    			      	</div>
 		        	    			      </Card.Body>

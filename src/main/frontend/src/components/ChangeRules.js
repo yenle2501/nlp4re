@@ -138,7 +138,7 @@ export default class ChangeRules extends Component {
 			    	        <Form.Label>Change Precondition:</Form.Label>
 			    	        <Row>
 				    	        <Col sm={9}> 
-			    	        		<Form.Control placeholder="e.g. ^WHILE [\\w] ," />
+			    	        		<Form.Control placeholder="e.g. ^WHILE + ," />
 				    	        </Col>
 				    	        <Col sm={1}>
 				    	              <Form.Check type="checkbox" label="optinal" onChange={(event)=>{this.setState({cBPreCondition : event.target.checked})}}/>
@@ -150,7 +150,7 @@ export default class ChangeRules extends Component {
 			    	     	<Form.Label>Change System Determiner: </Form.Label>
 			    	        <Row>
 					          <Col sm={9}> 
-			    	              <Form.Control placeholder="e.g. THE [\\w]" />
+			    	              <Form.Control placeholder="e.g. THE +" />
 			    	       	  </Col>
 					          <Col sm={1}>
 					               <Form.Check type="checkbox" label="optinal" onChange={(event)=>{this.setState({cBSystemDeterminer : event.target.checked})}}/>
@@ -174,7 +174,7 @@ export default class ChangeRules extends Component {
 		    	              <Form.Label>Change Processword: </Form.Label>
 		    	              <Row>
 					          	<Col sm={9}> 
-		    	              		<Form.Control placeholder="e.g. PROVIDE [\\w\\s] THE ABILITY TO [\\w]" />  
+		    	              		<Form.Control placeholder="e.g. PROVIDE [\w\s] THE ABILITY TO [\w]" />  
 		    	             	 </Col>
 							     <Col sm={1}>
 							         <Form.Check type="checkbox" label="optinal" onChange={(event)=>{this.setState({cBProcessWord : event.target.checked})}}/>
@@ -186,7 +186,7 @@ export default class ChangeRules extends Component {
 		    	              <Form.Label>Change Object: </Form.Label>
 		    	              <Row>
 					          	<Col sm={9}> 	
-					          		<Form.Control placeholder="e.g. A [\\w]" />
+					          		<Form.Control placeholder="e.g. A +" />
 					          	</Col>
 								<Col sm={1}>
 								     <Form.Check type="checkbox" label="optinal" onChange={(event)=>{this.setState({cBObjectName : event.target.checked})}}/>
@@ -199,7 +199,7 @@ export default class ChangeRules extends Component {
 		    	              <Form.Label>Change Postcondition: </Form.Label>
 		    	              <Row>
 					          	<Col sm={9}> 
-					          		<Form.Control placeholder="e.g. IF AND ONLY IF [\\w]" />
+					          		<Form.Control placeholder="e.g. IF AND ONLY IF +" />
 					          	</Col>
 							    <Col sm={1}>
 							         <Form.Check type="checkbox" label="optinal" onChange={(event)=>{this.setState({cBPostCondition : event.target.checked})}}/>

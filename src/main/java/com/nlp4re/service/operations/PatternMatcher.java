@@ -27,11 +27,12 @@ public class PatternMatcher {
 	public Span[] matches(Map<String, String> regexes, String sentence) {
 		checkNotNull(regexes);
 		checkNotNull(sentence);
-
+		
 		Map<String, Pattern[]> regexMap = new HashMap<>();
 		regexes.entrySet().forEach(e -> {
 			String key = e.getKey();
 			String value = e.getValue();
+			
 			Pattern pattern = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
 			regexMap.put(key, new Pattern[] { pattern });
 
@@ -39,6 +40,7 @@ public class PatternMatcher {
 
 		RegexNameFinder finder = new RegexNameFinder(regexMap);
 		Span[] spans = finder.find(sentence);
+				
 		return spans;
 	}
 }

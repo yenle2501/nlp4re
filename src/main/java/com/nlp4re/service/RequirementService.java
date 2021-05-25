@@ -126,34 +126,44 @@ public class RequirementService {
 		Object object = templateRule.getObject();
 		SystemName systemname = templateRule.getSystemName();
 		
+		
 		String query = "";
 		
 		if (anchor.getRegex() != null && !anchor.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO ANCHOR (KEY_NAME, REGEX, REQUIRED) VALUES ('" + anchor.getKey_name() + "','" + anchor.getRegex()+ "'," + anchor.getRequired() +"); \r\n";
+			query += "\r\nINSERT INTO ANCHOR (KEY_NAME, REGEX, REQUIRED) VALUES ('" + anchor.getKey_name() + this.anchorRepository.count()+ "','" + anchor.getRegex()+ "'," + anchor.getRequired() +"); \r\n";
+			// for unique key name 
+			anchor.setKey_name(anchor.getKey_name() + this.anchorRepository.count());
 			this.anchorRepository.save(anchor);
 		}
 		if (condition.getRegex() != null && !condition.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO CONDITIONS (KEY_NAME, REGEX, REQUIRED) VALUES ('" + condition.getKey_name() + "','" + condition.getRegex() + "'," + condition.getRequired()+ "); \r\n";
+			query += "\r\nINSERT INTO CONDITIONS (KEY_NAME, REGEX, REQUIRED) VALUES ('" + condition.getKey_name() + this.conditionsRepository.count() +  "','" + condition.getRegex() + "'," + condition.getRequired()+ "); \r\n";
+			condition.setKey_name(condition.getKey_name() + this.conditionsRepository.count());
 			this.conditionsRepository.save(condition);
 		}
 		if (details.getRegex() != null && !details.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO DETAILS (KEY_NAME, REGEX, REQUIRED) VALUES ('" + details.getKey_name() + "','" + details.getRegex() + "'," + details.getRequired() +"); \r\n";
+			query += "\r\nINSERT INTO DETAILS (KEY_NAME, REGEX, REQUIRED) VALUES ('" + details.getKey_name() + this.detailsRepository.count() + "','" + details.getRegex() + "'," + details.getRequired() +"); \r\n";
+			details.setKey_name(details.getKey_name() + this.detailsRepository.count());
 			this.detailsRepository.save(details);
 		}
 		if (modal.getKey_name() != null && !modal.getKey_name().isBlank()) {
-			query += "\r\nINSERT INTO MODAL (KEY_NAME, REQUIRED) VALUES ('" + modal.getKey_name() + "'," + modal.getRequired() +"); \r\n";
+			query += "\r\nINSERT INTO MODAL (KEY_NAME, REQUIRED) VALUES ('" + modal.getKey_name() +"'," + modal.getRequired() +"); \r\n";
 			this.modalRepository.save(modal);
 		}
 		if (object.getRegex() != null && !object.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO OBJECT (KEY_NAME, REGEX, REQUIRED) VALUES ('" + object.getKey_name() + "','" + object.getRegex() + "'," + object.getRequired() +"); \r\n";
+			query += "\r\nINSERT INTO OBJECT (KEY_NAME, REGEX, REQUIRED) VALUES ('" + object.getKey_name() + this.objectRepository.count() + "','" + object.getRegex() + "'," + object.getRequired() +"); \r\n";
+			object.setKey_name(object.getKey_name() + this.objectRepository.count());
 			this.objectRepository.save(object);
 		}
 		if (systemname.getRegex() != null && !systemname.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO SYSTEMNAME (KEY_NAME, REGEX, REQUIRED) VALUES ('" + systemname.getKey_name() + "','" + systemname.getRegex() + "'," + systemname.getRequired() +");\r\n";
+			query += "\r\nINSERT INTO SYSTEMNAME (KEY_NAME, REGEX, REQUIRED) VALUES ('" + systemname.getKey_name() +  this.systemNameRepository.count() +"','" + systemname.getRegex() + "'," + systemname.getRequired() +");\r\n";
+			systemname.setKey_name(systemname.getKey_name() +  this.systemNameRepository.count());
 			this.systemNameRepository.save(systemname);
 		}
 		
-		// write the query in data.sql 
+		// update regexes
+		loadRegexes();
+		
+		// write the query in data.sql for a persistent saving
 		Writer output;
 		try {
 			output = new BufferedWriter(new FileWriter("./src/main/resources/db/data.sql", true));
