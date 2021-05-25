@@ -28,7 +28,7 @@ VALUES
 INSERT INTO OBJECT (KEY_NAME, REGEX, REQUIRED) 
 VALUES
 ('single_obj', '^a |^an |^the |^one |^each +',1),
-('between', '^between [] and +',1),
+('between', '^between [:alpha:] and +',1),
 ('all_the', '^all the +',1);
 
 INSERT INTO DETAILS (KEY_NAME, REGEX, REQUIRED) 

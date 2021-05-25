@@ -26,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import opennlp.tools.util.Span;
 
 import com.nlp4re.domain.Anchor;
+import com.nlp4re.domain.Conditions;
 import com.nlp4re.domain.Modal;
 import com.nlp4re.service.operations.PatternMatcher;
 import com.nlp4re.service.operations.RegexesProvider;
@@ -82,7 +83,7 @@ public class RequirementLogicImpl_EngTest {
 
 	@Test
 	public void test_getTagsFromTokens() {
-		
+
 		// given
 		when(mockSentenceAnalyzer.getPOSTags(any(String[].class))).thenReturn(new String[] { "VP", "NNS" });
 
@@ -99,8 +100,8 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseModalVp_NullPointerException() {
 		// given
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
-				mockRegexesProvider);
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
+				mockPatternMatcher, mockRegexesProvider);
 		// when + then
 		assertThrows(NullPointerException.class, () -> requirementLogic.parseModalVp(0, null));
 	}
@@ -108,8 +109,8 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseModalVp_returnFalse() {
 		// given
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
-				mockRegexesProvider);
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
+				mockPatternMatcher, mockRegexesProvider);
 		// when
 		boolean result = requirementLogic.parseModalVp(-1, Arrays.asList(new String[] { "return", "tokens" }));
 		// then
@@ -119,9 +120,9 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseModalVp_returnTrue() {
 		// given
-		when(mockRegexesProvider.getModalRegexes()).thenReturn(List.of(new Modal("should",1)));
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
-				mockRegexesProvider);
+		when(mockRegexesProvider.getModalRegexes()).thenReturn(List.of(new Modal("should", 1)));
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
+				mockPatternMatcher, mockRegexesProvider);
 		// when
 		boolean result = requirementLogic.parseModalVp(2, Arrays.asList(new String[] { "some", "tokens", "should" }));
 		// then
@@ -131,8 +132,8 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseSystemname_NullPointerException() {
 		// given
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
-				mockRegexesProvider);
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
+				mockPatternMatcher, mockRegexesProvider);
 		// when + then
 		assertThrows(NullPointerException.class, () -> requirementLogic.parseSystemName(null, 1, 1));
 	}
@@ -260,8 +261,8 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseCondition_NullPointerException() {
 		// given
-		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer, mockPatternMatcher,
-				mockRegexesProvider);
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
+				mockPatternMatcher, mockRegexesProvider);
 		// when + then
 		assertThrows(NullPointerException.class, () -> requirementLogic.parseCondition(null, 0, 0));
 
@@ -270,7 +271,8 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseCondition_returnTrue_no_condition() {
 		// given
-	when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt())).thenReturn(null);
+		when(mockSentenceAnalyzer.getConditions(anyList(), anyInt(), anyInt())).thenReturn(null);
+
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
@@ -280,6 +282,7 @@ public class RequirementLogicImpl_EngTest {
 		assertThat(result, is(true));
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(0)).matches(anyMap(), anyString());
+		verify(mockRegexesProvider, times(0)).getConditionsRegexes();
 	}
 
 	@Test
@@ -299,6 +302,7 @@ public class RequirementLogicImpl_EngTest {
 		assertThat(result, is(false));
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
+		verify(mockRegexesProvider, times(1)).getConditionsRegexes();
 	}
 
 	@Test
@@ -310,6 +314,9 @@ public class RequirementLogicImpl_EngTest {
 		Span mockSpan = new Span(0, 0, "if");
 		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan });
 
+		when(mockRegexesProvider.getConditionsRegexes())
+				.thenReturn(List.of(new Conditions("if", "^if [\\w\\s], then", 1)));
+
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
@@ -319,6 +326,7 @@ public class RequirementLogicImpl_EngTest {
 		assertThat(result, is(true));
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
+		verify(mockRegexesProvider, times(1)).getConditionsRegexes();
 	}
 
 	@Test
@@ -339,6 +347,7 @@ public class RequirementLogicImpl_EngTest {
 		assertThat(result, is(false));
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
+		verify(mockRegexesProvider, times(1)).getConditionsRegexes();
 	}
 
 	@Test
@@ -359,6 +368,7 @@ public class RequirementLogicImpl_EngTest {
 		assertThat(result, is(true));
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
+		verify(mockRegexesProvider, times(1)).getConditionsRegexes();
 	}
 
 	@Test
@@ -403,7 +413,7 @@ public class RequirementLogicImpl_EngTest {
 		Span mockSpan = new Span(0, 0, "provide");
 		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan });
 		when(mockSentenceAnalyzer.getChunks(any(String[].class), any(String[].class)))
-				.thenReturn(Arrays.asList(new String[] { "MD", "VB" }));
+				.thenReturn(Arrays.asList(new String[] { "MD", "NP" }));
 		// when
 		boolean result = requirementLogic.parseAnchor(
 				Arrays.asList(
@@ -495,7 +505,7 @@ public class RequirementLogicImpl_EngTest {
 		Span mockSpan1 = new Span(0, 0, "be_able_to");
 
 		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan, mockSpan1 });
-		when(mockRegexesProvider.getAnchorRegexes()).thenReturn(List.of(new Anchor("the", "the .",1)));
+		when(mockRegexesProvider.getAnchorRegexes()).thenReturn(List.of(new Anchor("the", "the .", 1)));
 		// when
 		boolean result = requirementLogic.parseAnchor(
 				Arrays.asList(
@@ -527,6 +537,27 @@ public class RequirementLogicImpl_EngTest {
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(0)).getChunks(any(String[].class), any(String[].class));
+	}
+
+	@Test
+	public void test_parseAnchor_NoPattern_PassivForm_ReturnTrue() {
+
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
+				mockPatternMatcher, mockRegexesProvider);
+
+		when(mockSentenceAnalyzer.getAnchorStartIndex(anyList(), anyInt(), anyInt())).thenReturn(0);
+		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(null);
+		// when
+		boolean result = requirementLogic.parseAnchor(Arrays.asList(
+				new String[] { "the", "system", "should", "be", "done", "with", "some", "ability", "to", "system" }),
+				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "VBD", "IN", "IN", "NNS", "AA", "VB" }), -1, 2);
+		// then
+		// after provide has no Object
+		assertThat(result, is(true));
+		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
+		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
+		verify(mockSentenceAnalyzer, times(0)).getChunks(any(String[].class), any(String[].class));
+		verify(mockRegexesProvider, times(1)).getAnchorRegexes();
 	}
 
 	@Test
@@ -709,7 +740,7 @@ public class RequirementLogicImpl_EngTest {
 	}
 
 	@Test
-	public void test_doParse_nonCompliant() {
+	public void test_doParse_nonCompliant_noModalVerb() {
 		// given
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
@@ -718,6 +749,26 @@ public class RequirementLogicImpl_EngTest {
 				"consume", "as", "any", "units", "of", "energy", "as", "possible", "." });
 		when(mockSentenceAnalyzer.getPOSTags(any(String[].class)))
 				.thenReturn(new String[] { "DT", "NN", "NN", "MD", "VB", "IN", "IN", "NNS", "IN", "NN", "IN", "NN" });
+		when(mockSentenceAnalyzer.getModalIndex(anyList(), anyInt())).thenReturn(1);
+		Map<Integer, String> sentences = new HashMap<Integer, String>();
+		sentences.put(1, anyString());
+		// when
+		List<Map<Integer, String>> result = requirementLogic.doParse(sentences);
+		// then
+		assertThat(result.size(), is(3));
+		assertEquals(result.get(1).get(1), "1");
+	}
+
+	@Test
+	public void test_doParse_nonCompliant_noSystemName() {
+		// given
+		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
+				mockPatternMatcher, mockRegexesProvider);
+
+		when(mockSentenceAnalyzer.getTokens(anyString())).thenReturn(new String[] { "VMS", "system", "will", "consume",
+				"as", "any", "units", "of", "energy", "as", "possible", "." });
+		when(mockSentenceAnalyzer.getPOSTags(any(String[].class)))
+				.thenReturn(new String[] { "NN", "NN", "MD", "VB", "IN", "IN", "NNS", "IN", "NN", "IN", "NN" });
 		when(mockSentenceAnalyzer.getModalIndex(anyList(), anyInt())).thenReturn(1);
 		Map<Integer, String> sentences = new HashMap<Integer, String>();
 		sentences.put(1, anyString());

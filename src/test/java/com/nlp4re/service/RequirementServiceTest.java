@@ -94,7 +94,7 @@ public class RequirementServiceTest {
 		assertThrows(NullPointerException.class, () -> requirementService.saveRules(null));
 
 	}
-
+	
 	@Test
 	public void test_saveRules() {
 		// given
@@ -130,12 +130,12 @@ public class RequirementServiceTest {
 	public void test_saveRules_EmptyFields() {
 		// given
 
-		when(template.getAnchor()).thenReturn(new Anchor("key", null, 1));
+		when(template.getAnchor()).thenReturn(new Anchor("key", "", 1));
 		when(template.getConditions()).thenReturn(new Conditions("key", "", 1));
-		when(template.getDetails()).thenReturn(new Details("key", null, 1));
+		when(template.getDetails()).thenReturn(new Details("key", "", 1));
 		when(template.getModal()).thenReturn(new Modal("", 1));
-		when(template.getObject()).thenReturn(new Object("key", null, 1));
-		when(template.getSystemName()).thenReturn(new SystemName("key", null, 1));
+		when(template.getObject()).thenReturn(new Object("key", "", 1));
+		when(template.getSystemName()).thenReturn(new SystemName("key", "", 1));
 
 		// when
 		requirementService.saveRules(template);
@@ -156,5 +156,34 @@ public class RequirementServiceTest {
 		verify(systemNameRepository, times(0)).save(any(SystemName.class));
 	}
 	
+	@Test
+	public void test_saveRules_NullFields() {
+		// given
+
+		when(template.getAnchor()).thenReturn(new Anchor("key", null, 1));
+		when(template.getConditions()).thenReturn(new Conditions("key", null, 1));
+		when(template.getDetails()).thenReturn(new Details("key", null, 1));
+		when(template.getModal()).thenReturn(new Modal(null, 1));
+		when(template.getObject()).thenReturn(new Object("key", null, 1));
+		when(template.getSystemName()).thenReturn(new SystemName("key",null, 1));
+
+		// when
+		requirementService.saveRules(template);
+		
+		// then
+		verify(template, times(1)).getAnchor();
+		verify(template, times(1)).getConditions();
+		verify(template, times(1)).getDetails();
+		verify(template, times(1)).getModal();
+		verify(template, times(1)).getObject();
+		verify(template, times(1)).getSystemName();
+		
+		verify(anchorRepository, times(0)).save(any(Anchor.class));
+		verify(conditionsRepository, times(0)).save(any(Conditions.class));
+		verify(detailsRepository, times(0)).save(any(Details.class));
+		verify(modalRepository, times(0)).save(any(Modal.class));
+		verify(objectRepository, times(0)).save(any(Object.class));
+		verify(systemNameRepository, times(0)).save(any(SystemName.class));
+	}
 	
 }
