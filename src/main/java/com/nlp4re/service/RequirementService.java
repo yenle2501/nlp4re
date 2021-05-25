@@ -2,7 +2,10 @@ package com.nlp4re.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -95,21 +98,18 @@ public class RequirementService {
 	 * @throws IOException
 	 */
 	public List<Map<Integer, String>> checkRequirements(String desc) {
-		if (desc == null || desc.isEmpty()) {
+		if (desc == null || desc.isBlank()) {
 			return null;
 		}
 
 		this.sentenceAnalyzer = new SentenceAnalyzer(this.sentenceOperations);
 		this.matcher = new PatternMatcher();
-		RequirementLogicImpl_Eng requirementServiceImpl_Eng = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
+		RequirementLogicImpl_Eng requirementLogicImpl_Eng = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
 				regexesProvider);
-		Map<Integer, String> sentences = requirementServiceImpl_Eng.getSentences(desc);
-		if (sentences == null) {
-			return null;
-		} else {
-			List<Map<Integer, String>> result = requirementServiceImpl_Eng.doParse(sentences);
-			return result;
-		}
+		Map<Integer, String> sentences = requirementLogicImpl_Eng.getSentences(desc);
+		List<Map<Integer, String>> result = requirementLogicImpl_Eng.doParse(sentences);
+		
+		return result;
 	}
 
 	/***
@@ -119,23 +119,49 @@ public class RequirementService {
 	public void saveRules(Template templateRule) {
 		checkNotNull(templateRule);
 		
-		if (templateRule.getAnchor().getRegex() != null && !templateRule.getAnchor().getRegex().isBlank()) {
-			this.anchorRepository.save(templateRule.getAnchor());
+		Anchor anchor = templateRule.getAnchor();
+		Conditions condition = templateRule.getConditions();
+		Details details = templateRule.getDetails();
+		Modal modal = templateRule.getModal();
+		Object object = templateRule.getObject();
+		SystemName systemname = templateRule.getSystemName();
+		
+		String query = "";
+		
+		if (anchor.getRegex() != null && !anchor.getRegex().isBlank()) {
+			query += "\r\nINSERT INTO ANCHOR (KEY_NAME, REGEX, REQUIRED) VALUES ('" + anchor.getKey_name() + "','" + anchor.getRegex()+ "'," + anchor.getRequired() +"); \r\n";
+			this.anchorRepository.save(anchor);
 		}
-		if (templateRule.getConditions().getRegex() != null && !templateRule.getConditions().getRegex().isBlank()) {
-			this.conditionsRepository.save(templateRule.getConditions());
+		if (condition.getRegex() != null && !condition.getRegex().isBlank()) {
+			query += "\r\nINSERT INTO CONDITIONS (KEY_NAME, REGEX, REQUIRED) VALUES ('" + condition.getKey_name() + "','" + condition.getRegex() + "'," + condition.getRequired()+ "); \r\n";
+			this.conditionsRepository.save(condition);
 		}
-		if (templateRule.getDetails().getRegex() != null && !templateRule.getDetails().getRegex().isBlank()) {
-			this.detailsRepository.save(templateRule.getDetails());
+		if (details.getRegex() != null && !details.getRegex().isBlank()) {
+			query += "\r\nINSERT INTO DETAILS (KEY_NAME, REGEX, REQUIRED) VALUES ('" + details.getKey_name() + "','" + details.getRegex() + "'," + details.getRequired() +"); \r\n";
+			this.detailsRepository.save(details);
 		}
-		if (templateRule.getModal().getKey_name() != null && !templateRule.getModal().getKey_name().isBlank()) {
-			this.modalRepository.save(templateRule.getModal());
+		if (modal.getKey_name() != null && !modal.getKey_name().isBlank()) {
+			query += "\r\nINSERT INTO MODAL (KEY_NAME, REQUIRED) VALUES ('" + modal.getKey_name() + "'," + modal.getRequired() +"); \r\n";
+			this.modalRepository.save(modal);
 		}
-		if (templateRule.getObject().getRegex() != null && !templateRule.getObject().getRegex().isBlank()) {
-			this.objectRepository.save(templateRule.getObject());
+		if (object.getRegex() != null && !object.getRegex().isBlank()) {
+			query += "\r\nINSERT INTO OBJECT (KEY_NAME, REGEX, REQUIRED) VALUES ('" + object.getKey_name() + "','" + object.getRegex() + "'," + object.getRequired() +"); \r\n";
+			this.objectRepository.save(object);
 		}
-		if (templateRule.getSystemName().getRegex() != null && !templateRule.getSystemName().getRegex().isBlank()) {
-			this.systemNameRepository.save(templateRule.getSystemName());
+		if (systemname.getRegex() != null && !systemname.getRegex().isBlank()) {
+			query += "\r\nINSERT INTO SYSTEMNAME (KEY_NAME, REGEX, REQUIRED) VALUES ('" + systemname.getKey_name() + "','" + systemname.getRegex() + "'," + systemname.getRequired() +");\r\n";
+			this.systemNameRepository.save(systemname);
+		}
+		
+		// write the query in data.sql 
+		Writer output;
+		try {
+			output = new BufferedWriter(new FileWriter("./src/main/resources/db/data.sql", true));
+			output.append(query);
+			output.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

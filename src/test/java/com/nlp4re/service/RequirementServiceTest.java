@@ -1,6 +1,5 @@
 package com.nlp4re.service;
 
-import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -8,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
+import static org.mockito.Mockito.any;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +30,7 @@ import com.nlp4re.repository.DetailsRepository;
 import com.nlp4re.repository.ModalRepository;
 import com.nlp4re.repository.ObjectRepository;
 import com.nlp4re.repository.SystemNameRepository;
+import com.nlp4re.service.logic.RequirementLogicImpl_Eng;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -50,19 +50,23 @@ public class RequirementServiceTest {
 	private SystemNameRepository systemNameRepository;
 	@MockBean
 	private Template template;
-
+	@MockBean 
+	private RequirementLogicImpl_Eng requirementLogicImpl_Eng;
+	
 	@SpyBean
 	private RequirementService requirementService;
 
 	@Test
-	public void test_checkRequirements_NullPointerException() {
+	public void test_checkRequirements_returnNull() {
 		// given+ when
 		List<Map<Integer, String>> result = requirementService.checkRequirements(null);
-
+		List<Map<Integer, String>> result1 = requirementService.checkRequirements("");
+		
 		// then
 		assertThat(result, is(nullValue()));
+		assertThat(result1, is(nullValue()));
 	}
-
+	
 	@Test
 	public void test_checkRequirements() {
 		// given
@@ -106,11 +110,51 @@ public class RequirementServiceTest {
 		requirementService.saveRules(template);
 		
 		// then
-		verify(template, times(3)).getAnchor();
-		verify(template, times(3)).getConditions();
-		verify(template, times(3)).getDetails();
-		verify(template, times(3)).getModal();
-		verify(template, times(3)).getObject();
-		verify(template, times(3)).getSystemName();
+		verify(template, times(1)).getAnchor();
+		verify(template, times(1)).getConditions();
+		verify(template, times(1)).getDetails();
+		verify(template, times(1)).getModal();
+		verify(template, times(1)).getObject();
+		verify(template, times(1)).getSystemName();
+		
+
+		verify(anchorRepository, times(1)).save(any(Anchor.class));
+		verify(conditionsRepository, times(1)).save(any(Conditions.class));
+		verify(detailsRepository, times(1)).save(any(Details.class));
+		verify(modalRepository, times(1)).save(any(Modal.class));
+		verify(objectRepository, times(1)).save(any(Object.class));
+		verify(systemNameRepository, times(1)).save(any(SystemName.class));
 	}
+	
+	@Test
+	public void test_saveRules_EmptyFields() {
+		// given
+
+		when(template.getAnchor()).thenReturn(new Anchor("key", null, 1));
+		when(template.getConditions()).thenReturn(new Conditions("key", "", 1));
+		when(template.getDetails()).thenReturn(new Details("key", null, 1));
+		when(template.getModal()).thenReturn(new Modal("", 1));
+		when(template.getObject()).thenReturn(new Object("key", null, 1));
+		when(template.getSystemName()).thenReturn(new SystemName("key", null, 1));
+
+		// when
+		requirementService.saveRules(template);
+		
+		// then
+		verify(template, times(1)).getAnchor();
+		verify(template, times(1)).getConditions();
+		verify(template, times(1)).getDetails();
+		verify(template, times(1)).getModal();
+		verify(template, times(1)).getObject();
+		verify(template, times(1)).getSystemName();
+		
+		verify(anchorRepository, times(0)).save(any(Anchor.class));
+		verify(conditionsRepository, times(0)).save(any(Conditions.class));
+		verify(detailsRepository, times(0)).save(any(Details.class));
+		verify(modalRepository, times(0)).save(any(Modal.class));
+		verify(objectRepository, times(0)).save(any(Object.class));
+		verify(systemNameRepository, times(0)).save(any(SystemName.class));
+	}
+	
+	
 }

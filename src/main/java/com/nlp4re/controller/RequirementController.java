@@ -28,7 +28,7 @@ public class RequirementController {
 	private RequirementService service;
 
 	/**
-	 * 
+	 * check requirements description
 	 * @param requirement the requirements description
 	 * @return ResponseEntity
 	 * @throws FileNotFoundException
@@ -49,9 +49,9 @@ public class RequirementController {
 	}
 
 	/**
-	 * change/add rules for the template
+	 * change/add rules of the template
 	 * 
-	 * @param requirement the requirements description
+	 * @param templateRule  contains rules for the template
 	 * @return ResponseEntity<httpStatus>
 	 */
 	@RequestMapping(path = "/changeRules", method = RequestMethod.POST)
