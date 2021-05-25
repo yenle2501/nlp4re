@@ -1,9 +1,11 @@
-package com.nlp4re.operations;
+package com.nlp4re.service.operations;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Component;
 
 import opennlp.tools.namefind.RegexNameFinder;
 import opennlp.tools.util.Span;
@@ -12,6 +14,7 @@ import opennlp.tools.util.Span;
  * This class helps to match the sentence with the given regular expressions
  * 
  */
+@Component
 public class PatternMatcher {
 
 	/**
@@ -24,11 +27,12 @@ public class PatternMatcher {
 	public Span[] matches(Map<String, String> regexes, String sentence) {
 		checkNotNull(regexes);
 		checkNotNull(sentence);
-
+		
 		Map<String, Pattern[]> regexMap = new HashMap<>();
 		regexes.entrySet().forEach(e -> {
 			String key = e.getKey();
 			String value = e.getValue();
+			
 			Pattern pattern = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
 			regexMap.put(key, new Pattern[] { pattern });
 
@@ -36,6 +40,7 @@ public class PatternMatcher {
 
 		RegexNameFinder finder = new RegexNameFinder(regexMap);
 		Span[] spans = finder.find(sentence);
+				
 		return spans;
 	}
 }

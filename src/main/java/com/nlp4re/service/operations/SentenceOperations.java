@@ -1,8 +1,10 @@
-package com.nlp4re.operations;
+package com.nlp4re.service.operations;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.springframework.stereotype.Component;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
@@ -14,6 +16,7 @@ import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 
+@Component
 public class SentenceOperations {
 
 	private TokenizerME tokenizer;

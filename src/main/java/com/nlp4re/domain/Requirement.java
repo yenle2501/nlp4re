@@ -1,10 +1,8 @@
 package com.nlp4re.domain;
 
-import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.persistence.Id;
 
-@Entity
 public class Requirement {
 	
 	@Id

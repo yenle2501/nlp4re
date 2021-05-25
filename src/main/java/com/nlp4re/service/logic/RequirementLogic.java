@@ -1,13 +1,16 @@
-package com.nlp4re.logic;
+package com.nlp4re.service.logic;
 
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
 /**
  * This class works as a logic class
  */
-public interface RequirementLogic {
-
+@Component
+public interface RequirementLogic{
+	
 	/**
 	 * This method helps to get single sentence from the requirements description
 	 * 

@@ -15,6 +15,7 @@
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.3",
     "react-bootstrap-modal": "^4.2.0",
+    "react-confirm-alert": "^2.7.0",
     "react-dom": "^17.0.1",
     "react-draggable": "^4.4.3",
     "react-native-modal": "^11.6.1",

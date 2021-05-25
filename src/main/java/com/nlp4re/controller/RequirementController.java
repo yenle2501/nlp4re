@@ -8,16 +8,18 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.nlp4re.domain.Requirement;
+import com.nlp4re.domain.Template;
 import com.nlp4re.service.RequirementService;
 
 import org.springframework.web.bind.annotation.RequestMethod;
-@RestController
+
+@Controller
 @RequestMapping("/description")
 @CrossOrigin(origins = "http://localhost:3000")
 public class RequirementController {
@@ -26,7 +28,7 @@ public class RequirementController {
 	private RequirementService service;
 
 	/**
-	 * 
+	 * check requirements description
 	 * @param requirement the requirements description
 	 * @return ResponseEntity
 	 * @throws FileNotFoundException
@@ -44,5 +46,24 @@ public class RequirementController {
 			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	/**
+	 * change/add rules of the template
+	 * 
+	 * @param templateRule  contains rules for the template
+	 * @return ResponseEntity<httpStatus>
+	 */
+	@RequestMapping(path = "/changeRules", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> changeRules(@Valid @RequestBody Template templateRule)
+			throws FileNotFoundException, IOException {
+
+		if (templateRule == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} else {
+
+			service.saveRules(templateRule);
+			return new ResponseEntity<>( HttpStatus.CREATED);
+		}
 	}
 }

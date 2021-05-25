@@ -1,4 +1,4 @@
-package com.nlp4re.operations;
+package com.nlp4re.service.operations;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;

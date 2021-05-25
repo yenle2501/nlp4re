@@ -1,4 +1,4 @@
-#### Stage 1: Build Spring Boot
+#### Build Spring Boot
 FROM maven:3.6.3-jdk-11 AS build
 
 # Create an application directory
@@ -16,8 +16,11 @@ COPY src /nlp4re/src
 ## Copy packages and install the dependencies
 COPY src/main/frontend /nlp4re/src/main/frontend
 
+# set enviroment variables
+ENV DATABASE_HOST=nlp4re_mysql
+
 # Build maven
-RUN mvn -f pom.xml clean package verify
+RUN mvn -B clean package -DskipTests=true --file pom.xml
 
 ## Copy jar to production image from backend stage
 FROM adoptopenjdk/openjdk11:alpine-slim
