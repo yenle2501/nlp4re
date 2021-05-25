@@ -5,7 +5,7 @@ name: NLP4RE
 
 on:
   push:
-    branches: [ add_new_rules]
+    branches: [ master]
   pull_request:
     branches: [ master ]
     
