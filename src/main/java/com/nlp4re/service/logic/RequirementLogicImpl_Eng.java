@@ -16,7 +16,7 @@ import org.eclipse.collections.impl.utility.ListIterate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.nlp4re.domain.Conditions;
+import com.nlp4re.domain.PreCondition;
 import com.nlp4re.domain.SystemName;
 import com.nlp4re.domain.Object;
 import com.nlp4re.service.operations.PatternMatcher;
@@ -95,7 +95,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true : if the sentence contains one of the proposed modal verbs such as shall, should, could, will, must
 	 *         false: otherwise
 	 */
-	public boolean parseModalVp(int modal_index, List<String> list_tokens) {
+	public boolean parseModalVerb(int modal_index, List<String> list_tokens) {
 		checkNotNull(list_tokens);
 		List<String> modalverbs = regexesProvider.getModalRegexes().stream().map(m -> m.getKey_name().toUpperCase())
 				.collect(Collectors.toList());
@@ -182,7 +182,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 *         false: otherwise
 	 */
 
-	public boolean parseCondition(List<String> list_tokens, int comma_index, int modal_index) {
+	public boolean parsePreCondition(List<String> list_tokens, int comma_index, int modal_index) {
 		checkNotNull(list_tokens);
 
 		List<String> token_conditions = sentenceAnalyzer.getConditions(list_tokens, modal_index, comma_index);
@@ -193,7 +193,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 		Map<String, String> regexes = new HashMap<String, String>();
 		String str_regexes = "";
-		for (Conditions condition :regexesProvider.getConditionsRegexes()) {
+		for (PreCondition condition :regexesProvider.getConditionsRegexes()) {
 			str_regexes += condition.getRegex().toUpperCase() + "\r\n";
 			regexes.put(condition.getKey_name(), condition.getRegex());
 			regexes.put(condition.getKey_name(), condition.getRegex().toUpperCase());
@@ -221,8 +221,8 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	}
 
 	/**
-	 * Anchor should contain SYSTEM NAME + MODAL VERB + NORMAL VERB This method has the ability to check the anchor of
-	 * the sentence.
+	 * Anchor should contain SYSTEM NAME + MODAL VERB + ACTIVITIES
+	 * This method has the ability to check the anchor of the sentence.
 	 * 
 	 * @return List of value(1: false, 0: true) and start index of object
 	 * 				 0: if the sentence has a valid anchor 
@@ -422,7 +422,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 		int comma_index = ListIterate.detectIndex(list_tokens, ","::equals);
 		int modal_index = sentenceAnalyzer.getModalIndex(list_tags, comma_index);
 
-		boolean hasModalVerb = parseModalVp(modal_index, list_tokens);
+		boolean hasModalVerb = parseModalVerb(modal_index, list_tokens);
 		if (!hasModalVerb) {
 			return false;
 		} else {
@@ -432,7 +432,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			}
 			boolean hasAnchor = parseAnchor(list_tokens, list_tags, comma_index, modal_index);
 			if (hasAnchor) {
-				boolean hasValidCondition = parseCondition(list_tokens, comma_index, modal_index);
+				boolean hasValidCondition = parsePreCondition(list_tokens, comma_index, modal_index);
 
 				int object_start_index = getObjectStartIndex();
 				boolean hasObject = parseObject(tokens, tags, object_start_index);

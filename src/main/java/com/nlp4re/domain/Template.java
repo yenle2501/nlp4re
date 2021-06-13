@@ -11,13 +11,13 @@ public class Template {
 	private int id;
 	
 	@NotNull
-	private Anchor anchor;
+	private Activities anchor;
 	
 	@NotNull
-	private Conditions conditions;
+	private PreCondition conditions;
 	
 	@NotNull
-	private Modal modal;
+	private ModalVerb modal;
 	
 	@NotNull
 	private Object object;
@@ -32,7 +32,7 @@ public class Template {
 		
 	}
 	
-	public Template(Anchor anchor, Conditions conditions,Modal modal, Object object,
+	public Template(Activities anchor, PreCondition conditions,ModalVerb modal, Object object,
 							SystemName systemName,Details details) {
 		this.anchor = anchor;
 		this.conditions = conditions;
@@ -50,27 +50,27 @@ public class Template {
 		this.id = id;
 	}
 	
-	public Anchor getAnchor() {
+	public Activities getAnchor() {
 		return this.anchor;
 	}
 
-	public void setAnchor(Anchor anchor) {
+	public void setAnchor(Activities anchor) {
 		this.anchor = anchor;
 	}
 	
-	public Conditions getConditions() {
+	public PreCondition getConditions() {
 		return this.conditions;
 	}
 
-	public void setConditions(Conditions conditions) {
+	public void setConditions(PreCondition conditions) {
 		this.conditions = conditions;
 	}
 
-	public Modal getModal() {
+	public ModalVerb getModal() {
 		return this.modal;
 	}
 
-	public void setModal(Modal modal) {
+	public void setModal(ModalVerb modal) {
 		this.modal = modal;
 	}
 	

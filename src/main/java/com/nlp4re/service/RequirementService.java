@@ -14,17 +14,17 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nlp4re.domain.Anchor;
-import com.nlp4re.domain.Conditions;
+import com.nlp4re.domain.Activities;
+import com.nlp4re.domain.PreCondition;
 import com.nlp4re.domain.Details;
-import com.nlp4re.domain.Modal;
+import com.nlp4re.domain.ModalVerb;
 import com.nlp4re.domain.Object;
 import com.nlp4re.domain.SystemName;
 import com.nlp4re.domain.Template;
-import com.nlp4re.repository.AnchorRepository;
-import com.nlp4re.repository.ConditionsRepository;
+import com.nlp4re.repository.ActivitiesRepository;
+import com.nlp4re.repository.PreConditionRepository;
 import com.nlp4re.repository.DetailsRepository;
-import com.nlp4re.repository.ModalRepository;
+import com.nlp4re.repository.ModalVerbRepository;
 import com.nlp4re.repository.ObjectRepository;
 import com.nlp4re.repository.SystemNameRepository;
 import com.nlp4re.service.logic.RequirementLogicImpl_Eng;
@@ -37,16 +37,16 @@ import com.nlp4re.service.operations.SentenceOperations;
 public class RequirementService {
 
 	@Autowired
-	private AnchorRepository anchorRepository;
+	private ActivitiesRepository anchorRepository;
 
 	@Autowired
-	private ConditionsRepository conditionsRepository;
+	private PreConditionRepository conditionsRepository;
 
 	@Autowired
 	private DetailsRepository detailsRepository;
 
 	@Autowired
-	private ModalRepository modalRepository;
+	private ModalVerbRepository modalRepository;
 
 	@Autowired
 	private ObjectRepository objectRepository;
@@ -59,10 +59,10 @@ public class RequirementService {
 	private PatternMatcher matcher;
 	private RegexesProvider regexesProvider;
 
-	private List<Anchor> anchorRegexes;
-	private List<Conditions> conditionsRegexes;
+	private List<Activities> anchorRegexes;
+	private List<PreCondition> conditionsRegexes;
 	private List<Details> detailsRegexes;
-	private List<Modal> modalRegexes;
+	private List<ModalVerb> modalRegexes;
 	private List<Object> objectRegexes;
 	private List<SystemName> systemNameRegexes;
 
@@ -119,10 +119,10 @@ public class RequirementService {
 	public void saveRules(Template templateRule) {
 		checkNotNull(templateRule);
 		
-		Anchor anchor = templateRule.getAnchor();
-		Conditions condition = templateRule.getConditions();
+		Activities anchor = templateRule.getAnchor();
+		PreCondition condition = templateRule.getConditions();
 		Details details = templateRule.getDetails();
-		Modal modal = templateRule.getModal();
+		ModalVerb modal = templateRule.getModal();
 		Object object = templateRule.getObject();
 		SystemName systemname = templateRule.getSystemName();
 		

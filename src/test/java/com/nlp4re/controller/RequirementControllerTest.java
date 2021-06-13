@@ -93,7 +93,7 @@ public class RequirementControllerTest {
 	@Test
 	void testChangeRules_returnNull() throws Exception {
 		// given + when
-		ResponseEntity<HttpStatus> result = requirementController.changeRules(null);
+		ResponseEntity<HttpStatus> result = requirementController.addRules(null);
 		// then
 		assertThat(result.getBody(), is(nullValue()));
 		assertThat(result.getStatusCode(), is(HttpStatus.NO_CONTENT));
@@ -102,7 +102,7 @@ public class RequirementControllerTest {
 	@Test
 	void testChangeRules() throws Exception {
 		// given + when
-		ResponseEntity<HttpStatus> result = requirementController.changeRules(template);
+		ResponseEntity<HttpStatus> result = requirementController.addRules(template);
 		// then
 
 		verify(requirementService, times(1)).saveRules(template);

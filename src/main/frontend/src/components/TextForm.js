@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import axios from 'axios';
 import './TextForm.css';
 import PopUp from './PopUp';
-import ChangeRules from './ChangeRules';
+import AddRules from './AddRules';
 import {Accordion,Button, Card, Modal, Form} from 'react-bootstrap';
 
 
@@ -17,16 +17,16 @@ export default class TextForm  extends Component {
 				description: '',
 				result: '',
 				alert: false,
-				changeRules: false
+				addRules: false
 		}
 	    
 	    this.handleOnChange =  this.handleOnChange.bind(this);
 	    this.setResult = this.setResult.bind(this);
 	    this.setDescription = this.setDescription.bind(this);
 	    this.setPopUp = this.setPopUp.bind(this);
-	    this.setChangeRules = this.setChangeRules.bind(this);
+	    this.setAddRules = this.setAddRules.bind(this);
 	    this.checkText =  this.checkText.bind(this);
-	    this.changeRules =  this.changeRules.bind(this);
+	    this.addRules =  this.addRules.bind(this);
 	  }
 	
 	// functions
@@ -49,9 +49,9 @@ export default class TextForm  extends Component {
 		    });
 	 }
 	   
-	 setChangeRules =(value) => {
+	 setAddRules =(value) => {
 		 this.setState({
-			 changeRules: value
+			addRules: value
 		    });
 	 }
 	 
@@ -129,8 +129,8 @@ export default class TextForm  extends Component {
 	    }
     
  
-    changeRules=() =>{
-    	this.setChangeRules(true)
+    addRules=() =>{
+    	this.setAddRules(true)
     }
     
 	    render() {
@@ -146,7 +146,7 @@ export default class TextForm  extends Component {
 						   </Form.Group>
 					    </Form>
 					   <Button variant="success" onClick={this.checkText} >Check</Button>
-					   <Button variant="success" onClick={this.changeRules} >Change Rules</Button>
+					   <Button variant="success" onClick={this.changeRules} >Add Rules</Button>
 				      {this.state.alert &&
 				    	  	<Modal show={true} onHide={() =>this.showAlert(false)} variant="danger" animation={true}>
 						        <Modal.Header >
@@ -164,7 +164,7 @@ export default class TextForm  extends Component {
 				      }
 				     </div>
 		            {this.state.popUp && <PopUp onSetPopUp={this.setPopUp} onSetContent={this.state.result} />}
-		            {this.state.changeRules && <ChangeRules onSetChangeRules={this.setChangeRules}  />}
+		            {this.state.addRules && <AddRules onSetAddRules={this.setAddRules}  />}
 	           </div>
 	    	);
 	    }

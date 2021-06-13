@@ -1,4 +1,4 @@
-INSERT INTO CONDITIONS (KEY_NAME, REGEX, REQUIRED) 
+INSERT INTO PRECONDITION (KEY_NAME, REGEX, REQUIRED) 
 VALUES
 ('if', '^if+',0),
 ('while', '^while+ ',0),
@@ -16,7 +16,7 @@ VALUES
 ('those', '^those systems of the [\\w\\s]+',1),
 ('the', '^the [\\w\\s]+',1);
 
-INSERT INTO MODAL (KEY_NAME, REQUIRED) 
+INSERT INTO MODALVERB (KEY_NAME, REQUIRED) 
 VALUES 
 ('SHOULD',1),
 ('SHALL',1),
@@ -24,7 +24,7 @@ VALUES
 ('WILL',1),
 ('MUST',1);
 
-INSERT INTO ANCHOR (KEY_NAME, REGEX, REQUIRED) 
+INSERT INTO ACTIVITIES (KEY_NAME, REGEX, REQUIRED) 
 VALUES
 ('provide', 'provide [\\w\\s]+ with the ability to [\\w\\s]',1),
 ('be_able_to', 'be able to {1}',1);

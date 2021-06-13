@@ -23,7 +23,7 @@ export default class PopUp extends Component {
     	            <Button className="popup-close" variant="danger" onClick={()=> this.props.onSetPopUp(false)} >
     	            	X
     	            </Button>
-    	            <h2>Compliant requirements</h2>
+    	            <h2>CONFORMAL REQUIREMENTS</h2>
     	            <div className="pu-content-container">
     	            	<MDBContainer className="scrollbar scrollbar-primary">
     	            		{this.state.content}

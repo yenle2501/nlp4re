@@ -12,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.nlp4re.domain.Requirement;
 import com.nlp4re.domain.Template;
 import com.nlp4re.service.RequirementService;
@@ -37,7 +36,7 @@ public class RequirementController {
 	@RequestMapping(path = "/check", method = RequestMethod.PUT)
 	public ResponseEntity<List<Map<Integer, String>>> checkRequirement(@Valid @RequestBody Requirement requirement)
 			throws FileNotFoundException, IOException {
-
+   
 		if (requirement == null) {
 			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 		}
@@ -49,13 +48,13 @@ public class RequirementController {
 	}
 
 	/**
-	 * change/add rules of the template
+	 * add rules of the template
 	 * 
 	 * @param templateRule  contains rules for the template
 	 * @return ResponseEntity<httpStatus>
 	 */
-	@RequestMapping(path = "/changeRules", method = RequestMethod.POST)
-	public ResponseEntity<HttpStatus> changeRules(@Valid @RequestBody Template templateRule)
+	@RequestMapping(path = "/addRules", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> addRules(@Valid @RequestBody Template templateRule)
 			throws FileNotFoundException, IOException {
 
 		if (templateRule == null) {

@@ -25,9 +25,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import opennlp.tools.util.Span;
 
-import com.nlp4re.domain.Anchor;
-import com.nlp4re.domain.Conditions;
-import com.nlp4re.domain.Modal;
+import com.nlp4re.domain.Activities;
+import com.nlp4re.domain.PreCondition;
+import com.nlp4re.domain.ModalVerb;
 import com.nlp4re.service.operations.PatternMatcher;
 import com.nlp4re.service.operations.RegexesProvider;
 import com.nlp4re.service.operations.SentenceAnalyzer;
@@ -103,7 +103,7 @@ public class RequirementLogicImpl_EngTest {
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when + then
-		assertThrows(NullPointerException.class, () -> requirementLogic.parseModalVp(0, null));
+		assertThrows(NullPointerException.class, () -> requirementLogic.parseModalVerb(0, null));
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class RequirementLogicImpl_EngTest {
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
-		boolean result = requirementLogic.parseModalVp(-1, Arrays.asList(new String[] { "return", "tokens" }));
+		boolean result = requirementLogic.parseModalVerb(-1, Arrays.asList(new String[] { "return", "tokens" }));
 		// then
 		assertThat(result, is(false));
 	}
@@ -120,11 +120,11 @@ public class RequirementLogicImpl_EngTest {
 	@Test
 	public void test_parseModalVp_returnTrue() {
 		// given
-		when(mockRegexesProvider.getModalRegexes()).thenReturn(List.of(new Modal("should", 1)));
+		when(mockRegexesProvider.getModalRegexes()).thenReturn(List.of(new ModalVerb("should", 1)));
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
-		boolean result = requirementLogic.parseModalVp(2, Arrays.asList(new String[] { "some", "tokens", "should" }));
+		boolean result = requirementLogic.parseModalVerb(2, Arrays.asList(new String[] { "some", "tokens", "should" }));
 		// then
 		assertThat(result, is(true));
 	}
@@ -264,7 +264,7 @@ public class RequirementLogicImpl_EngTest {
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when + then
-		assertThrows(NullPointerException.class, () -> requirementLogic.parseCondition(null, 0, 0));
+		assertThrows(NullPointerException.class, () -> requirementLogic.parsePreCondition(null, 0, 0));
 
 	}
 
@@ -276,7 +276,7 @@ public class RequirementLogicImpl_EngTest {
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
-		boolean result = requirementLogic.parseCondition(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
+		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
 		assertThat(result, is(true));
@@ -296,7 +296,7 @@ public class RequirementLogicImpl_EngTest {
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
-		boolean result = requirementLogic.parseCondition(Arrays.asList(new String[] { "haha", "system", "then" }), 0,
+		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "then" }), 0,
 				0);
 		// then
 		assertThat(result, is(false));
@@ -315,12 +315,12 @@ public class RequirementLogicImpl_EngTest {
 		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan });
 
 		when(mockRegexesProvider.getConditionsRegexes())
-				.thenReturn(List.of(new Conditions("if", "^if [\\w\\s], then", 1)));
+				.thenReturn(List.of(new PreCondition("if", "^if [\\w\\s], then", 1)));
 
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
-		boolean result = requirementLogic.parseCondition(Arrays.asList(new String[] { "haha", "system", "then" }), 1,
+		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "then" }), 1,
 				0);
 		// then
 		assertThat(result, is(true));
@@ -341,7 +341,7 @@ public class RequirementLogicImpl_EngTest {
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
-		boolean result = requirementLogic.parseCondition(Arrays.asList(new String[] { "haha", "system", "hahaha" }), 1,
+		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "hahaha" }), 1,
 				0);
 		// then
 		assertThat(result, is(false));
@@ -362,7 +362,7 @@ public class RequirementLogicImpl_EngTest {
 		RequirementLogicImpl_Eng requirementLogic = new RequirementLogicImpl_Eng(mockSentenceAnalyzer,
 				mockPatternMatcher, mockRegexesProvider);
 		// when
-		boolean result = requirementLogic.parseCondition(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
+		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
 		assertThat(result, is(true));
@@ -505,7 +505,7 @@ public class RequirementLogicImpl_EngTest {
 		Span mockSpan1 = new Span(0, 0, "be_able_to");
 
 		when(mockPatternMatcher.matches(anyMap(), anyString())).thenReturn(new Span[] { mockSpan, mockSpan1 });
-		when(mockRegexesProvider.getAnchorRegexes()).thenReturn(List.of(new Anchor("the", "the .", 1)));
+		when(mockRegexesProvider.getAnchorRegexes()).thenReturn(List.of(new Activities("the", "the .", 1)));
 		// when
 		boolean result = requirementLogic.parseAnchor(
 				Arrays.asList(

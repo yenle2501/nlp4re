@@ -4,48 +4,48 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.nlp4re.domain.Anchor;
-import com.nlp4re.domain.Conditions;
+import com.nlp4re.domain.Activities;
+import com.nlp4re.domain.PreCondition;
 import com.nlp4re.domain.Details;
-import com.nlp4re.domain.Modal;
+import com.nlp4re.domain.ModalVerb;
 import com.nlp4re.domain.Object;
 import com.nlp4re.domain.SystemName;
 
 @Component
 public class RegexesProvider {
 
-	private List<Anchor> anchorRegexes;
-	private List<Conditions> conditionsRegexes;
+	private List<Activities> activitiesRegexes;
+	private List<PreCondition> preConditionsRegexes;
 	private List<Details> detailsRegexes;
-	private List<Modal> modalRegexes;
+	private List<ModalVerb> modalVerbRegexes;
 	private List<Object> objectRegexes;
 	private List<SystemName> systemNameRegexes;
 
-	public RegexesProvider(List<Anchor> anchorRegexes, List<Conditions> conditionsRegexes, List<Details> detailsRegexes,
-			List<Modal> modalRegexes, List<Object> objectRegexes, List<SystemName> systemNameRegexes) {
+	public RegexesProvider(List<Activities> anchorRegexes, List<PreCondition> conditionsRegexes, List<Details> detailsRegexes,
+			List<ModalVerb> modalRegexes, List<Object> objectRegexes, List<SystemName> systemNameRegexes) {
 
-		this.anchorRegexes = anchorRegexes;
-		this.conditionsRegexes = conditionsRegexes;
+		this.activitiesRegexes = anchorRegexes;
+		this.preConditionsRegexes = conditionsRegexes;
 		this.detailsRegexes = detailsRegexes;
-		this.modalRegexes = modalRegexes;
+		this.modalVerbRegexes = modalRegexes;
 		this.objectRegexes = objectRegexes;
 		this.systemNameRegexes = systemNameRegexes;
 	}
 
-	public void setAnchorRegexes(List<Anchor> anchorRegexes) {
-		this.anchorRegexes = anchorRegexes;
+	public void setAnchorRegexes(List<Activities> anchorRegexes) {
+		this.activitiesRegexes = anchorRegexes;
 	}
 
-	public void setConditionsRegexes(List<Conditions> conditionsRegexes) {
-		this.conditionsRegexes = conditionsRegexes;
+	public void setConditionsRegexes(List<PreCondition> conditionsRegexes) {
+		this.preConditionsRegexes = conditionsRegexes;
 	}
 
 	public void setDetailsRegexes(List<Details> detailsRegexes) {
 		this.detailsRegexes = detailsRegexes;
 	}
 
-	public void setModalRegexes(List<Modal> modalRegexes) {
-		this.modalRegexes = modalRegexes;
+	public void setModalRegexes(List<ModalVerb> modalRegexes) {
+		this.modalVerbRegexes = modalRegexes;
 	}
 
 	public void setobjectRegexes(List<Object> objectRegexes) {
@@ -56,20 +56,20 @@ public class RegexesProvider {
 		this.systemNameRegexes = systemNameRegexes;
 	}
 
-	public List<Anchor> getAnchorRegexes() {
-		return this.anchorRegexes;
+	public List<Activities> getAnchorRegexes() {
+		return this.activitiesRegexes;
 	}
 
-	public List<Conditions> getConditionsRegexes() {
-		return this.conditionsRegexes;
+	public List<PreCondition> getConditionsRegexes() {
+		return this.preConditionsRegexes;
 	}
 
 	public List<Details> getDetailsRegexes() {
 		return this.detailsRegexes;
 	}
 
-	public List<Modal> getModalRegexes() {
-		return this.modalRegexes;
+	public List<ModalVerb> getModalRegexes() {
+		return this.modalVerbRegexes;
 	}
 
 	public List<Object> getObjectRegexes() {
