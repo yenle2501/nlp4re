@@ -1,7 +1,5 @@
 package com.nlp4re.service.logic;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -67,9 +65,9 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		String[] result = requirementLogic.getTokensFromSentence(anyString());
 		// then
-		assertThat(result.length, is(2));
-		assertThat(result[0], is("return"));
-		assertThat(result[1], is("tokens"));
+		assertEquals(result.length, 2);
+		assertEquals(result[0], "return");
+		assertEquals(result[1], "tokens");
 	}
 
 	@Test
@@ -92,9 +90,9 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		String[] result = requirementLogic.getTagsFromTokens(new String[] { "tokens" });
 		// then
-		assertThat(result.length, is(2));
-		assertThat(result[0], is("VP"));
-		assertThat(result[1], is("NNS"));
+		assertEquals(result.length, 2);
+		assertEquals(result[0], "VP");
+		assertEquals(result[1], "NNS");
 	}
 
 	@Test
@@ -114,7 +112,7 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		boolean result = requirementLogic.parseModalVerb(-1, Arrays.asList(new String[] { "return", "tokens" }));
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 	}
 
 	@Test
@@ -126,7 +124,7 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		boolean result = requirementLogic.parseModalVerb(2, Arrays.asList(new String[] { "some", "tokens", "should" }));
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 	}
 
 	@Test
@@ -154,7 +152,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parseSystemName(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getSystemName(anyList(), anyInt(), anyInt());
 		verify(mockSentenceAnalyzer, times(1)).getPOSTags(any(String[].class));
 	}
@@ -173,7 +171,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parseSystemName(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getSystemName(anyList(), anyInt(), anyInt());
 		verify(mockSentenceAnalyzer, times(0)).getPOSTags(any(String[].class));
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
@@ -191,7 +189,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parseSystemName(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockPatternMatcher, times(0)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(0)).getPOSTags(any(String[].class));
 	}
@@ -212,7 +210,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parseSystemName(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(1)).getPOSTags(any(String[].class));
 	}
@@ -233,7 +231,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parseSystemName(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(1)).getPOSTags(any(String[].class));
 	}
@@ -253,7 +251,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parseSystemName(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(0)).getPOSTags(any(String[].class));
 	}
@@ -279,7 +277,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(0)).matches(anyMap(), anyString());
 		verify(mockRegexesProvider, times(0)).getConditionsRegexes();
@@ -299,7 +297,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "then" }), 0,
 				0);
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockRegexesProvider, times(1)).getConditionsRegexes();
@@ -323,7 +321,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "then" }), 1,
 				0);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockRegexesProvider, times(1)).getConditionsRegexes();
@@ -344,7 +342,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "hahaha" }), 1,
 				0);
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockRegexesProvider, times(1)).getConditionsRegexes();
@@ -365,7 +363,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic.parsePreCondition(Arrays.asList(new String[] { "haha", "system", "should" }), 0,
 				0);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getConditions(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockRegexesProvider, times(1)).getConditionsRegexes();
@@ -397,7 +395,7 @@ public class RequirementLogicImpl_EngTest {
 				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "NP" }), 0, 2);
 		// then
 		// after provide has no Object
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 
@@ -421,7 +419,7 @@ public class RequirementLogicImpl_EngTest {
 				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "IN", "DT", "AA", "AA", "NP" }), 0, 2);
 		// then
 		// after provide has no Object
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(1)).getChunks(any(String[].class), any(String[].class));
@@ -445,7 +443,7 @@ public class RequirementLogicImpl_EngTest {
 				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "IN", "DT", "AA", "AA", "VB" }), -1, 2);
 		// then
 		// after provide has no Object
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(1)).getChunks(any(String[].class), any(String[].class));
@@ -466,7 +464,7 @@ public class RequirementLogicImpl_EngTest {
 						new String[] { "the", "system", "should", "have", "with", "the", "ability", "to", "system" }),
 				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "IN", "DT", "AA", "AA", "VB" }), -1, 2);
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(0)).getChunks(any(String[].class), any(String[].class));
@@ -488,7 +486,7 @@ public class RequirementLogicImpl_EngTest {
 				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "IN", "DT", "VB", "AA", "VB" }), -1, 2);
 		// then
 		// after provide has no Object
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(0)).getChunks(any(String[].class), any(String[].class));
@@ -513,7 +511,7 @@ public class RequirementLogicImpl_EngTest {
 				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "IN", "DT", "VB", "AA", "VB" }), -1, 2);
 		// then
 		// after provide has no Object
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockSentenceAnalyzer, times(0)).getChunks(any(String[].class), any(String[].class));
 	}
@@ -533,7 +531,7 @@ public class RequirementLogicImpl_EngTest {
 				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "IN", "DT", "VB", "AA", "VB" }), -1, 2);
 		// then
 		// after provide has no Object
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(0)).getChunks(any(String[].class), any(String[].class));
@@ -553,7 +551,7 @@ public class RequirementLogicImpl_EngTest {
 				Arrays.asList(new String[] { "DT", "NP", "MD", "VB", "VBD", "IN", "IN", "NNS", "AA", "VB" }), -1, 2);
 		// then
 		// after provide has no Object
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getAnchorStartIndex(anyList(), anyInt(), anyInt());
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 		verify(mockSentenceAnalyzer, times(0)).getChunks(any(String[].class), any(String[].class));
@@ -582,7 +580,7 @@ public class RequirementLogicImpl_EngTest {
 				new String[] { "the", "system", "should", "have", "some", "thing" },
 				new String[] { "DT", "NP", "MD", "VB", "DT", "NN" }, 4);
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getObjects(anyString(), any(String[].class));
 		verify(mockPatternMatcher, times(0)).matches(anyMap(), anyString());
 	}
@@ -601,7 +599,7 @@ public class RequirementLogicImpl_EngTest {
 				new String[] { "the", "system", "should", "have", "some", "thing" },
 				new String[] { "DT", "NP", "MD", "VB", "DT", "NN" }, 4);
 		// then
-		assertThat(result, is(false));
+		assertEquals(result, false);
 		verify(mockSentenceAnalyzer, times(1)).getObjects(anyString(), any(String[].class));
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 	}
@@ -621,7 +619,7 @@ public class RequirementLogicImpl_EngTest {
 				new String[] { "the", "system", "should", "have", "some", "thing" },
 				new String[] { "DT", "NP", "MD", "VB", "DT", "NN" }, 4);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockSentenceAnalyzer, times(1)).getObjects(anyString(), any(String[].class));
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 	}
@@ -647,7 +645,7 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		boolean result = requirementLogic.parseDetails(Arrays.asList(new String[] { "the", "if" }), 1);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockPatternMatcher, times(0)).matches(anyMap(), anyString());
 	}
 
@@ -664,7 +662,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic
 				.parseDetails(Arrays.asList(new String[] { "the", "if", "and", "only", "if", "thing" }), 1);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 	}
 
@@ -680,7 +678,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic
 				.parseDetails(Arrays.asList(new String[] { "the", "if", "and", "only", "if", "thing" }), 1);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 	}
 
@@ -699,7 +697,7 @@ public class RequirementLogicImpl_EngTest {
 		boolean result = requirementLogic
 				.parseDetails(Arrays.asList(new String[] { "the", "system", "should", "have", "some", "thing" }), 1);
 		// then
-		assertThat(result, is(true));
+		assertEquals(result, true);
 		verify(mockPatternMatcher, times(1)).matches(anyMap(), anyString());
 	}
 
@@ -724,8 +722,8 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		Map<Integer, String> result = requirementLogic.getSentences("some. sentence");
 		// then
-		assertThat(result.size(), is(2));
-		assertThat(result.get(0), is("some."));
+		assertEquals(result.size(), 2);
+		assertEquals(result.get(0), "some.");
 	}
 
 	@Test
@@ -755,7 +753,7 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		List<Map<Integer, String>> result = requirementLogic.doParse(sentences);
 		// then
-		assertThat(result.size(), is(3));
+		assertEquals(result.size(), 3);
 		assertEquals(result.get(1).get(1), "1");
 	}
 
@@ -775,7 +773,7 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		List<Map<Integer, String>> result = requirementLogic.doParse(sentences);
 		// then
-		assertThat(result.size(), is(3));
+		assertEquals(result.size(), 3);
 		assertEquals(result.get(1).get(1), "1");
 	}
 
@@ -796,7 +794,7 @@ public class RequirementLogicImpl_EngTest {
 		// when
 		List<Map<Integer, String>> result = requirementLogic.doParse(sentences);
 		// then
-		assertThat(result.size(), is(3));
+		assertEquals(result.size(), 3);
 		assertEquals(result.get(1).get(1), "1");
 	}
 

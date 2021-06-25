@@ -8,7 +8,7 @@ import com.nlp4re.domain.Activities;
 import com.nlp4re.domain.PreCondition;
 import com.nlp4re.domain.Details;
 import com.nlp4re.domain.ModalVerb;
-import com.nlp4re.domain.Object;
+import com.nlp4re.domain.Objects;
 import com.nlp4re.domain.SystemName;
 
 @Component
@@ -18,11 +18,11 @@ public class RegexesProvider {
 	private List<PreCondition> preConditionsRegexes;
 	private List<Details> detailsRegexes;
 	private List<ModalVerb> modalVerbRegexes;
-	private List<Object> objectRegexes;
+	private List<Objects> objectRegexes;
 	private List<SystemName> systemNameRegexes;
 
 	public RegexesProvider(List<Activities> anchorRegexes, List<PreCondition> conditionsRegexes, List<Details> detailsRegexes,
-			List<ModalVerb> modalRegexes, List<Object> objectRegexes, List<SystemName> systemNameRegexes) {
+			List<ModalVerb> modalRegexes, List<Objects> objectRegexes, List<SystemName> systemNameRegexes) {
 
 		this.activitiesRegexes = anchorRegexes;
 		this.preConditionsRegexes = conditionsRegexes;
@@ -48,7 +48,7 @@ public class RegexesProvider {
 		this.modalVerbRegexes = modalRegexes;
 	}
 
-	public void setobjectRegexes(List<Object> objectRegexes) {
+	public void setobjectRegexes(List<Objects> objectRegexes) {
 		this.objectRegexes = objectRegexes;
 	}
 
@@ -72,7 +72,7 @@ public class RegexesProvider {
 		return this.modalVerbRegexes;
 	}
 
-	public List<Object> getObjectRegexes() {
+	public List<Objects> getObjectRegexes() {
 		return this.objectRegexes;
 	}
 

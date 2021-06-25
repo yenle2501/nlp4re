@@ -20,7 +20,7 @@ public class Template {
 	private ModalVerb modal;
 	
 	@NotNull
-	private Object object;
+	private Objects objects;
 	
 	@NotNull
 	private SystemName systemName;
@@ -32,12 +32,12 @@ public class Template {
 		
 	}
 	
-	public Template(Activities anchor, PreCondition conditions,ModalVerb modal, Object object,
+	public Template(Activities anchor, PreCondition conditions,ModalVerb modal, Objects objects,
 							SystemName systemName,Details details) {
 		this.anchor = anchor;
 		this.conditions = conditions;
 		this.modal = modal;
-		this.object = object;
+		this.objects = objects;
 		this.systemName = systemName;
 		this.details = details;
 	}
@@ -74,12 +74,12 @@ public class Template {
 		this.modal = modal;
 	}
 	
-	public Object getObject() {
-		return this.object;
+	public Objects getObjects() {
+		return this.objects;
 	}
 
-	public void setObject(Object object) {
-		this.object = object;
+	public void setObject(Objects objects) {
+		this.objects = objects;
 	}
 	
 	public SystemName getSystemName() {

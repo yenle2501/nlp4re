@@ -5,12 +5,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.validation.constraints.NotNull;
+
+import lombok.Data;
+
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+@Data
 @Entity
-@Table(name = "systemname")
-public class SystemName {
+@Table(name = "objects")
+public class Objects {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +30,11 @@ public class SystemName {
 	@Column
 	private int required;
 
-	public SystemName() {
+	public Objects() {
 
 	}
 
-	public SystemName(String key_name, String regex, int required) {
+	public Objects(String key_name, String regex, int required) {
 		this.key_name = key_name;
 		this.regex = regex;
 		this.required = required;

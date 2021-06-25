@@ -1,12 +1,13 @@
 package com.nlp4re.service.operations;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.jupiter.api.Test;
+
 import opennlp.tools.util.Span;
 
 /**
@@ -33,7 +34,7 @@ public class PatternMatcherTest {
 		Span[] spans = matcher.matches(mockRegexs, "The system shall");
 
 		// then
-		assertThat(spans.length, is(1));
-		assertThat(spans[0].getType(), is("id0"));
+		assertEquals(spans.length, 1);
+		assertEquals(spans[0].getType(),"id0");
 	}
 }

@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="Anchor")
+@Table(name="activities")
 public class Activities {
 
 	@Id

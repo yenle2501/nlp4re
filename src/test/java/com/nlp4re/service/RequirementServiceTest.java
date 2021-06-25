@@ -1,8 +1,6 @@
 package com.nlp4re.service;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,7 +19,7 @@ import com.nlp4re.domain.Activities;
 import com.nlp4re.domain.PreCondition;
 import com.nlp4re.domain.Details;
 import com.nlp4re.domain.ModalVerb;
-import com.nlp4re.domain.Object;
+import com.nlp4re.domain.Objects;
 import com.nlp4re.domain.SystemName;
 import com.nlp4re.domain.Template;
 import com.nlp4re.repository.ActivitiesRepository;
@@ -63,8 +61,8 @@ public class RequirementServiceTest {
 		List<Map<Integer, String>> result1 = requirementService.checkRequirements("");
 		
 		// then
-		assertThat(result, is(nullValue()));
-		assertThat(result1, is(nullValue()));
+		assertEquals(result, null);
+		assertEquals(result1, null);
 	}
 	
 	@Test
@@ -75,7 +73,7 @@ public class RequirementServiceTest {
 		when(detailsRepository.findAll()).thenReturn(List.of(new Details("the", "some regexes", 1)));
 		when(modalRepository.findAll()).thenReturn(List.of(new ModalVerb("should", 1)));
 		when(objectRepository.findAll())
-				.thenReturn(List.of(new Object("single_obj", "^a |^an |^the |^one |^each +", 1)));
+				.thenReturn(List.of(new Objects("single_obj", "^a |^an |^the |^one |^each +", 1)));
 		when(systemNameRepository.findAll()).thenReturn(List.of(new SystemName("the", "^the [\\w\\s]+", 1)));
 
 		// when
@@ -83,9 +81,9 @@ public class RequirementServiceTest {
 		List<Map<Integer, String>> result = requirementService
 				.checkRequirements("The System should have the object for the test. ");
 		// then
-		assertThat(result.size(), is(3));
-		assertThat(result.get(0).get(0), is("The System should have the object for the test."));
-		assertThat(result.get(1).get(0), is("0"));
+		assertEquals(result.size(), 3);
+		assertEquals(result.get(0).get(0), "The System should have the object for the test.");
+		assertEquals(result.get(1).get(0), "0");
 	}
 
 	@Test
@@ -103,7 +101,7 @@ public class RequirementServiceTest {
 		when(template.getConditions()).thenReturn(new PreCondition("key", "regex", 1));
 		when(template.getDetails()).thenReturn(new Details("key", "regex", 1));
 		when(template.getModal()).thenReturn(new ModalVerb("key", 1));
-		when(template.getObject()).thenReturn(new Object("key", "regex", 1));
+		when(template.getObjects()).thenReturn(new Objects("key", "regex", 1));
 		when(template.getSystemName()).thenReturn(new SystemName("key", "regex", 1));
 
 		// when
@@ -114,7 +112,7 @@ public class RequirementServiceTest {
 		verify(template, times(1)).getConditions();
 		verify(template, times(1)).getDetails();
 		verify(template, times(1)).getModal();
-		verify(template, times(1)).getObject();
+		verify(template, times(1)).getObjects();
 		verify(template, times(1)).getSystemName();
 		
 
@@ -122,7 +120,7 @@ public class RequirementServiceTest {
 		verify(conditionsRepository, times(1)).save(any(PreCondition.class));
 		verify(detailsRepository, times(1)).save(any(Details.class));
 		verify(modalRepository, times(1)).save(any(ModalVerb.class));
-		verify(objectRepository, times(1)).save(any(Object.class));
+		verify(objectRepository, times(1)).save(any(Objects.class));
 		verify(systemNameRepository, times(1)).save(any(SystemName.class));
 	}
 	
@@ -134,7 +132,7 @@ public class RequirementServiceTest {
 		when(template.getConditions()).thenReturn(new PreCondition("key", "", 1));
 		when(template.getDetails()).thenReturn(new Details("key", "", 1));
 		when(template.getModal()).thenReturn(new ModalVerb("", 1));
-		when(template.getObject()).thenReturn(new Object("key", "", 1));
+		when(template.getObjects()).thenReturn(new Objects("key", "", 1));
 		when(template.getSystemName()).thenReturn(new SystemName("key", "", 1));
 
 		// when
@@ -145,14 +143,14 @@ public class RequirementServiceTest {
 		verify(template, times(1)).getConditions();
 		verify(template, times(1)).getDetails();
 		verify(template, times(1)).getModal();
-		verify(template, times(1)).getObject();
+		verify(template, times(1)).getObjects();
 		verify(template, times(1)).getSystemName();
 		
 		verify(anchorRepository, times(0)).save(any(Activities.class));
 		verify(conditionsRepository, times(0)).save(any(PreCondition.class));
 		verify(detailsRepository, times(0)).save(any(Details.class));
 		verify(modalRepository, times(0)).save(any(ModalVerb.class));
-		verify(objectRepository, times(0)).save(any(Object.class));
+		verify(objectRepository, times(0)).save(any(Objects.class));
 		verify(systemNameRepository, times(0)).save(any(SystemName.class));
 	}
 	
@@ -164,7 +162,7 @@ public class RequirementServiceTest {
 		when(template.getConditions()).thenReturn(new PreCondition("key", null, 1));
 		when(template.getDetails()).thenReturn(new Details("key", null, 1));
 		when(template.getModal()).thenReturn(new ModalVerb(null, 1));
-		when(template.getObject()).thenReturn(new Object("key", null, 1));
+		when(template.getObjects()).thenReturn(new Objects("key", null, 1));
 		when(template.getSystemName()).thenReturn(new SystemName("key",null, 1));
 
 		// when
@@ -175,14 +173,14 @@ public class RequirementServiceTest {
 		verify(template, times(1)).getConditions();
 		verify(template, times(1)).getDetails();
 		verify(template, times(1)).getModal();
-		verify(template, times(1)).getObject();
+		verify(template, times(1)).getObjects();
 		verify(template, times(1)).getSystemName();
 		
 		verify(anchorRepository, times(0)).save(any(Activities.class));
 		verify(conditionsRepository, times(0)).save(any(PreCondition.class));
 		verify(detailsRepository, times(0)).save(any(Details.class));
 		verify(modalRepository, times(0)).save(any(ModalVerb.class));
-		verify(objectRepository, times(0)).save(any(Object.class));
+		verify(objectRepository, times(0)).save(any(Objects.class));
 		verify(systemNameRepository, times(0)).save(any(SystemName.class));
 	}
 	

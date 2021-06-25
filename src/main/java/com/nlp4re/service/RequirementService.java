@@ -11,21 +11,23 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nlp4re.domain.Activities;
-import com.nlp4re.domain.PreCondition;
 import com.nlp4re.domain.Details;
 import com.nlp4re.domain.ModalVerb;
-import com.nlp4re.domain.Object;
+import com.nlp4re.domain.Objects;
+import com.nlp4re.domain.PreCondition;
 import com.nlp4re.domain.SystemName;
 import com.nlp4re.domain.Template;
 import com.nlp4re.repository.ActivitiesRepository;
-import com.nlp4re.repository.PreConditionRepository;
 import com.nlp4re.repository.DetailsRepository;
 import com.nlp4re.repository.ModalVerbRepository;
 import com.nlp4re.repository.ObjectRepository;
+import com.nlp4re.repository.PreConditionRepository;
 import com.nlp4re.repository.SystemNameRepository;
 import com.nlp4re.service.logic.RequirementLogicImpl_Eng;
 import com.nlp4re.service.operations.PatternMatcher;
@@ -54,6 +56,8 @@ public class RequirementService {
 	@Autowired
 	private SystemNameRepository systemNameRepository;
 
+	private static Logger logger = LoggerFactory.getLogger(RequirementService.class);
+	
 	private SentenceOperations sentenceOperations;
 	private SentenceAnalyzer sentenceAnalyzer;
 	private PatternMatcher matcher;
@@ -63,7 +67,7 @@ public class RequirementService {
 	private List<PreCondition> conditionsRegexes;
 	private List<Details> detailsRegexes;
 	private List<ModalVerb> modalRegexes;
-	private List<Object> objectRegexes;
+	private List<Objects> objectRegexes;
 	private List<SystemName> systemNameRegexes;
 
 	/**
@@ -99,6 +103,7 @@ public class RequirementService {
 	 */
 	public List<Map<Integer, String>> checkRequirements(String desc) {
 		if (desc == null || desc.isBlank()) {
+			logger.debug("requirements description is empty.");
 			return null;
 		}
 
@@ -106,6 +111,7 @@ public class RequirementService {
 		this.matcher = new PatternMatcher();
 		RequirementLogicImpl_Eng requirementLogicImpl_Eng = new RequirementLogicImpl_Eng(sentenceAnalyzer, matcher,
 				regexesProvider);
+		
 		Map<Integer, String> sentences = requirementLogicImpl_Eng.getSentences(desc);
 		List<Map<Integer, String>> result = requirementLogicImpl_Eng.doParse(sentences);
 		
@@ -113,7 +119,7 @@ public class RequirementService {
 	}
 
 	/***
-	 * change rules/ regexes of temlate
+	 * save rules/ regexes of temlate
 	 * @param templateRule all rules of template
 	 */
 	public void saveRules(Template templateRule) {
@@ -123,43 +129,44 @@ public class RequirementService {
 		PreCondition condition = templateRule.getConditions();
 		Details details = templateRule.getDetails();
 		ModalVerb modal = templateRule.getModal();
-		Object object = templateRule.getObject();
+		Objects object = templateRule.getObjects();
 		SystemName systemname = templateRule.getSystemName();
 		
 		
 		String query = "";
 		
 		if (anchor.getRegex() != null && !anchor.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO ANCHOR (KEY_NAME, REGEX, REQUIRED) VALUES ('" + anchor.getKey_name() + this.anchorRepository.count()+ "','" + anchor.getRegex()+ "'," + anchor.getRequired() +"); \r\n";
+			query += "\r\nINSERT INTO activities (KEY_NAME, REGEX, REQUIRED) VALUES ('" + anchor.getKey_name() + this.anchorRepository.count()+ "','" + anchor.getRegex()+ "'," + anchor.getRequired() +"); \r\n";
 			// for unique key name 
 			anchor.setKey_name(anchor.getKey_name() + this.anchorRepository.count());
 			this.anchorRepository.save(anchor);
 		}
 		if (condition.getRegex() != null && !condition.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO CONDITIONS (KEY_NAME, REGEX, REQUIRED) VALUES ('" + condition.getKey_name() + this.conditionsRepository.count() +  "','" + condition.getRegex() + "'," + condition.getRequired()+ "); \r\n";
+			query += "\r\nINSERT INTO precondition (KEY_NAME, REGEX, REQUIRED) VALUES ('" + condition.getKey_name() + this.conditionsRepository.count() +  "','" + condition.getRegex() + "'," + condition.getRequired()+ "); \r\n";
 			condition.setKey_name(condition.getKey_name() + this.conditionsRepository.count());
 			this.conditionsRepository.save(condition);
 		}
 		if (details.getRegex() != null && !details.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO DETAILS (KEY_NAME, REGEX, REQUIRED) VALUES ('" + details.getKey_name() + this.detailsRepository.count() + "','" + details.getRegex() + "'," + details.getRequired() +"); \r\n";
+			query += "\r\nINSERT INTO details (KEY_NAME, REGEX, REQUIRED) VALUES ('" + details.getKey_name() + this.detailsRepository.count() + "','" + details.getRegex() + "'," + details.getRequired() +"); \r\n";
 			details.setKey_name(details.getKey_name() + this.detailsRepository.count());
 			this.detailsRepository.save(details);
 		}
 		if (modal.getKey_name() != null && !modal.getKey_name().isBlank()) {
-			query += "\r\nINSERT INTO MODAL (KEY_NAME, REQUIRED) VALUES ('" + modal.getKey_name() +"'," + modal.getRequired() +"); \r\n";
+			query += "\r\nINSERT INTO modalverb (KEY_NAME, REQUIRED) VALUES ('" + modal.getKey_name() +"'," + modal.getRequired() +"); \r\n";
 			this.modalRepository.save(modal);
 		}
 		if (object.getRegex() != null && !object.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO OBJECT (KEY_NAME, REGEX, REQUIRED) VALUES ('" + object.getKey_name() + this.objectRepository.count() + "','" + object.getRegex() + "'," + object.getRequired() +"); \r\n";
+			query += "\r\nINSERT INTO objects (KEY_NAME, REGEX, REQUIRED) VALUES ('" + object.getKey_name() + this.objectRepository.count() + "','" + object.getRegex() + "'," + object.getRequired() +"); \r\n";
 			object.setKey_name(object.getKey_name() + this.objectRepository.count());
 			this.objectRepository.save(object);
 		}
 		if (systemname.getRegex() != null && !systemname.getRegex().isBlank()) {
-			query += "\r\nINSERT INTO SYSTEMNAME (KEY_NAME, REGEX, REQUIRED) VALUES ('" + systemname.getKey_name() +  this.systemNameRepository.count() +"','" + systemname.getRegex() + "'," + systemname.getRequired() +");\r\n";
+			query += "\r\nINSERT INTO systemnam (KEY_NAME, REGEX, REQUIRED) VALUES ('" + systemname.getKey_name() +  this.systemNameRepository.count() +"','" + systemname.getRegex() + "'," + systemname.getRequired() +");\r\n";
 			systemname.setKey_name(systemname.getKey_name() +  this.systemNameRepository.count());
 			this.systemNameRepository.save(systemname);
 		}
 		
+		logger.info("saved rules in database");
 		// update regexes
 		loadRegexes();
 		
@@ -170,7 +177,7 @@ public class RequirementService {
 			output.append(query);
 			output.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			logger.error("can not load file in directory ");
 			e.printStackTrace();
 		}
 	}

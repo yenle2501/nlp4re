@@ -1,12 +1,10 @@
 package com.nlp4re.controller;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -47,8 +45,8 @@ public class RequirementControllerTest {
 		// given + when
 		ResponseEntity<List<Map<Integer, String>>> result = requirementController.checkRequirement(null);
 		// then
-		assertThat(result.getBody(), is(nullValue()));
-		assertThat(result.getStatusCode(), is(HttpStatus.NO_CONTENT));
+		assertEquals(result.getBody(), null);
+		assertEquals(result.getStatusCode(), HttpStatus.NO_CONTENT);
 	}
 
 	@Test
@@ -59,8 +57,8 @@ public class RequirementControllerTest {
 		// when
 		ResponseEntity<List<Map<Integer, String>>> result = requirementController.checkRequirement(requirement);
 		// then
-		assertThat(result.getBody(), is(nullValue()));
-		assertThat(result.getStatusCode(), is(HttpStatus.NO_CONTENT));
+		assertEquals(result.getBody(), null);
+		assertEquals(result.getStatusCode(), HttpStatus.NO_CONTENT);
 	}
 
 	@Test
@@ -83,11 +81,11 @@ public class RequirementControllerTest {
 		ResponseEntity<List<Map<Integer, String>>> result = requirementController.checkRequirement(requirement);
 		// then
 
-		assertThat(result.getBody().size(), is(3));
-		assertThat(result.getBody().get(0).get(1), is("key1"));
-		assertThat(result.getBody().get(1).get(1), is("key2"));
-		assertThat(result.getBody().get(2).get(1), is("key3"));
-		assertThat(result.getStatusCode(), is(HttpStatus.OK));
+		assertEquals(result.getBody().size(), 3);
+		assertEquals(result.getBody().get(0).get(1), "key1");
+		assertEquals(result.getBody().get(1).get(1), "key2");
+		assertEquals(result.getBody().get(2).get(1), "key3");
+		assertEquals(result.getStatusCode(), HttpStatus.OK);
 	}
 
 	@Test
@@ -95,8 +93,8 @@ public class RequirementControllerTest {
 		// given + when
 		ResponseEntity<HttpStatus> result = requirementController.addRules(null);
 		// then
-		assertThat(result.getBody(), is(nullValue()));
-		assertThat(result.getStatusCode(), is(HttpStatus.NO_CONTENT));
+		assertEquals(result.getBody(), null);
+		assertEquals(result.getStatusCode(), HttpStatus.NO_CONTENT);
 	}
 
 	@Test
@@ -106,7 +104,7 @@ public class RequirementControllerTest {
 		// then
 
 		verify(requirementService, times(1)).saveRules(template);
-		assertThat(result.getStatusCode(), is(HttpStatus.CREATED));
+		assertEquals(result.getStatusCode(), HttpStatus.CREATED);
 	}
 
 }

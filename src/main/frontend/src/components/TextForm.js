@@ -146,7 +146,7 @@ export default class TextForm  extends Component {
 						   </Form.Group>
 					    </Form>
 					   <Button variant="success" onClick={this.checkText} >Check</Button>
-					   <Button variant="success" onClick={this.changeRules} >Add Rules</Button>
+					   <Button variant="success" onClick={this.addRules} >Add Rules</Button>
 				      {this.state.alert &&
 				    	  	<Modal show={true} onHide={() =>this.showAlert(false)} variant="danger" animation={true}>
 						        <Modal.Header >

@@ -1,18 +1,17 @@
 package com.nlp4re.service.operations;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.any;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.util.StringUtils;
 
@@ -50,9 +49,9 @@ public class SentenceAnalyzerTest {
 		String[] tokens = analyzer.getTokens("If the");
 
 		// then
-		assertThat(tokens.length, is(2));
-		assertThat(tokens[0], is("If"));
-		assertThat(tokens[1], is("the"));
+		assertEquals(tokens.length, 2);
+		assertEquals(tokens[0], "If");
+		assertEquals(tokens[1], "the");
 	}
 
 	@Test
@@ -77,9 +76,9 @@ public class SentenceAnalyzerTest {
 		// when
 		String[] POSTags = analyzer.getPOSTags(new String[] { "If", "the" });
 		// then
-		assertThat(POSTags.length, is(2));
-		assertThat(POSTags[0], is("IN"));
-		assertThat(POSTags[1], is("DT"));
+		assertEquals(POSTags.length, 2);
+		assertEquals(POSTags[0], "IN");
+		assertEquals(POSTags[1], "DT");
 	}
 
 	@Test
@@ -105,7 +104,7 @@ public class SentenceAnalyzerTest {
 		Parse[] result = analyzer.getParses("some string is here");
 
 		// then
-		assertThat(result.length, is(1));
+		assertEquals(result.length, 1);
 	}
 
 	@Test
@@ -133,9 +132,9 @@ public class SentenceAnalyzerTest {
 		// when
 		List<String> chunks = analyzer.getChunks(new String[] { "If", "the" }, new String[] { "IN", "DT" });
 		// then
-		assertThat(chunks.size(), is(2));
-		assertThat(chunks.get(0), is("B-SBAR"));
-		assertThat(chunks.get(1), is("I-NP"));
+		assertEquals(chunks.size(), 2);
+		assertEquals(chunks.get(0), "B-SBAR");
+		assertEquals(chunks.get(1), "I-NP");
 	}
 
 	@Test
@@ -157,8 +156,8 @@ public class SentenceAnalyzerTest {
 		List<String> list_conditions1 = analyzer.getConditions(new LinkedList<String>(), 5, -1);
 		List<String> list_conditions2 = analyzer.getConditions(new LinkedList<String>(), 5, 8);
 		// then
-		assertThat(list_conditions1, is(nullValue()));
-		assertThat(list_conditions2, is(nullValue()));
+		assertEquals(list_conditions1, null);
+		assertEquals(list_conditions2, null);
 	}
 
 	@Test
@@ -168,12 +167,11 @@ public class SentenceAnalyzerTest {
 		SentenceAnalyzer analyzer = new SentenceAnalyzer(mockSentenceOperations);
 
 		// when
-		List<String> list_conditions = analyzer.getConditions(Arrays.asList(new String[] { "If", "the", "system" }), 3,
-				1);
+		List<String> list_conditions = analyzer.getConditions(Arrays.asList(new String[] { "If", "the", "system" }), 3, 1);
 
 		// then
-		assertThat(list_conditions.size(), is(1));
-		assertThat(list_conditions.get(0), is("If"));
+		assertEquals(list_conditions.size(), 1);
+		assertEquals(list_conditions.get(0), "If");
 
 	}
 
@@ -197,9 +195,9 @@ public class SentenceAnalyzerTest {
 		List<String> systemname = analyzer
 				.getSystemName(Arrays.asList(new String[] { "If", ",", "then", "the", "system", "should" }), 1, 5);
 		// then
-		assertThat(systemname.size(), is(2));
-		assertThat(systemname.get(0), is("the"));
-		assertThat(StringUtils.collectionToDelimitedString(systemname, " "), is("the system"));
+		assertEquals(systemname.size(), 2);
+		assertEquals(systemname.get(0), "the");
+		assertEquals(StringUtils.collectionToDelimitedString(systemname, " "), "the system");
 	}
 
 	@Test
@@ -212,9 +210,9 @@ public class SentenceAnalyzerTest {
 		List<String> systemname = analyzer
 				.getSystemName(Arrays.asList(new String[] { "while", ",", "the", "system", "should" }), 1, 4);
 		// then
-		assertThat(systemname.size(), is(2));
-		assertThat(systemname.get(0), is("the"));
-		assertThat(StringUtils.collectionToDelimitedString(systemname, " "), is("the system"));
+		assertEquals(systemname.size(), 2);
+		assertEquals(systemname.get(0), "the");
+		assertEquals(StringUtils.collectionToDelimitedString(systemname, " "), "the system");
 	}
 
 	@Test
@@ -227,9 +225,9 @@ public class SentenceAnalyzerTest {
 		List<String> systemname = analyzer.getSystemName(Arrays.asList(new String[] { "the", "system", "should" }), -1,
 				2);
 		// then
-		assertThat(systemname.size(), is(2));
-		assertThat(systemname.get(0), is("the"));
-		assertThat(StringUtils.collectionToDelimitedString(systemname, " "), is("the system"));
+		assertEquals(systemname.size(), 2);
+		assertEquals(systemname.get(0), "the");
+		assertEquals(StringUtils.collectionToDelimitedString(systemname, " "), "the system");
 	}
 
 	@Test
@@ -250,7 +248,7 @@ public class SentenceAnalyzerTest {
 		// when
 		String obj = analyzer.getObjects("some objects to apply", new String[] { "some", "objects", "to", "apply" });
 		// then
-		assertThat(obj, is("some objects"));
+		assertEquals(obj, "some objects");
 
 	}
 
@@ -264,7 +262,7 @@ public class SentenceAnalyzerTest {
 		// when
 		String obj = analyzer.getObjects(possible_object, possible_object_tokens);
 		// then
-		assertThat(obj, is("his order"));
+		assertEquals(obj, "his order");
 	}
 
 	@Test
@@ -284,7 +282,7 @@ public class SentenceAnalyzerTest {
 		// when
 		int modal_index = analyzer.getModalIndex(Arrays.asList("NP", ",", "PP", "MD", "VP"), 1);
 		// then
-		assertThat(modal_index, is(3));
+		assertEquals(modal_index, 3);
 	}
 
 	@Test
@@ -295,7 +293,7 @@ public class SentenceAnalyzerTest {
 		// when
 		int modal_index = analyzer.getModalIndex(Arrays.asList("NP", "PP", "MD", "VP"), -1);
 		// then
-		assertThat(modal_index, is(2));
+		assertEquals(modal_index, 2);
 	}
 
 	@Test
@@ -316,7 +314,7 @@ public class SentenceAnalyzerTest {
 		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList("if", "some", ",", "then", "any", "should"), 2,
 				5);
 		// then
-		assertThat(anchor_index, is(4));
+		assertEquals(anchor_index, 4);
 	}
 
 	@Test
@@ -327,7 +325,7 @@ public class SentenceAnalyzerTest {
 		// when
 		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList("while", "some", ",", "any", "should"), 2, 4);
 		// then
-		assertThat(anchor_index, is(3));
+		assertEquals(anchor_index, 3);
 	}
 
 	@Test
@@ -339,7 +337,7 @@ public class SentenceAnalyzerTest {
 		// when
 		int anchor_index = analyzer.getAnchorStartIndex(Arrays.asList("any", "should"), -1, 1);
 		// then
-		assertThat(anchor_index, is(0));
+		assertEquals(anchor_index, 0);
 	}
 
 }

@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "Modal")
+@Table(name = "modalverb")
 public class ModalVerb {
 
 	@Id

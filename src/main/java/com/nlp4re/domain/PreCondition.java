@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "Conditions")
+@Table(name = "precondition")
 public class PreCondition {
 
 	@Id
