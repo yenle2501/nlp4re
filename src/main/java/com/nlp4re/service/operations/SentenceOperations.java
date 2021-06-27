@@ -33,10 +33,10 @@ public class SentenceOperations {
 	 */
 	private void loadModels() {
 		try {
-			InputStream tokenMEInputStream = new FileInputStream("./src/main/resources/models/en-token.bin");
-			InputStream posMEInputStream = new FileInputStream("./src/main/resources/models/en-pos-maxent.bin");
-			InputStream parserInputStream = new FileInputStream("./src/main/resources/models/en-parser-chunking.bin");
-			InputStream chunkerModelInputStream = new FileInputStream("./src/main/resources/models/en-chunker.bin");
+			InputStream tokenMEInputStream = getClass().getClassLoader().getResourceAsStream("models/en-token.bin");
+			InputStream posMEInputStream = getClass().getClassLoader().getResourceAsStream("models/en-pos-maxent.bin");
+			InputStream parserInputStream = getClass().getClassLoader().getResourceAsStream("models/en-parser-chunking.bin");
+			InputStream chunkerModelInputStream = getClass().getClassLoader().getResourceAsStream("models/en-chunker.bin");
 
 			TokenizerModel tokenModel = new TokenizerModel(tokenMEInputStream);
 			POSModel posModel = new POSModel(posMEInputStream);

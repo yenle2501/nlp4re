@@ -475,7 +475,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 		SentenceModel model = null;
 		try {
-			InputStream inputStream = new FileInputStream("./src/main/resources/models/en-sent.bin");
+			InputStream inputStream = getClass().getClassLoader().getResourceAsStream("models/en-sent.bin");
 			model = new SentenceModel(inputStream);
 
 		} catch (IOException e) {
