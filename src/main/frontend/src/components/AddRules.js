@@ -1,7 +1,7 @@
 import React,{Component} from 'react';
 import axios from 'axios';
 import './AddRules.css';
-import {Button, Form, Row, Col, Modal} from 'react-bootstrap';
+import {Button, Form, Row, Col, Modal, Tooltip, OverlayTrigger} from 'react-bootstrap';
 import Draggable from 'react-draggable';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -25,6 +25,13 @@ export default class AddRules extends Component {
 			  cBProcessWord : false,
 			  cBObjectName : false,
 			  cBPostCondition : false,
+			  isHoveringConditions: false,
+			  isHoveringDetails: false,
+			  isHoveringModalVerb: false,
+			  isHoveringObjects: false,
+			  isHoveringSystemName: false,
+			  isHoveringActivities : false,
+			  rule: ''
 	        }
 
 	    this.saveRules = this.saveRules.bind(this);
@@ -36,9 +43,9 @@ export default class AddRules extends Component {
 	    this.setProcessWord  = this.setProcessWord.bind(this);
 	    this.setPostCondition  = this.setPostCondition.bind(this);
 	    this.setObjectName = this.setObjectName.bind(this);
-    
+	    this.toggleHoverState = this.toggleHoverState.bind(this);
     }
-        
+      
     showAlert = (value) => {
    	  this.setState({ alert: value  });
    }
@@ -82,6 +89,67 @@ export default class AddRules extends Component {
       		objectName: event.target.value
      		   });
       }
+	    
+	 toggleHoverState = (value, stateName) => {
+		 switch(stateName){
+		 	 case "anchor":
+				 this.setState({ isHoveringActivities: value  });
+		 		 break;
+			 case "conditions":
+				 this.setState({ isHoveringConditions: value  });
+				 break;
+			 case "details":
+				 this.setState({ isHoveringDetails: value  });
+				 break;
+			 case "modal":
+				 this.setState({ isHoveringModalVerb: value  });
+				 break;
+			 case "objects":
+				 this.setState({ isHoveringObjects: value  });
+				 break;
+			 case "systemName":
+				 this.setState({ isHoveringSystemName: value  });
+				 break;
+		 }
+          this.loadRules(stateName);
+     }
+        
+    loadRules=(stateName) =>{ 
+   	    var tmp = '';
+    	axios.get("http://localhost:8080/description/getRules")
+        .then(response => {
+        	 if(response.data != null) {
+        		 Object.keys(response.data).forEach(function(key) {      
+        		
+        			 if(key===stateName){
+        				var listRules = response.data[key];
+        				listRules.forEach(function(obj) {
+        					if(key ==="modal"){
+        						tmp = [tmp, <div>
+											<label > {obj.key_name}  </label>											
+											</div>
+								];
+        					}
+        					else {
+	        					tmp = [tmp, <div>
+	        									<label > {obj.regex}  </label>
+	        									
+	        								</div>
+	        						];
+        					}
+        				});
+        				return;
+        			}
+        		 });
+        		 console.log("aa ")
+        		 console.log(tmp)
+        		 this.setState({rule: tmp });
+        	 }
+        	 else {
+        		 console.log(response.status);
+        	 }
+        });
+    }
     
     saveRules=() =>{    	
     	// check input
@@ -120,8 +188,7 @@ export default class AddRules extends Component {
         	  }
         })
     }
-
-    
+        
     render() {
     	return (
     		<Draggable  disabled={false} active="true">
@@ -135,7 +202,10 @@ export default class AddRules extends Component {
     	            <div className="content">
 			    	  <Form>
 			    	    <Form.Group  value={this.state.preCondition}  onChange={this.setPreCondition}>
-			    	        <Form.Label>Precondition:</Form.Label>
+			    	        	<Tooltip       title={this.state.rule}>
+			    	        <Form.Label  onMouseEnter={() =>this.toggleHoverState(true, "conditions")} onMouseLeave={() =>this.toggleHoverState(false, "conditions")}>Precondition:</Form.Label>
+			    	        </Tooltip>
+			    	        	
 			    	        <Row>
 				    	        <Col sm={9}> 
 			    	        		<Form.Control placeholder="e.g. ^WHILE + ," />
@@ -147,8 +217,9 @@ export default class AddRules extends Component {
 			    	     </Form.Group>
 			    	   
 			    	     <Form.Group value={this.state.systemDeterminer}  onChange={this.setSystemDeterminer}>
-			    	     	<Form.Label>System Determiner: </Form.Label>
-			    	        <Row>
+			    	     	<Form.Label onMouseEnter={() =>this.toggleHoverState(true,"systemName")} onMouseLeave={() =>this.toggleHoverState(false,"systemName")}>System Determiner: </Form.Label>
+			    	     	{this.state.isHoveringSystemName && this.state.rule}
+			    	     	<Row>
 					          <Col sm={9}> 
 			    	              <Form.Control placeholder="e.g. THE +" />
 			    	       	  </Col>
@@ -159,8 +230,9 @@ export default class AddRules extends Component {
 			    	      </Form.Group>
 			    	      
 			    	      <Form.Group value={this.state.modalVerb}  onChange={this.setModalVerb}>
-		    	              <Form.Label>Modalverb: </Form.Label>
-		    	              <Row>
+		    	              <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"modal")} onMouseLeave={() =>this.toggleHoverState(false,"modal")}>Modalverb: </Form.Label>
+		    	              {this.state.isHoveringModalVerb && <div>{this.state.rule}Hovering right meow! 🐱</div>}
+				    	      <Row>
 					          	<Col sm={9}> 
 					          		<Form.Control placeholder="e.g. MUST" />
 					             </Col>
@@ -171,8 +243,9 @@ export default class AddRules extends Component {
 					      </Form.Group>
 	    	              
 	    	              <Form.Group value={this.state.processWord}  onChange={this.setProcessWord}>
-		    	              <Form.Label>Processword: </Form.Label>
-		    	              <Row>
+		    	              <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"anchor")} onMouseLeave={() =>this.toggleHoverState(false,"anchor")}>Processword: </Form.Label>
+		    	              {this.state.isHoveringActivities && <div>{this.state.rule}Hovering right meow! 🐱</div>}
+				    	      <Row>
 					          	<Col sm={9}> 
 		    	              		<Form.Control placeholder="e.g. PROVIDE [\w\s] THE ABILITY TO [\w]" />  
 		    	             	 </Col>
@@ -183,8 +256,9 @@ export default class AddRules extends Component {
 		    	          </Form.Group>
 	    	              
 	    	              <Form.Group value={this.state.objectName}  onChange={this.setObjectName}>
-		    	              <Form.Label>Object: </Form.Label>
-		    	              <Row>
+		    	              <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"objects")} onMouseLeave={() =>this.toggleHoverState(false,"objects")}>Object: </Form.Label>
+		    	              {this.state.isHoveringObjects && <div>{this.state.rule}Hovering right meow! 🐱</div>}
+				    	      <Row>
 					          	<Col sm={9}> 	
 					          		<Form.Control placeholder="e.g. A +" />
 					          	</Col>
@@ -194,10 +268,10 @@ export default class AddRules extends Component {
 							  </Row>
 		    	          </Form.Group>
 	    	              
-	    	              <Form.Group value={this.state.postCondition}  onChange={this.setPostCondition}
-	    	              >
-		    	              <Form.Label>Postcondition: </Form.Label>
-		    	              <Row>
+	    	              <Form.Group value={this.state.postCondition}  onChange={this.setPostCondition}>
+		    	              <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"details")} onMouseLeave={() =>this.toggleHoverState(false,"details")}>Postcondition: </Form.Label>
+		    	              {this.state.isHoveringDetails && <div>{this.state.rule}Hovering right meow! 🐱</div>}
+				    	      <Row>
 					          	<Col sm={9}> 
 					          		<Form.Control placeholder="e.g. IF AND ONLY IF +" />
 					          	</Col>
@@ -214,7 +288,7 @@ export default class AddRules extends Component {
                    		<Button variant="success" onClick={this.saveRules} > Save </Button>
                 	</Col>
                 	<Col>
-                		<Button variant="success" onClick={()=> this.props.onSetChangeRules(false)} > Cancel </Button>
+                		<Button variant="success" onClick={()=> this.props.onSetAddRules(false)} > Cancel </Button>
                 	</Col>
                  </Row>
                  	  
@@ -249,7 +323,6 @@ export default class AddRules extends Component {
       				      </Modal.Footer>
       				</Modal>
       		      }
-                 
                </div>
             </Draggable>
     	    );

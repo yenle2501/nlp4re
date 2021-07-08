@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,7 +22,8 @@ import com.nlp4re.domain.Template;
 import com.nlp4re.service.RequirementService;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/description")
+@CrossOrigin(origins = "http://localhost:3000")
 public class RequirementController {
 
 	@Autowired
@@ -67,5 +69,18 @@ public class RequirementController {
 			service.saveRules(templateRule);
 			return new ResponseEntity<>( HttpStatus.CREATED);
 		}
+	}
+	
+	/**
+	 * get rules of the template
+	 * 
+	 * @param templateRule  contains rules for the template
+	 * @return ResponseEntity<Map<String, List<?>>>
+	 */
+	@RequestMapping(path = "/getRules", method = RequestMethod.GET)
+	public ResponseEntity<Map<String, List<?>>> getRules() throws FileNotFoundException, IOException {
+		Map<String, List<?>> response = service.getRules();
+		return new ResponseEntity<>(response, HttpStatus.OK);
+		
 	}
 }
