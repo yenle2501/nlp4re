@@ -110,6 +110,8 @@ export default class AddRules extends Component {
 			 case "systemName":
 				 this.setState({ isHoveringSystemName: value  });
 				 break;
+			 default:
+				 break;
 		 }
           this.loadRules(stateName);
      }
@@ -126,23 +128,20 @@ export default class AddRules extends Component {
         				listRules.forEach(function(obj) {
         					if(key ==="modal"){
         						tmp = [tmp, <div>
-											<label > {obj.key_name}  </label>											
+        										<label > {obj.key_name}  </label>											
 											</div>
-								];
+								      ];
         					}
         					else {
 	        					tmp = [tmp, <div>
-	        									<label > {obj.regex}  </label>
-	        									
+	        									<label > {obj.regex}  </label>	
 	        								</div>
-	        						];
+	        						   ];
         					}
         				});
         				return;
         			}
         		 });
-        		 console.log("aa ")
-        		 console.log(tmp)
         		 this.setState({rule: tmp });
         	 }
         	 else {
@@ -165,7 +164,7 @@ export default class AddRules extends Component {
         }
        	
     	// not required = 0, required= 1
-    	const preCondition     = {key_name: "precondition", regex: this.state.preCondition, required : this.state.cBPreCondition===true ? 0 : 1}
+    	const preCondition     = {key_name:"precondition", regex: this.state.preCondition, required : this.state.cBPreCondition===true ? 0 : 1}
     	const systemDeterminer = {key_name:"systemName" , regex: this.state.systemDeterminer, required : this.state.cBSystemDeterminer===true ? 0 : 1}
     	const modalVerb        = {key_name : this.state.modalVerb, required : this.state.cBModalVerb===true ? 0 : 1}
     	const postCondition    = {key_name:"postCondition" , regex: this.state.postCondition, required : this.state.cBPostCondition===true ? 0 : 1}
@@ -202,10 +201,9 @@ export default class AddRules extends Component {
     	            <div className="content">
 			    	  <Form>
 			    	    <Form.Group  value={this.state.preCondition}  onChange={this.setPreCondition}>
-			    	        	<Tooltip       title={this.state.rule}>
-			    	        <Form.Label  onMouseEnter={() =>this.toggleHoverState(true, "conditions")} onMouseLeave={() =>this.toggleHoverState(false, "conditions")}>Precondition:</Form.Label>
-			    	        </Tooltip>
-			    	        	
+					    	 <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }}	overlay={ <Tooltip>	{this.state.rule} </Tooltip>}>
+					    	    <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"conditions")} onMouseLeave={() =>this.toggleHoverState(false,"conditions")}>Precondition:</Form.Label>
+			    	        </OverlayTrigger>
 			    	        <Row>
 				    	        <Col sm={9}> 
 			    	        		<Form.Control placeholder="e.g. ^WHILE + ," />
@@ -217,8 +215,9 @@ export default class AddRules extends Component {
 			    	     </Form.Group>
 			    	   
 			    	     <Form.Group value={this.state.systemDeterminer}  onChange={this.setSystemDeterminer}>
-			    	     	<Form.Label onMouseEnter={() =>this.toggleHoverState(true,"systemName")} onMouseLeave={() =>this.toggleHoverState(false,"systemName")}>System Determiner: </Form.Label>
-			    	     	{this.state.isHoveringSystemName && this.state.rule}
+			    	     	<OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }}	overlay={ <Tooltip>	{this.state.rule} </Tooltip>}>
+			    	     		<Form.Label onMouseEnter={() =>this.toggleHoverState(true,"systemName")} onMouseLeave={() =>this.toggleHoverState(false,"systemName")}>System Determiner: </Form.Label>
+			    	     	</OverlayTrigger>
 			    	     	<Row>
 					          <Col sm={9}> 
 			    	              <Form.Control placeholder="e.g. THE +" />
@@ -230,8 +229,9 @@ export default class AddRules extends Component {
 			    	      </Form.Group>
 			    	      
 			    	      <Form.Group value={this.state.modalVerb}  onChange={this.setModalVerb}>
-		    	              <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"modal")} onMouseLeave={() =>this.toggleHoverState(false,"modal")}>Modalverb: </Form.Label>
-		    	              {this.state.isHoveringModalVerb && <div>{this.state.rule}Hovering right meow! 🐱</div>}
+			    	      	  <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }}	overlay={ <Tooltip>	{this.state.rule} </Tooltip>}>
+			    	      	  		<Form.Label onMouseEnter={() =>this.toggleHoverState(true,"modal")} onMouseLeave={() =>this.toggleHoverState(false,"modal")}>Modalverb: </Form.Label>
+			    	      	  </OverlayTrigger>
 				    	      <Row>
 					          	<Col sm={9}> 
 					          		<Form.Control placeholder="e.g. MUST" />
@@ -243,8 +243,9 @@ export default class AddRules extends Component {
 					      </Form.Group>
 	    	              
 	    	              <Form.Group value={this.state.processWord}  onChange={this.setProcessWord}>
-		    	              <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"anchor")} onMouseLeave={() =>this.toggleHoverState(false,"anchor")}>Processword: </Form.Label>
-		    	              {this.state.isHoveringActivities && <div>{this.state.rule}Hovering right meow! 🐱</div>}
+	    	              	  <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }}	overlay={ <Tooltip>	{this.state.rule} </Tooltip>}>
+	    	              	  		<Form.Label onMouseEnter={() =>this.toggleHoverState(true,"anchor")} onMouseLeave={() =>this.toggleHoverState(false,"anchor")}>Processword: </Form.Label>
+	    	              	  </OverlayTrigger>
 				    	      <Row>
 					          	<Col sm={9}> 
 		    	              		<Form.Control placeholder="e.g. PROVIDE [\w\s] THE ABILITY TO [\w]" />  
@@ -256,8 +257,9 @@ export default class AddRules extends Component {
 		    	          </Form.Group>
 	    	              
 	    	              <Form.Group value={this.state.objectName}  onChange={this.setObjectName}>
-		    	              <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"objects")} onMouseLeave={() =>this.toggleHoverState(false,"objects")}>Object: </Form.Label>
-		    	              {this.state.isHoveringObjects && <div>{this.state.rule}Hovering right meow! 🐱</div>}
+	    	              	  <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }}	overlay={ <Tooltip>	{this.state.rule} </Tooltip>}>
+	    	              	  		<Form.Label onMouseEnter={() =>this.toggleHoverState(true,"objects")} onMouseLeave={() =>this.toggleHoverState(false,"objects")}>Object: </Form.Label>
+	    	              	  </OverlayTrigger>
 				    	      <Row>
 					          	<Col sm={9}> 	
 					          		<Form.Control placeholder="e.g. A +" />
@@ -269,8 +271,9 @@ export default class AddRules extends Component {
 		    	          </Form.Group>
 	    	              
 	    	              <Form.Group value={this.state.postCondition}  onChange={this.setPostCondition}>
-		    	              <Form.Label onMouseEnter={() =>this.toggleHoverState(true,"details")} onMouseLeave={() =>this.toggleHoverState(false,"details")}>Postcondition: </Form.Label>
-		    	              {this.state.isHoveringDetails && <div>{this.state.rule}Hovering right meow! 🐱</div>}
+	    	                  <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }}	overlay={ <Tooltip>	{this.state.rule} </Tooltip>}>
+	    	                  		<Form.Label onMouseEnter={() =>this.toggleHoverState(true,"details")} onMouseLeave={() =>this.toggleHoverState(false,"details")}>Postcondition: </Form.Label>
+	    	                 </OverlayTrigger>
 				    	      <Row>
 					          	<Col sm={9}> 
 					          		<Form.Control placeholder="e.g. IF AND ONLY IF +" />
