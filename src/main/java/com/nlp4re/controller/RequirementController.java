@@ -1,14 +1,12 @@
 package com.nlp4re.controller;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
 import com.nlp4re.domain.Requirement;
 import com.nlp4re.domain.Template;
 import com.nlp4re.service.RequirementService;
@@ -59,8 +58,7 @@ public class RequirementController {
 	 * @return ResponseEntity<httpStatus>
 	 */
 	@RequestMapping(path = "/addRules", method = RequestMethod.POST)
-	public ResponseEntity<HttpStatus> addRules(@Valid @RequestBody Template templateRule)
-			throws FileNotFoundException, IOException {
+	public ResponseEntity<HttpStatus> addRules(@Valid @RequestBody Template templateRule){
 
 		if (templateRule == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -78,9 +76,8 @@ public class RequirementController {
 	 * @return ResponseEntity<Map<String, List<?>>>
 	 */
 	@RequestMapping(path = "/getRules", method = RequestMethod.GET)
-	public ResponseEntity<Map<String, List<?>>> getRules() throws FileNotFoundException, IOException {
+	public ResponseEntity<Map<String, List<?>>> getRules(){
 		Map<String, List<?>> response = service.getRules();
 		return new ResponseEntity<>(response, HttpStatus.OK);
-		
 	}
 }

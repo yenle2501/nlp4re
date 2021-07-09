@@ -2,7 +2,6 @@ package com.nlp4re.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +96,6 @@ public class RequirementService {
 	 *          2.Map contains all compliant and non-compliant sentences with the order as the keys in 1.Map
 	 *          (value 1: for non-compliant, 0: compliant)
 	 *          3.Map contains all logs for the non-compliant sentences with the order as the keys in 1.Map
-	 * @throws IOException
 	 */
 	public List<Map<Integer, String>> checkRequirements(String desc) {
 		if (desc == null || desc.isBlank()) {
@@ -174,5 +172,4 @@ public class RequirementService {
 		
 		return result;
 	}
-	
 }

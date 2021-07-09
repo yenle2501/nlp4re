@@ -127,16 +127,10 @@ export default class AddRules extends Component {
         				var listRules = response.data[key];
         				listRules.forEach(function(obj) {
         					if(key ==="modal"){
-        						tmp = [tmp, <div>
-        										<label > {obj.key_name}  </label>											
-											</div>
-								      ];
+        						tmp = [tmp, <div> <label > {obj.key_name}  </label>	</div>];
         					}
         					else {
-	        					tmp = [tmp, <div>
-	        									<label > {obj.regex}  </label>	
-	        								</div>
-	        						   ];
+	        					tmp = [tmp, <div> <label > {obj.regex}  </label> </div> ];
         					}
         				});
         				return;
@@ -248,7 +242,7 @@ export default class AddRules extends Component {
 	    	              	  </OverlayTrigger>
 				    	      <Row>
 					          	<Col sm={9}> 
-		    	              		<Form.Control placeholder="e.g. PROVIDE [\w\s] THE ABILITY TO [\w]" />  
+		    	              		<Form.Control placeholder="e.g. BE ABLE TO " />  
 		    	             	 </Col>
 							     <Col sm={1}>
 							         <Form.Check type="checkbox" label="optinal" onChange={(event)=>{this.setState({cBProcessWord : event.target.checked})}}/>

@@ -2,7 +2,6 @@ package com.nlp4re.service.logic;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -46,8 +45,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	/**
 	 * Constructor
 	 */
-	public RequirementLogicImpl_Eng(SentenceAnalyzer sentenceAnalyzer, PatternMatcher matcher,
-			RegexesProvider regexesProvider) {
+	public RequirementLogicImpl_Eng(SentenceAnalyzer sentenceAnalyzer, PatternMatcher matcher, RegexesProvider regexesProvider) {
 		this.sentenceAnalyzer = sentenceAnalyzer;
 		this.matcher = matcher;
 		this.regexesProvider = regexesProvider;
@@ -103,9 +101,7 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	public boolean parseModalVerb(int modal_index, List<String> list_tokens) {
 		checkNotNull(list_tokens, "list_tokens is null");
 		
-		List<String> modalverbs = regexesProvider.getModalRegexes().stream().map(m -> m.getKey_name().toUpperCase())
-				.collect(Collectors.toList());
-		
+		List<String> modalverbs = regexesProvider.getModalRegexes().stream().map(m -> m.getKey_name().toUpperCase()) .collect(Collectors.toList());
 		if (modal_index == -1) {
 			error_logs = "The sentence does not contain any modal verbs. The modal verbs should be one of " + modalverbs.toString().toUpperCase() ;
 			return false;
@@ -123,11 +119,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 	/**
 	 * This method checks the system name of requirement
-	 * 
 	 * @return true : if the sentence has a valid name of system 
 	 *         false: otherwise
 	 */
-
 	public boolean parseSystemName(List<String> list_tokens, int comma_index, int modal_index) {
 		checkNotNull(list_tokens, "list_tokens is  null");
 
@@ -144,12 +138,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 			}
 
 			String systemName = StringUtils.collectionToDelimitedString(possile_systemName_tokens, " ");
-			logger.info("actual system name {}", systemName);
-			
 			Span[] spans = matcher.matches(regexs, systemName);
 			// No patterns are matched
 			if (spans == null || spans.length != 1) {
-				logger.debug("the requirement has no or more than one system name.");
 				error_logs = "System name should be one of the following forms:\r\n" + str_regexes;
 				return false;
 			}
@@ -169,7 +160,6 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 						error_logs += "No Verb after system name.\n";
 						return false;
 					}
-
 				} // another type of regexes
 				else {
 					return true;
@@ -183,18 +173,15 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 	/**
 	 * This method has the ability to check the precondition of the sentence
-	 * 
 	 * @return true :if the sentence has no precondition or a valid condition 
 	 *         false: otherwise
 	 */
-
 	public boolean parsePreCondition(List<String> list_tokens, int comma_index, int modal_index) {
 		checkNotNull(list_tokens);
 
 		List<String> token_conditions = sentenceAnalyzer.getConditions(list_tokens, modal_index, comma_index);
 		// it is not required that the sentence has a condition
 		if (token_conditions == null || token_conditions.isEmpty()) {
-			logger.info("sentence does not contain precondition");
 			return true;
 		}
 
@@ -222,7 +209,6 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 				return true;
 			}
 		}
-		
 		error_logs += "The condtions should be one of following forms:" +str_regexes;
 		return false;
 
@@ -235,7 +221,6 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true: if the sentence has a valid anchor 
 	 * 			false: otherwise
 	 */
-
 	public boolean parseAnchor(List<String> list_tokens, List<String> list_tags, int comma_index, int modal_index) {
 		checkNotNull(list_tokens);
 		checkNotNull(list_tags);
@@ -345,7 +330,6 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true: if the sentence has a valid object 
 	 *         false: otherwise
 	 */
-
 	public boolean parseObject(String[] tokens, String[] tags, int object_start_index) {
 		checkNotNull(tokens);
 		checkNotNull(tags);
@@ -391,7 +375,6 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 	 * @return true: if the sentence has valid details 
 	 *         false: otherwise
 	 */
-
 	public boolean parseDetails(List<String> tokens, int object_end_index) {
 		checkNotNull(tokens);
 
@@ -418,9 +401,9 @@ public class RequirementLogicImpl_Eng implements RequirementLogic {
 
 	/**
 	 * parse the complete sentence
-	 * 
 	 * @param sentence: sentence to check
-	 * @return true: if the sentence matches with the template false: otherwise
+	 * @return true: if the sentence matches with the template 
+	 * 		   false: otherwise
 	 */
 	private boolean parseTemplateConformance(String sentence) {
 		checkNotNull(sentence);

@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.nlp4re.domain.Activities;
 import com.nlp4re.domain.Requirement;
 import com.nlp4re.domain.Template;
 import com.nlp4re.service.RequirementService;
@@ -64,18 +65,7 @@ public class RequirementControllerTest {
 	@Test
 	void testCheckRequirement() throws Exception {
 		// given
-		List<Map<Integer, String>> response = new LinkedList<Map<Integer, String>>();
-		Map<Integer, String> map1 = new HashMap<Integer, String>();
-		map1.put(1, "key1");
-		Map<Integer, String> map2 = new HashMap<Integer, String>();
-		map2.put(1, "key2");
-		Map<Integer, String> map3 = new HashMap<Integer, String>();
-		map3.put(1, "key3");
-		response.add(map1);
-		response.add(map2);
-		response.add(map3);
-
-		when(requirementService.checkRequirements(anyString())).thenReturn(response);
+		mockRequirementService();
 		when(requirement.getDescription()).thenReturn("some string");
 		// when
 		ResponseEntity<List<Map<Integer, String>>> result = requirementController.checkRequirement(requirement);
@@ -105,6 +95,39 @@ public class RequirementControllerTest {
 
 		verify(requirementService, times(1)).saveRules(template);
 		assertEquals(result.getStatusCode(), HttpStatus.CREATED);
+	}
+	
+	@Test
+	void testGetRules() throws Exception {
+		// given 
+		mockRequirementService();
+		//when
+		ResponseEntity<Map<String, List<?>>> result = requirementController.getRules();
+		// then
+
+		verify(requirementService, times(1)).getRules();
+		assertEquals(result.getBody().size(), 1);
+		assertEquals(((Activities) result.getBody().get("key1").get(0)).getKey_name(), "a");
+		assertEquals(((Activities) result.getBody().get("key1").get(0)).getRegex(), "b");
+	}
+	
+	private void mockRequirementService() {
+		List<Map<Integer, String>> response = new LinkedList<Map<Integer, String>>();
+		Map<Integer, String> map1 = new HashMap<Integer, String>();
+		map1.put(1, "key1");
+		Map<Integer, String> map2 = new HashMap<Integer, String>();
+		map2.put(1, "key2");
+		Map<Integer, String> map3 = new HashMap<Integer, String>();
+		map3.put(1, "key3");
+		response.add(map1);
+		response.add(map2);
+		response.add(map3);
+
+		when(requirementService.checkRequirements(anyString())).thenReturn(response);
+		
+		Map<String,List<?>> result = new HashMap<String,List<?>>();
+		result.put("key1", List.of(new Activities("a","b", 1)));
+		when(requirementService.getRules()).thenReturn(result);
 	}
 
 }

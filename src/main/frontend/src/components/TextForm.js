@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import './TextForm.css';
-import PopUp from './PopUp';
+import CheckRequirements from './CheckRequirements';
 import AddRules from './AddRules';
 import {Accordion,Button, Card, Modal, Form} from 'react-bootstrap';
 
@@ -66,7 +66,11 @@ export default class TextForm  extends Component {
 			 alert: value
 		    });
     }
-         
+
+    addRules=() =>{
+    	this.setAddRules(true)
+    }
+
     checkText=() =>{
     	// check input
     	if(this.state.description === null || this.state.description === "") {
@@ -117,8 +121,6 @@ export default class TextForm  extends Component {
         	    				];
         	    		}
             		});
-        	    	
-        	    	
         	    	this.setResult(tmp);
                 	this.setPopUp(true);
                 } else {
@@ -127,11 +129,6 @@ export default class TextForm  extends Component {
                 }
             });
 	    }
-    
- 
-    addRules=() =>{
-    	this.setAddRules(true)
-    }
     
 	    render() {
 	    	return (
@@ -163,7 +160,7 @@ export default class TextForm  extends Component {
 						    </Modal>
 				      }
 				     </div>
-		            {this.state.popUp && <PopUp onSetPopUp={this.setPopUp} onSetContent={this.state.result} />}
+		            {this.state.popUp && <CheckRequirements onSetPopUp={this.setPopUp} onSetContent={this.state.result} />}
 		            {this.state.addRules && <AddRules onSetAddRules={this.setAddRules}  />}
 	           </div>
 	    	);

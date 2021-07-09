@@ -6,15 +6,15 @@ VALUES
 ('after', '^after+ ',0),
 ('before', '^before+ ',0),
 ('assoonas', '^as soon as+ ',0),
-('incase', '^in case [:alpha:] is included+',0);
+('incase', '^in case [\\w\\s]+ is included',0);
 
 
 INSERT INTO systemname (KEY_NAME, REGEX, REQUIRED) 
 VALUES
-('all', '^all systems of the [\\w\\s]+',1),
-('some', '^some systems of the [\\w\\s]+',1),
-('those', '^those systems of the [\\w\\s]+',1),
-('the', '^the [\\w\\s]+',1);
+('all', '^all systems of the ',1),
+('some', '^some systems of the ',1),
+('those', '^those systems of the ',1),
+('the', '^the ',1);
 
 INSERT INTO modalverb (KEY_NAME, REQUIRED) 
 VALUES 
@@ -26,8 +26,8 @@ VALUES
 
 INSERT INTO activities (KEY_NAME, REGEX, REQUIRED) 
 VALUES
-('provide', 'provide [\\w\\s]+ with the ability to [\\w\\s]',1),
-('be_able_to', 'be able to {1}',1);
+('provide', 'provide [:alpha:] with the ability to [:alpha:]',1),
+('be_able_to', 'be able to +',1);
 
 INSERT INTO objects (KEY_NAME, REGEX, REQUIRED) 
 VALUES

@@ -68,14 +68,7 @@ public class RequirementServiceTest {
 	@Test
 	public void test_checkRequirements() {
 		// given
-		when(anchorRepository.findAll()).thenReturn(List.of(new Activities("be_able_to", "be able to +", 1)));
-		when(conditionsRepository.findAll()).thenReturn(List.of(new PreCondition("if", "^if+", 1)));
-		when(detailsRepository.findAll()).thenReturn(List.of(new Details("the", "some regexes", 1)));
-		when(modalRepository.findAll()).thenReturn(List.of(new ModalVerb("should", 1)));
-		when(objectRepository.findAll())
-				.thenReturn(List.of(new Objects("single_obj", "^a |^an |^the |^one |^each +", 1)));
-		when(systemNameRepository.findAll()).thenReturn(List.of(new SystemName("the", "^the [\\w\\s]+", 1)));
-
+		mockRegexesProvider();
 		// when
 		requirementService.loadRegexes();
 		List<Map<Integer, String>> result = requirementService
@@ -184,4 +177,25 @@ public class RequirementServiceTest {
 		verify(systemNameRepository, times(0)).save(any(SystemName.class));
 	}
 	
+	@Test
+	public void test_getRules(){
+		mockRegexesProvider();
+		Map<String, List<?>> result = requirementService.getRules();
+		
+		assertEquals(result.size(),6);
+		assertEquals(((Activities) result.get("anchor").get(0)).getKey_name(),"be_able_to" );
+		assertEquals(((PreCondition) result.get("conditions").get(0)).getKey_name(),"if" );
+		assertEquals(((Details) result.get("details").get(0)).getKey_name(),"the" );
+	}
+	
+	private void mockRegexesProvider() {
+
+		when(anchorRepository.findAll()).thenReturn(List.of(new Activities("be_able_to", "be able to +", 1)));
+		when(conditionsRepository.findAll()).thenReturn(List.of(new PreCondition("if", "^if+", 1)));
+		when(detailsRepository.findAll()).thenReturn(List.of(new Details("the", "some regexes", 1)));
+		when(modalRepository.findAll()).thenReturn(List.of(new ModalVerb("should", 1)));
+		when(objectRepository.findAll()).thenReturn(List.of(new Objects("single_obj", "^a |^an |^the |^one |^each +", 1)));
+		when(systemNameRepository.findAll()).thenReturn(List.of(new SystemName("the", "^the [\\w\\s]+", 1)));
+
+	}
 }

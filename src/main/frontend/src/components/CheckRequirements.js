@@ -1,11 +1,11 @@
 import React,{Component} from 'react';
-import './PopUp.css';
+import './CheckRequirements.css';
 import {Button} from 'react-bootstrap';
 import Draggable from 'react-draggable';
 import { MDBContainer} from "mdbreact";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default class PopUp extends Component {
+export default class CheckRequirements extends Component {
  
     constructor(props){
 	   super(props);
@@ -14,8 +14,6 @@ export default class PopUp extends Component {
 	          content    : this.props.onSetContent
 	        }
 	}
-
-    
     render() {
     	return (
     		<Draggable  disabled={false} active="true">
