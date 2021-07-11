@@ -34,10 +34,10 @@ DATABASE_HOST: localhost
 ### RESTful-Requests
 Method	| Path	| Description	
 ------------- | ------------------------- | ------------- | 
-GET	| /descriptions	| Get startpage of the application 
-GET | /descriptions/getRules	| get all rules of the requirements template
-PUT	| /descriptions/check	| Check the requirements description
-POST| /descriptions/addRules	| Add new rules for the requirements template	
+GET	| /description	| Get startpage of the application 
+GET | /description/getRules	| get all rules of the requirements template
+PUT	| /description/check	| Check the requirements description
+POST| /description/addRules	| Add new rules for the requirements template	
 
 ## Infrastructure automation
 Following is the simple Continuous Delivery workflow for this project.
