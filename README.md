@@ -13,19 +13,18 @@ A small web application for evaluating and supporting requirements descriptions 
 * JUnit5
 
 ## Environment Setup
-Follow the instructions below to setup your environment so that you can run `nlp4re` the application.
+Follow the instructions below to setup your environment so that you can run `nlp4re` the application on your local machine.
 
 * Before you build up the project, make sure that your MySQL was started and database `nlp4re` has been created with username and password `root`
 * Download the source code from GitHub.
-git clone https://github.com/yenle2501/nlp4re.git
-
+`git clone https://github.com/yenle2501/nlp4re.git`
+* Install Node.js and npm ( download link https://nodejs.org/en/download/)
 * Change the directory and build the project.
 `cd nlp4re`
-`mvn -B clean package -DskipTests=false  --file pom.xml`
+`mvn -B clean package -DskipTests=true  --file pom.xml`
 
 Define environment variable
 DATABASE_HOST: localhost
-
 ## Architecture
 ![image](https://user-images.githubusercontent.com/30981043/124509005-5b06ae80-ddd1-11eb-94ff-8ff145fc6bd6.png)
 
@@ -36,6 +35,7 @@ DATABASE_HOST: localhost
 Method	| Path	| Description	
 ------------- | ------------------------- | ------------- | 
 GET	| /descriptions	| Get startpage of the application 
+GET | /descriptions/getRules	| get all rules of the requirements template
 PUT	| /descriptions/check	| Check the requirements description
 POST| /descriptions/addRules	| Add new rules for the requirements template	
 
