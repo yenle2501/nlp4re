@@ -19,18 +19,18 @@ Follow the instructions below to setup your environment so that you can run `nlp
 * Download the source code from GitHub.
 `git clone https://github.com/yenle2501/nlp4re.git`
 * Install Node.js and npm ( download link https://nodejs.org/en/download/)
-* Change the directory and build the project.
-`cd nlp4re`
-`mvn -B clean package -DskipTests=true  --file pom.xml`
+* Define environment variable `DATABASE_HOST: localhost`
+* Change the directory `cd nlp4re` and build the project.
+`mvn -B clean package -DskipTests=true  --file pom.xml` 
+* To run web application, you should switch to path `cd /src/main/frontend` and run `npm start`
+* start the server, open the `NLP4REApplication.java` and run as a SpringBoot application
 
-Define environment variable
-DATABASE_HOST: localhost
 ## Architecture
 ![image](https://user-images.githubusercontent.com/30981043/124509005-5b06ae80-ddd1-11eb-94ff-8ff145fc6bd6.png)
 
 ### Important endpoint
 * http://localhost:8080- for server
-
+*  http://localhost:3000- for web application
 ### RESTful-Requests
 Method	| Path	| Description	
 ------------- | ------------------------- | ------------- | 
@@ -42,4 +42,5 @@ POST| /description/addRules	| Add new rules for the requirements template
 ## Infrastructure automation
 Following is the simple Continuous Delivery workflow for this project.
 The `GitHub Actions` builds tagged images for each successful git push on `master` branch. There are always the `latest` images for the application on `Docker Hub` and the older images will be tagged with git commit hash. Additionaly each git push will be analyzed by `Codecov` to caculate the test coverage of the project.
-![image](https://user-images.githubusercontent.com/30981043/124441508-084ed780-dd7c-11eb-8898-d806bd96442b.png)
+![124441508-084ed780-dd7c-11eb-8898-d806bd96442b](https://user-images.githubusercontent.com/30981043/125703056-1756eea5-4a98-4972-8df0-4bc15351b2ef.png)
+
